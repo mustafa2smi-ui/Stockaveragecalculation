@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional NSE Stock Data Analyzer</title>
+    <title>Smart Money Swing Analyzer & Target Calculator</title>
     <style>
         :root {
             --bg-dark: #0f172a;
@@ -33,7 +33,7 @@
         
         textarea { 
             width: 100%; 
-            height: 160px; 
+            height: 140px; 
             padding: 12px; 
             background: var(--bg-dark); 
             border: 1px solid var(--border); 
@@ -50,19 +50,37 @@
         .btn { width: 100%; background: var(--accent); color: white; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; }
         .btn:hover { background: #4f46e5; }
 
-        .signal-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; display: inline-block; text-align: center; width: 90px; }
-        .sig-buy { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
-        .sig-watch { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
-        .sig-avoid { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
-        
-        .rank-stars { color: #facc15; font-weight: bold; letter-spacing: 1px; }
-
+        /* Output Dashboard Table */
         .table-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; overflow-x: auto; margin-top: 20px; }
         table { width: 100%; border-collapse: collapse; text-align: left; min-width: 1100px; }
         th { background: #1e293b; color: var(--text-muted); padding: 12px 14px; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid var(--border); font-weight: 700; }
         td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 13px; }
         tr:hover td { background: #243146; }
         
+        .signal-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; display: inline-block; text-align: center; width: 95px; }
+        .sig-buy { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
+        .sig-watch { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+        .sig-avoid { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+        .rank-stars { color: #facc15; font-weight: bold; }
+
+        /* Advanced Analysis Panel Section */
+        .analysis-panel { display: none; margin-top: 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+        .analysis-title { font-size: 16px; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 16px; color: #a5b4fc; display: flex; justify-content: space-between; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        @media(min-width: 768px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+
+        .checklist-box, .levels-box { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; padding: 16px; }
+        .check-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; font-size: 13px; }
+        .check-item.pass { color: var(--success); }
+        .check-item.fail { color: var(--text-muted); opacity: 0.8; }
+        .check-icon { font-weight: bold; }
+
+        .level-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #334155; font-size: 13px; }
+        .level-row:last-child { border: none; }
+        
+        .strategy-note { margin-top: 16px; background: rgba(245, 158, 11, 0.05); border-left: 4px solid var(--warning); padding: 12px; border-radius: 4px; font-size: 13px; color: #cbd5e1; }
+
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         .highlight-val { color: #fff; font-weight: 600; }
@@ -72,165 +90,214 @@
 
 <div class="wrapper">
     <header>
-        <h1>⚡ Smart Stock Analyzer (NSE Format)</h1>
-        <p>Direct NSE Copy-Paste Parser with 20D/30D/50D Averages & Star Ranking Engine</p>
+        <h1>⚡ Smart Money Swing Analyzer</h1>
+        <p>Advanced institutional volume & delivery tracker mapping strict 5-rule criteria</p>
     </header>
 
     <div class="nse-link-box">
-        🔗 <strong>NSE Portal Link:</strong> <a href="https://www.nseindia.com/report-detail/historical-corporate-data" target="_blank">Download Historical Stock Data</a>. Select 6 Months data, copy the table headers along with data rows, and paste below.
+        🔗 <strong>NSE Data Stream:</strong> Copy full raw table structure directly from NSE Historical Portal[span_0](start_span)[span_0](end_span) and drop below for real-time swing scanning.
     </div>
 
-    <!-- Data Input Panel -->
+    <!-- Input Box -->
     <div class="input-panel">
-        <label for="csvDataInput">📋 Paste Raw NSE Table Data (Header column inclusive):</label>
-        <textarea id="csvDataInput" placeholder="Symbol	Series	Date	Prev Close	Open Price	High Price	Low Price	Last Price	Close Price	VWAP	Total Traded Quantity	Turnover ₹	No. of Trades	Deliverable Qty	% Dly Qt to Traded Qty&#10;HFCLEQ01-Jul-2026212.85214.00216.61210.00212.30212.09213.461,53,47,1833,27,60,72,197.5572,77457,24,18337.30"></textarea>
-        <button class="btn" onclick="processNseData()">📊 Analyze Copied Data</button>
+        <label for="csvDataInput">📋 Paste Raw NSE Table Data Block:</label>
+        <textarea id="csvDataInput" placeholder="Paste data here..."></textarea>
+        <button class="btn" onclick="processNseSwingData()">📊 Scan Swing Trade Potential</button>
     </div>
 
-    <!-- Output Dashboard Table -->
+    <!-- Table Layout Grid Summary -->
     <div class="table-container">
         <table>
             <thead>
                 <tr>
                     <th>Symbol</th>
                     <th class="text-center">Latest Date</th>
-                    <th class="text-right">Latest Close</th>
-                    <th class="text-right">20D / 30D / 50D Avg Price</th>
-                    <th class="text-right">Avg Volume (20D)</th>
-                    <th class="text-right">Avg Delivery %</th>
-                    <th class="text-center">Smart Signal</th>
-                    <th class="text-center">Ranking Points</th>
+                    <th class="text-right">Price (High / Close)</th>
+                    <th class="text-right">20D High Breakout</th>
+                    <th class="text-right">20D Avg Vol</th>
+                    <th class="text-right">20D Avg Del Qty</th>
+                    <th class="text-right">20D Avg Del %</th>
+                    <th class="text-center">Signal</th>
+                    <th class="text-center">Points</th>
                 </tr>
             </thead>
             <tbody id="analysisResult">
                 <tr>
-                    <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                        Paste your copied NSE 6 months historical data block above and hit Analyze.
+                    <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                        Input raw dataset block above to initialize strict scoring.
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
+
+    <!-- DEEP ANALYSIS BLOCK SECTION -->
+    <div class="analysis-panel" id="deepAnalysisBlock">
+        <div class="analysis-title">
+            <span>🔍 Deep Technical Audit & Strategy Blueprint</span>
+            <span id="targetSymbolText" style="color: #fff;"></span>
+        </div>
+        
+        <div class="grid-2">
+            <!-- 5 Checklist Audit Rules -->
+            <div class="checklist-box">
+                <h3 style="font-size: 14px; margin-bottom: 12px; color: #fff;">📋 Strict 5-Rule Checklist Matrix</h3>
+                <div id="checklistContainer"></div>
+            </div>
+
+            <!-- Trade Level Trigger Maps -->
+            <div class="levels-box">
+                <h3 style="font-size: 14px; margin-bottom: 12px; color: #fff;">🎯 Smart Swing Trigger Levels (1% - 3% Setup)</h3>
+                <div id="levelsContainer"></div>
+            </div>
+        </div>
+
+        <div class="strategy-note" id="strategyExecutiveSummary"></div>
+    </div>
 </div>
 
 <script>
-function processNseData() {
+function processNseSwingData() {
     const rawData = document.getElementById('csvDataInput').value.trim();
-    
-    if(!rawData) {
-        alert("Kripya raw NSE data paste karein!");
-        return;
-    }
+    if(!rawData) { alert("Kripya raw data copy-paste karein!"); return; }
 
-    // Split lines by row breaks
     const lines = rawData.split(/\r?\n/);
     let stockSymbol = "UNKNOWN";
     let parsedRows = [];
 
-    // Powerful Smart Splitter regex to handle tabs, clean commas, and parse messy lines
     lines.forEach(line => {
-        if(line.toLowerCase().includes('symbol') || line.toLowerCase().includes('series') || line.trim() === "") {
-            return; // Skip headers or empty rows
-        }
-
-        // Clean internal commas from numeric strings first (e.g. 1,53,47,183 -> 15347183)
+        if(line.toLowerCase().includes('symbol') || line.toLowerCase().includes('series') || line.trim() === "") return;
         let cleanedLine = line.replace(/,(?=\d)/g, '');
-        
-        // Split by tabs or multiple spaces
         let tokens = cleanedLine.split(/[\t\s]+/);
         
-        if (tokens.length >= 10) {
-            // Find stock token and date token position dynamically
-            stockSymbol = tokens[0].replace(/EQ$/i, ''); // Clean EQ series suffix if attached
-            
-            // NSE data formats standard inputs:
-            // Let's grab indexes from rear to bypass messy variations in middle tokens
+        if (tokens.length >= 12) {
+            stockSymbol = tokens[0].replace(/EQ$/i, '');
             let totalTokens = tokens.length;
+            
+            // NSE Index alignments mapping dynamically
             let dlyPct = parseFloat(tokens[totalTokens - 1]);
             let delQty = parseFloat(tokens[totalTokens - 2]);
-            let volume = parseFloat(tokens[totalTokens - 5]); // Total Traded Qty
-            let closePrice = parseFloat(tokens[totalTokens - 7]); // Close Price
-            
-            // Find token containing date sequence
-            let dateVal = tokens[2] || "N/A";
+            let volume = parseFloat(tokens[totalTokens - 5]); 
+            let closePrice = parseFloat(tokens[totalTokens - 7]);
+            let lowPrice = parseFloat(tokens[totalTokens - 9]);
+            let highPrice = parseFloat(tokens[totalTokens - 10]);
 
             if(!isNaN(closePrice) && !isNaN(volume)) {
                 parsedRows.push({
-                    date: dateVal,
+                    date: tokens[2] || "N/A",
                     close: closePrice,
+                    high: highPrice,
+                    low: lowPrice,
                     volume: volume,
+                    delQty: delQty,
                     delPct: isNaN(dlyPct) ? 0 : dlyPct
                 });
             }
         }
     });
 
-    if(parsedRows.length === 0) {
-        alert("Data parse nahi ho saka! Kripya check karein ki format copy sahi se hua hai ya nahi.");
-        return;
-    }
+    if(parsedRows.length === 0) { alert("Parsing engine failed to read format."); return; }
 
-    // Mathematical Moving Averages Helper
-    function calculateRollingAverage(data, limit, dataKey) {
-        let sum = 0;
-        let count = Math.min(data.length, limit);
-        for(let i = 0; i < count; i++) {
-            sum += data[i][dataKey];
-        }
+    // Helpers
+    function getAvg(data, limit, key) {
+        let sum = 0, count = Math.min(data.length, limit);
+        for(let i = 0; i < count; i++) sum += data[i][key];
         return sum / count;
     }
 
     const latest = parsedRows[0];
-    const avg20Close = calculateRollingAverage(parsedRows, 20, 'close');
-    const avg30Close = calculateRollingAverage(parsedRows, 30, 'close');
-    const avg50Close = calculateRollingAverage(parsedRows, 50, 'close');
-    const avg20Vol = calculateRollingAverage(parsedRows, 20, 'volume');
-    const avg20Del = calculateRollingAverage(parsedRows, 20, 'delPct');
+    const avg20Close = getAvg(parsedRows, 20, 'close');
+    const avg20Vol = getAvg(parsedRows, 20, 'volume');
+    const avg20DelQty = getAvg(parsedRows, 20, 'delQty');
+    const avg20DelPct = getAvg(parsedRows, 20, 'delPct');
 
-    // --- SMART SIGNAL ENGINE CALCULATION ---
-    let points = 0;
-    if(latest.close > avg20Close) points++;
-    if(latest.close > avg50Close) points++;
-    if(latest.volume > avg20Vol) points++;
-    if(latest.delPct > avg20Del) points++;
-    if(latest.delPct > 45) points++; // Premium accumulation structural trigger
-
-    if(points === 0) points = 1;
-
-    let displaySignal = "";
-    let cssBadge = "";
-    
-    if(points >= 4) {
-        displaySignal = "🟢 Strong Buy";
-        cssBadge = "sig-buy";
-    } else if(points >= 2) {
-        displaySignal = "🟡 Watch";
-        cssBadge = "sig-watch";
-    } else {
-        displaySignal = "🔴 Avoid";
-        cssBadge = "sig-avoid";
+    // 20 Day High computation from rows [1 to 21] (excluding today to check true breakout)
+    let max20High = 0;
+    let scanLimit = Math.min(parsedRows.length, 21);
+    for(let i = 1; i < scanLimit; i++) {
+        if(parsedRows[i].high > max20High) max20High = parsedRows[i].high;
     }
 
-    let starOutput = "⭐".repeat(points) + ` (${points}/5)`;
+    // --- ALGORITHMIC RULE AUDIT CHECKLIST ENGINE ---
+    let rulesPassed = 0;
+    let checklistHtml = "";
 
-    // Inject exact parsed layout mapping metrics directly into frontend view
-    const resultContainer = document.getElementById('analysisResult');
-    resultContainer.innerHTML = `
+    // Rule 1: Price Action near/above 20D High
+    let rule1 = (latest.close >= max20High || latest.close >= (max20High * 0.98));
+    if(rule1) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 1 (Price): Close Price (₹${latest.close}) is matching/breaking 20D High (₹${max20High.toFixed(2)}).</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 1 (Price): Below 20D High trigger setup.</div>`; }
+
+    // Rule 2: Volume Spikes > 1.5x 20DMA
+    let rule2 = (latest.volume >= (avg20Vol * 1.5));
+    if(rule2) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 2 (Volume): Heavy volume expansion! Today's Vol is ${(latest.volume/avg20Vol).toFixed(1)}x over 20D Avg.</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 2 (Volume): Volume accumulation below institutional 1.5x target.</div>`; }
+
+    // Rule 3: Delivery Qty > 20D Avg
+    let rule3 = (latest.delQty > avg20DelQty);
+    if(rule3) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 3 (Del Qty): Smart Money detected. Delivery Qty exceeds 20D Average.</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 3 (Del Qty): Normal transactional absorption levels.</div>`; }
+
+    // Rule 4: Delivery Pct > 45-50% range or building momentum
+    let rule4 = (latest.delPct >= 45 || latest.delPct > avg20DelPct);
+    if(rule4) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 4 (Del %): Solid Delivery lock-in at ${latest.delPct}% (Avg: ${avg20DelPct.toFixed(1)}%).</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 4 (Del %): Weak collection ratio (${latest.delPct}%).</div>`; }
+
+    // Rule 5: Closing Strength (Upper 25% of intraday range)
+    let dayRange = latest.high - latest.low;
+    let closeThreshold = latest.high - (dayRange * 0.25);
+    let rule5 = (latest.close >= closeThreshold);
+    if(rule5 && dayRange > 0) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 5 (Closing): Bulls dominant! Closed near Day High in upper 25% zone.</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 5 (Closing): Closed weak or lower intraday quadrant.</div>`; }
+
+    // Scoring Engine Signals Mapping
+    let finalSignal = "🔴 Avoid"; let badgeStyle = "sig-avoid";
+    if(rulesPassed >= 4) { finalSignal = "🟢 Strong Buy"; badgeStyle = "sig-buy"; }
+    else if(rulesPassed >= 2) { finalSignal = "🟡 Watch"; badgeStyle = "sig-watch"; }
+
+    // Target Mapping levels equations 
+    let t1 = latest.close * 1.01; let t3 = latest.close * 1.03;
+    let sl1 = latest.close * 0.99; let sl15 = latest.close * 0.985;
+
+    // Inject Summary Table Row
+    document.getElementById('analysisResult').innerHTML = `
         <tr>
             <td class="highlight-val">${stockSymbol.toUpperCase()}</td>
             <td class="text-center">${latest.date}</td>
-            <td class="text-right highlight-val">₹${latest.close.toFixed(2)}</td>
-            <td class="text-right">
-                <span style="color:#a5b4fc; font-weight:600;">${avg20Close.toFixed(2)}</span> / 
-                <span style="color:#cbd5e1;">${avg30Close.toFixed(2)}</span> / 
-                <span style="color:#94a3b8;">${avg50Close.toFixed(2)}</span>
-            </td>
-            <td class="text-right">${(avg20Vol/100000).toFixed(1)} Lakh</td>
-            <td class="text-right">${avg20Del.toFixed(1)}%</td>
-            <td class="text-center"><span class="signal-badge ${cssBadge}">${displaySignal}</span></td>
-            <td class="text-center rank-stars">${starOutput}</td>
+            <td class="text-right font-semibold">H: ${latest.high} / C: ${latest.close}</td>
+            <td class="text-right highlight-val">₹${max20High.toFixed(2)}</td>
+            <td class="text-right">${(avg20Vol/100000).toFixed(1)} L</td>
+            <td class="text-right">${(avg20DelQty/100000).toFixed(1)} L</td>
+            <td class="text-right">${avg20DelPct.toFixed(1)}%</td>
+            <td class="text-center"><span class="signal-badge ${badgeStyle}">${finalSignal}</span></td>
+            <td class="text-center rank-stars">${"⭐".repeat(rulesPassed)} (${rulesPassed}/5)</td>
         </tr>
     `;
+
+    // Render Targets layout panel
+    document.getElementById('targetSymbolText').innerText = `TARGET SYMBOL: ${stockSymbol.toUpperCase()}`;
+    document.getElementById('checklistContainer').innerHTML = checklistHtml;
+    
+    document.getElementById('levelsContainer').innerHTML = `
+        <div class="level-row"><span style="color:var(--text-muted)">⚡ Ideal Entry Trigger:</span><span class="highlight-val">Above ₹${latest.close.toFixed(2)} (Next day breakout follow up)</span></div>
+        <div class="level-row"><span style="color:var(--success)">🎯 Conservative Target (1%):</span><span style="color:var(--success); font-weight:700;">₹${t1.toFixed(2)}</span></div>
+        <div class="level-row"><span style="color:var(--success)">🎯 Maximum Target (3%):</span><span style="color:var(--success); font-weight:700;">₹${t3.toFixed(2)}</span></div>
+        <div class="level-row"><span style="color:var(--danger)">🛑 Strict Stop Loss (1%):</span><span style="color:var(--danger)">₹${sl1.toFixed(2)}</span></div>
+        <div class="level-row"><span style="color:var(--danger)">🛑 Deep Stop Loss (1.5%):</span><span style="color:var(--danger)">₹${sl15.toFixed(2)}</span></div>
+    `;
+
+    // Executive Summary Commentary Conditions
+    let commentary = `<strong>💡 Strategy Executive Summary Note:</strong> `;
+    if(rulesPassed >= 4) {
+        commentary += `This asset resembles a premium <strong>Stock B criteria</strong> matrix setup. Volume expansion is backed up heavily by real physical Delivery Quantity accumulation (${(latest.delQty/100000).toFixed(1)} Lakh shares locked in). Institutional accumulation is highly probable. Entry is highly feasible above current swing line breakout with safe target parameters.`;
+    } else if (latest.delPct > 65 && latest.volume < (avg20Vol * 0.5)) {
+        commentary += `Warning: This mirrors a typical <strong>Stock A criteria</strong> profile danger flag. Even though Delivery % looks sky-high at ${latest.delPct}%, the total Volume (${(latest.volume/100000).toFixed(1)} Lakh) is extremely dry and weak. <strong>Do not execute entry based on pure isolated high delivery percentages.</strong> Avoid this liquidity trap!`;
+    } else {
+        commentary += `The metrics present normal retail action or choppy rotation. Crucial volume multipliers or structural high closing parameters failed the quantitative threshold limit. Maintain watchful observation on support zones.`;
+    }
+    document.getElementById('strategyExecutiveSummary').innerHTML = commentary;
+
+    // Open block container view smoothly
+    document.getElementById('deepAnalysisBlock').style.display = 'block';
 }
 </script>
 </body>
