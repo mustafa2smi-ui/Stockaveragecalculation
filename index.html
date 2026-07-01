@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Money Swing Analyzer Pro</title>
-    <!-- html2canvas library for pristine image generation -->
+    <title>Smart Money Swing Analyzer Pro Max</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg-dark: #0f172a;
@@ -38,7 +38,7 @@
 
         textarea { 
             width: 100%; 
-            height: 120px; 
+            height: 100px; 
             padding: 12px; 
             background: var(--bg-dark); 
             border: 1px solid var(--border); 
@@ -57,10 +57,10 @@
         .btn:hover { background: #4f46e5; }
         .btn-clear { flex: 1; background: #475569; }
         .btn-clear:hover { background: #334155; }
-        .btn-download { background: #059669; margin-top: 16px; width: auto; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; }
+        .btn-download { background: #059669; margin-top: 16px; width: auto; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer;}
         .btn-download:hover { background: #047857; }
 
-        /* Output Dashboard Table */
+        /* Output Summary Grid */
         .table-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; overflow-x: auto; margin-top: 20px; }
         table { width: 100%; border-collapse: collapse; text-align: left; min-width: 1100px; }
         th { background: #1e293b; color: var(--text-muted); padding: 12px 14px; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid var(--border); font-weight: 700; }
@@ -73,14 +73,16 @@
         .sig-avoid { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
         .rank-stars { color: #facc15; font-weight: bold; }
 
-        /* Advanced Analysis Panel Section */
+        /* Advanced Analysis Panels */
         .analysis-panel { display: none; margin-top: 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
         .analysis-title { font-size: 16px; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 16px; color: #a5b4fc; display: flex; justify-content: space-between; }
         
-        .grid-2 { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px; }
         @media(min-width: 768px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
 
-        .checklist-box, .levels-box { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; padding: 16px; }
+        .checklist-box, .levels-box, .chart-box { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; padding: 16px; }
+        .chart-box { margin-bottom: 16px; }
+        
         .check-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; font-size: 13px; }
         .check-item.pass { color: var(--success); }
         .check-item.fail { color: var(--text-muted); opacity: 0.8; }
@@ -89,14 +91,14 @@
         .level-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #334155; font-size: 13px; }
         .level-row:last-child { border: none; }
         
-        .strategy-note { margin-top: 16px; background: rgba(245, 158, 11, 0.05); border-left: 4px solid var(--warning); padding: 12px; border-radius: 4px; font-size: 13px; color: #cbd5e1; }
+        .strategy-note { background: rgba(245, 158, 11, 0.05); border-left: 4px solid var(--warning); padding: 12px; border-radius: 4px; font-size: 13px; color: #cbd5e1; margin-bottom: 16px; }
 
-        /* Snapshot export block modifications - strictly clean white schema */
+        /* Snapshot export formatting structures */
         .share-snapshot-wrapper { background: #ffffff !important; color: #0f172a !important; padding: 24px; border-radius: 0px; }
         .share-snapshot-wrapper table { min-width: 100% !important; border: 1px solid #cbd5e1; }
         .share-snapshot-wrapper th { background: #f1f5f9 !important; color: #475569 !important; border-bottom: 2px solid #cbd5e1; }
         .share-snapshot-wrapper td { color: #0f172a !important; border-bottom: 1px solid #e2e8f0 !important; }
-        .share-snapshot-wrapper .checklist-box, .share-snapshot-wrapper .levels-box { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; }
+        .share-snapshot-wrapper .checklist-box, .share-snapshot-wrapper .levels-box, .share-snapshot-wrapper .chart-box { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; }
         .share-snapshot-wrapper .level-row { border-bottom: 1px dashed #cbd5e1 !important; color: #334155 !important; }
         .share-snapshot-wrapper .strategy-note { background: #fffbeb !important; border-left: 4px solid #d97706 !important; color: #451a03 !important; }
         .share-snapshot-wrapper .highlight-val { color: #0f172a !important; }
@@ -105,7 +107,6 @@
         .text-center { text-align: center; }
         .highlight-val { color: #fff; font-weight: 600; }
         
-        /* Hidden master export node styling */
         #exportHiddenNode { position: absolute; left: -9999px; top: 0; width: 1200px; }
     </style>
 </head>
@@ -113,15 +114,14 @@
 
 <div class="wrapper">
     <header>
-        <h1>⚡ Smart Money Swing Analyzer Pro</h1>
-        <p>Advanced institutional volume & delivery tracker mapping strict 5-rule criteria</p>
+        <h1>⚡ Smart Money Swing Analyzer Pro Max</h1>
+        <p>Advanced institutional volume & delivery tracker mapping strict 5-rule criteria with Price Action Charting</p>
     </header>
 
     <div class="nse-link-box">
-        🔗 <strong>NSE Data Stream:</strong> Copy full raw table structure directly from <a href="https://www.nseindia.com/report-detail/historical-corporate-data" target="_blank">NSE Historical Portal</a>[span_0](start_span)[span_0](end_span) or download the CSV file and upload it below.
+        🔗 <strong>NSE Data Stream:</strong> Copy full raw table structure directly from <a href="https://www.nseindia.com/report-detail/historical-corporate-data" target="_blank">NSE Historical Portal</a> or upload the raw downloaded CSV file below.
     </div>
 
-    <!-- Input Box & Files Handler -->
     <div class="input-panel">
         <div class="upload-row">
             <label style="margin-bottom:0;">📁 Upload Downloaded NSE CSV File:</label>
@@ -136,7 +136,6 @@
         </div>
     </div>
 
-    <!-- Table Layout Grid Summary -->
     <div class="table-container">
         <table>
             <thead>
@@ -162,21 +161,25 @@
         </table>
     </div>
 
-    <!-- DEEP ANALYSIS BLOCK SECTION -->
     <div class="analysis-panel" id="deepAnalysisBlock">
         <div class="analysis-title">
             <span>🔍 Deep Technical Audit & Strategy Blueprint</span>
             <span id="targetSymbolText" style="color: #fff;"></span>
         </div>
         
+        <div class="chart-box">
+            <h3 style="font-size: 14px; margin-bottom: 12px; color: #fff;" id="chartTitleText">📊 Last 10 Days High vs Close Candlestick Trend</h3>
+            <div style="height: 250px; position: relative;">
+                <canvas id="priceTrendChart"></canvas>
+            </div>
+        </div>
+
         <div class="grid-2">
-            <!-- 5 Checklist Audit Rules -->
             <div class="checklist-box">
                 <h3 style="font-size: 14px; margin-bottom: 12px; color: #fff;">📋 Strict Rule Checklist Matrix</h3>
                 <div id="checklistContainer"></div>
             </div>
 
-            <!-- Trade Level Trigger Maps -->
             <div class="levels-box">
                 <h3 style="font-size: 14px; margin-bottom: 12px; color: #fff;">🎯 Smart Swing Trigger Levels (1% - 3% Setup)</h3>
                 <div id="levelsContainer"></div>
@@ -189,11 +192,13 @@
     </div>
 </div>
 
-<!-- Hidden temporary workspace target layout node for exact pristine white canvas generation -->
 <div id="exportHiddenNode"></div>
 
 <script>
-// CSV File Reading Logic Handler
+let globalChartInstance = null;
+let historicalDataForChart = [];
+
+// Advanced File Reader with multi-format text clean logic
 function handleFileLoad(event) {
     const file = event.target.files[0];
     if (!file) return;
@@ -204,7 +209,7 @@ function handleFileLoad(event) {
     reader.readAsText(file);
 }
 
-// Clear dashboard function
+// Clear dashboard structure resets
 function clearDashboard() {
     document.getElementById('csvFileInput').value = "";
     document.getElementById('csvDataInput').value = "";
@@ -215,24 +220,32 @@ function clearDashboard() {
             </td>
         </tr>`;
     document.getElementById('deepAnalysisBlock').style.display = 'none';
+    if(globalChartInstance) { globalChartInstance.destroy(); globalChartInstance = null; }
 }
 
 function processNseSwingData() {
     const rawData = document.getElementById('csvDataInput').value.trim();
-    if(!rawData) { alert("Kripya raw data copy-paste karein ya CSV upload karein!"); return; }
+    if(!rawData) { alert("Kripya raw data copy-paste karein ya CSV file feed karein!"); return; }
 
     const lines = rawData.split(/\r?\n/);
     let stockSymbol = "UNKNOWN";
     let parsedRows = [];
 
     lines.forEach(line => {
-        if(line.toLowerCase().includes('symbol') || line.toLowerCase().includes('series') || line.trim() === "") return;
-        let cleanedLine = line.replace(/,(?=\d)/g, '');
-        let tokens = cleanedLine.split(/[\t\s,]+/); // Added comma split variant to accept raw CSV format
+        let trimmed = line.trim();
+        // Skip junk metadata lines and headers
+        if(trimmed === "" || trimmed.toLowerCase().includes('historical') || trimmed.toLowerCase().includes('symbol') || trimmed.toLowerCase().includes('series')) return;
         
+        // Dynamic separator resolver: supports commas, tabs or double spaces perfectly
+        let cleanedLine = trimmed.replace(/,(?=\d)/g, ''); // Clear internal numeric grouping formatting commas
+        let tokens = cleanedLine.split(/[\t,]+/);
+        if(tokens.length < 10) {
+            tokens = cleanedLine.split(/[\s]{2,}/); // Fallback split
+        }
+
         if (tokens.length >= 10) {
-            if(tokens[0] === "") tokens.shift(); // clean trailing empty rows shifts
-            stockSymbol = tokens[0].replace(/EQ$/i, '');
+            if(tokens[0] === "") tokens.shift();
+            stockSymbol = tokens[0].replace(/EQ$/i, '').trim();
             let totalTokens = tokens.length;
             
             let dlyPct = parseFloat(tokens[totalTokens - 1]);
@@ -241,10 +254,11 @@ function processNseSwingData() {
             let closePrice = parseFloat(tokens[totalTokens - 7]);
             let lowPrice = parseFloat(tokens[totalTokens - 9]);
             let highPrice = parseFloat(tokens[totalTokens - 10]);
+            let dateVal = tokens[2] ? tokens[2].trim() : "N/A";
 
             if(!isNaN(closePrice) && !isNaN(volume)) {
                 parsedRows.push({
-                    date: tokens[2] || "N/A",
+                    date: dateVal,
                     close: closePrice,
                     high: highPrice,
                     low: lowPrice,
@@ -256,7 +270,10 @@ function processNseSwingData() {
         }
     });
 
-    if(parsedRows.length === 0) { alert("Parsing engine failed to read standard formats. Ensure correct raw or CSV format dropped."); return; }
+    if(parsedRows.length === 0) { 
+        alert("Parsing engine failed to read format. Kripya check karein ki data row column headers ke sath sahi format me hai."); 
+        return; 
+    }
 
     function getAvg(data, limit, key) {
         let sum = 0, count = Math.min(data.length, limit);
@@ -270,7 +287,7 @@ function processNseSwingData() {
     const avg20DelQty = getAvg(parsedRows, 20, 'delQty');
     const avg20DelPct = getAvg(parsedRows, 20, 'delPct');
 
-    // Multi-Scanning elements expansion (Rule 1 & Rule Protection checks)
+    // Multi-Day extreme points detection pipelines
     let max20High = 0;
     let min20Low = Infinity;
     let scanLimit = Math.min(parsedRows.length, 21);
@@ -282,38 +299,38 @@ function processNseSwingData() {
     let rulesPassed = 0;
     let checklistHtml = "";
 
-    // Rule 1: Price Action near/above 20D High
+    // Rule 1: Price Action Breakouts mapping
     let rule1 = (latest.close >= max20High || latest.close >= (max20High * 0.98));
     if(rule1) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 1 (Price): Close Price (₹${latest.close}) is matching/breaking 20D High (₹${max20High.toFixed(2)}).</div>`; }
     else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 1 (Price): Below 20D High trigger setup.</div>`; }
 
-    // Rule 2: Volume Spikes > 1.5x 20DMA
+    // Rule 2: Volume Spikes
     let rule2 = (latest.volume >= (avg20Vol * 1.5));
     if(rule2) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 2 (Volume): Heavy volume expansion! Today's Vol is ${(latest.volume/avg20Vol).toFixed(1)}x over 20D Avg.</div>`; }
     else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 2 (Volume): Volume accumulation below institutional 1.5x target.</div>`; }
 
-    // Rule 3: Delivery Qty > 20D Avg
+    // Rule 3: Delivery Quantity mapping
     let rule3 = (latest.delQty > avg20DelQty);
     if(rule3) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 3 (Del Qty): Smart Money detected. Delivery Qty exceeds 20D Average.</div>`; }
     else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 3 (Del Qty): Normal transactional absorption levels.</div>`; }
 
-    // Rule 4: Delivery Pct > 45-50% range or building momentum
+    // Rule 4: Delivery Percentage triggers
     let rule4 = (latest.delPct >= 45 || latest.delPct > avg20DelPct);
     if(rule4) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 4 (Del %): Solid Delivery lock-in at ${latest.delPct}% (Avg: ${avg20DelPct.toFixed(1)}%).</div>`; }
     else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 4 (Del %): Weak collection ratio (${latest.delPct}%).</div>`; }
 
-    // Rule 5: Closing Strength (Upper 25% of intraday range)
+    // Rule 5: Intraday Close Location quadrants
     let dayRange = latest.high - latest.low;
     let closeThreshold = latest.high - (dayRange * 0.25);
     let rule5 = (latest.close >= closeThreshold);
     if(rule5 && dayRange > 0) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 5 (Closing): Bulls dominant! Closed near Day High in upper 25% zone.</div>`; }
     else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 5 (Closing): Closed weak or lower intraday quadrant.</div>`; }
 
-    // Protection Scan Layer Check (Improvement Segment)
+    // Protection constraints check pipeline
     let isNearLowDanger = (latest.close <= (min20Low * 1.03));
     if(isNearLowDanger) {
-        checklistHtml += `<div class="check-item fail" style="color:var(--danger); font-weight:bold;"><span class="check-icon">⚠️</span> PROTECTION ALERT: Asset is stuck within 3% zone of 20D structural Low (₹${min20Low.toFixed(2)}). Momentum weak.</div>`;
-        if(rulesPassed > 0) rulesPassed--; // Adjust dynamic point metrics penalty
+        checklistHtml += `<div class="check-item fail" style="color:var(--danger); font-weight:bold;"><span class="check-icon">⚠️</span> PROTECTION ALERT: Asset is trading close to 20D Low base (₹${min20Low.toFixed(2)}). Avoid entry.</div>`;
+        if(rulesPassed > 0) rulesPassed--;
     }
 
     let finalSignal = "🔴 Avoid"; let badgeStyle = "sig-avoid";
@@ -323,7 +340,7 @@ function processNseSwingData() {
     let t1 = latest.close * 1.01; let t3 = latest.close * 1.03;
     let sl1 = latest.close * 0.99; let sl15 = latest.close * 0.985;
 
-    let rowTemplateHtml = `
+    document.getElementById('analysisResult').innerHTML = `
         <tr>
             <td class="highlight-val">${stockSymbol.toUpperCase()}</td>
             <td class="text-center">${latest.date}</td>
@@ -337,18 +354,16 @@ function processNseSwingData() {
         </tr>
     `;
     
-    document.getElementById('analysisResult').innerHTML = rowTemplateHtml;
     document.getElementById('targetSymbolText').innerText = `TARGET SYMBOL: ${stockSymbol.toUpperCase()}`;
     document.getElementById('checklistContainer').innerHTML = checklistHtml;
     
-    let levelsHtml = `
+    document.getElementById('levelsContainer').innerHTML = `
         <div class="level-row"><span style="color:var(--text-muted)">⚡ Ideal Entry Trigger:</span><span class="highlight-val">Above ₹${latest.close.toFixed(2)}</span></div>
         <div class="level-row"><span style="color:var(--success)">🎯 Conservative Target (1%):</span><span style="color:var(--success); font-weight:700;">₹${t1.toFixed(2)}</span></div>
         <div class="level-row"><span style="color:var(--success)">🎯 Maximum Target (3%):</span><span style="color:var(--success); font-weight:700;">₹${t3.toFixed(2)}</span></div>
         <div class="level-row"><span style="color:var(--danger)">🛑 Strict Stop Loss (1%):</span><span style="color:var(--danger)">₹${sl1.toFixed(2)}</span></div>
         <div class="level-row"><span style="color:var(--danger)">🛑 Deep Stop Loss (1.5%):</span><span style="color:var(--danger)">₹${sl15.toFixed(2)}</span></div>
     `;
-    document.getElementById('levelsContainer').innerHTML = levelsHtml;
 
     let commentary = `<strong>💡 Strategy Executive Summary Note:</strong> `;
     if(rulesPassed >= 4) {
@@ -361,22 +376,53 @@ function processNseSwingData() {
         commentary += `The metrics present normal retail action or choppy rotation. Crucial volume multipliers or structural high closing parameters failed the quantitative threshold limit. Maintain watchful observation on support zones.`;
     }
     document.getElementById('strategyExecutiveSummary').innerHTML = commentary;
+
+    // --- CHART GENERATION WORKSPACE ---
+    historicalDataForChart = parsedRows.slice(0, 10).reverse(); // Extract pichle 10 days array logs
+    const chartLabels = historicalDataForChart.map(d => d.date);
+    const closePrices = historicalDataForChart.map(d => d.close);
+    const highPrices = historicalDataForChart.map(d => d.high);
+
+    if(globalChartInstance) { globalChartInstance.destroy(); }
+    
+    const ctx = document.getElementById('priceTrendChart').getContext('2d');
+    globalChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: chartLabels,
+            datasets: [
+                { label: 'High Price (₹)', data: highPrices, borderColor: '#ef4444', backgroundColor: 'transparent', borderDash: [4, 4], borderWidth: 2, pointRadius: 3 },
+                { label: 'Close Price (₹)', data: closePrices, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 3, fill: true, tension: 0.1, pointRadius: 4 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+            scales: {
+                x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+                y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+            }
+        }
+    });
+
     document.getElementById('deepAnalysisBlock').style.display = 'block';
 }
 
-// PNG White Canvas Engine Builder Logic
+// Master Canvas PNG Image Export Core Generator
 function generateWhiteImageExport() {
     const symbol = document.getElementById('targetSymbolText').innerText;
     const currentDateTime = new Date().toLocaleString();
     
-    // Copy content nodes inside clean canvas container workspace dynamically
-    const tableHeader = document.querySelector('table dataSheet thead')?.innerHTML || document.querySelector('table').tHead.innerHTML;
+    const tableHeader = document.querySelector('table th') ? document.querySelector('table').tHead.innerHTML : '';
     const tableRow = document.getElementById('analysisResult').innerHTML;
     const checklist = document.getElementById('checklistContainer').innerHTML;
     const levels = document.getElementById('levelsContainer').innerHTML;
     const summary = document.getElementById('strategyExecutiveSummary').innerHTML;
 
     const exportWrapper = document.getElementById('exportHiddenNode');
+    
+    // Inject structures mirroring crisp white scheme schema mapping
     exportWrapper.innerHTML = `
         <div class="share-snapshot-wrapper">
             <h2 style="font-size:24px; color:#0f172a; margin-bottom:4px; font-weight:800;">⚡ Smart Money Technical Audit Card</h2>
@@ -386,6 +432,11 @@ function generateWhiteImageExport() {
                 <thead>${tableHeader}</thead>
                 <tbody>${tableRow}</tbody>
             </table>
+
+            <div class="chart-box" style="margin-bottom:20px; height:220px; position:relative;">
+                <h3 style="font-size:13px; color:#0f172a; margin-bottom:8px; font-weight:700;">📊 Last 10 Days Price Trend Chart Map</h3>
+                <canvas id="snapshotChartWorkspace"></canvas>
+            </div>
             
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
                 <div class="checklist-box">
@@ -401,18 +452,44 @@ function generateWhiteImageExport() {
         </div>
     `;
 
-    // Render snapshot engine canvas execution
-    html2canvas(exportWrapper, {
-        backgroundColor: "#ffffff",
-        scale: 2 // Premium crisp high definition multi-resolution export matrix scaling
-    }).then(canvas => {
-        const image = canvas.toDataURL("image/png");
-        const link = document.createElement('a');
-        link.download = `Swing_Audit_${symbol.replace(/[^a-zA-Z0-9]/g, "_")}.png`;
-        link.href = image;
-        link.click();
-        exportWrapper.innerHTML = ""; // clean tracking nodes workspace
+    // Clone global chart instance inside white snapshot box targets
+    const snapCtx = document.getElementById('snapshotChartWorkspace').getContext('2d');
+    new Chart(snapCtx, {
+        type: 'line',
+        data: {
+            labels: historicalDataForChart.map(d => d.date),
+            datasets: [
+                { label: 'High Price (₹)', data: historicalDataForChart.map(d => d.high), borderColor: '#dc2626', borderDash: [3, 3], borderWidth: 2, fill: false, pointRadius: 2 },
+                { label: 'Close Price (₹)', data: historicalDataForChart.map(d => d.close), borderColor: '#059669', backgroundColor: 'rgba(5, 150, 105, 0.05)', borderWidth: 3, fill: true, pointRadius: 3 }
+            ]
+        },
+        options: {
+            responsive: false,
+            animation: false,
+            width: 1150,
+            height: 200,
+            plugins: { legend: { labels: { color: '#334155' } } },
+            scales: {
+                x: { grid: { color: '#e2e8f0' }, ticks: { color: '#475569' } },
+                y: { grid: { color: '#e2e8f0' }, ticks: { color: '#475569' } }
+            }
+        }
     });
+
+    // Fire canvas snap execution triggers
+    setTimeout(() => {
+        html2canvas(exportWrapper, {
+            backgroundColor: "#ffffff",
+            scale: 2
+        }).then(canvas => {
+            const image = canvas.toDataURL("image/png");
+            const link = document.createElement('a');
+            link.download = `Swing_Audit_${symbol.replace(/[^a-zA-Z0-9]/g, "_")}.png`;
+            link.href = image;
+            link.click();
+            exportWrapper.innerHTML = ""; // reset temporary view elements workspace
+        });
+    }, 300); // 300ms buffering block ensures Chart renders pristine data shapes prior mapping to image
 }
 </script>
 </body>
