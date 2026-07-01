@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Money Swing Analyzer Pro</title>
+    <!-- html2canvas library for pristine image generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #6366f1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-light); padding: 16px; font-size: 14px; }
+        .wrapper { max-width: 1300px; margin: 0 auto; }
+        
+        header { margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+        header h1 { font-size: 22px; font-weight: 700; color: var(--text-light); }
+        header p { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+
+        .nse-link-box { background: rgba(99, 102, 241, 0.1); border: 1px dashed var(--accent); padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; }
+        .nse-link-box a { color: #a5b4fc; font-weight: 600; text-decoration: none; }
+        
+        .input-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+        label { display: block; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; font-size: 13px; }
+        
+        .upload-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 12px; }
+        input[type="file"] { background: var(--bg-dark); border: 1px solid var(--border); padding: 6px; border-radius: 6px; color: var(--text-muted); font-size: 13px; cursor: pointer; }
+
+        textarea { 
+            width: 100%; 
+            height: 120px; 
+            padding: 12px; 
+            background: var(--bg-dark); 
+            border: 1px solid var(--border); 
+            border-radius: 6px; 
+            color: #38bdf8; 
+            font-family: 'Courier New', Courier, monospace; 
+            font-size: 12px; 
+            white-space: pre; 
+            overflow-x: auto;
+            resize: vertical;
+            margin-bottom: 16px;
+        }
+        
+        .btn-group { display: flex; gap: 12px; }
+        .btn { flex: 2; background: var(--accent); color: white; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; }
+        .btn:hover { background: #4f46e5; }
+        .btn-clear { flex: 1; background: #475569; }
+        .btn-clear:hover { background: #334155; }
+        .btn-download { background: #059669; margin-top: 16px; width: auto; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; }
+        .btn-download:hover { background: #047857; }
+
+        /* Output Dashboard Table */
+        .table-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; overflow-x: auto; margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 1100px; }
+        th { background: #1e293b; color: var(--text-muted); padding: 12px 14px; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid var(--border); font-weight: 700; }
+        td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 13px; }
+        tr:hover td { background: #243146; }
+        
+        .signal-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; display: inline-block; text-align: center; width: 95px; }
+        .sig-buy { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
+        .sig-watch { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+        .sig-avoid { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+        .rank-stars { color: #facc15; font-weight: bold; }
+
+        /* Advanced Analysis Panel Section */
+        .analysis-panel { display: none; margin-top: 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+        .analysis-title { font-size: 16px; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 16px; color: #a5b4fc; display: flex; justify-content: space-between; }
+        
+        .grid-2 { display: grid; grid-template-columns: 1fr; gap: 16px; }
+        @media(min-width: 768px) { .grid-2 { grid-template-columns: 1fr 1fr; } }
+
+        .checklist-box, .levels-box { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; padding: 16px; }
+        .check-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; font-size: 13px; }
+        .check-item.pass { color: var(--success); }
+        .check-item.fail { color: var(--text-muted); opacity: 0.8; }
+        .check-icon { font-weight: bold; }
+
+        .level-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #334155; font-size: 13px; }
+        .level-row:last-child { border: none; }
+        
+        .strategy-note { margin-top: 16px; background: rgba(245, 158, 11, 0.05); border-left: 4px solid var(--warning); padding: 12px; border-radius: 4px; font-size: 13px; color: #cbd5e1; }
+
+        /* Snapshot export block modifications - strictly clean white schema */
+        .share-snapshot-wrapper { background: #ffffff !important; color: #0f172a !important; padding: 24px; border-radius: 0px; }
+        .share-snapshot-wrapper table { min-width: 100% !important; border: 1px solid #cbd5e1; }
+        .share-snapshot-wrapper th { background: #f1f5f9 !important; color: #475569 !important; border-bottom: 2px solid #cbd5e1; }
+        .share-snapshot-wrapper td { color: #0f172a !important; border-bottom: 1px solid #e2e8f0 !important; }
+        .share-snapshot-wrapper .checklist-box, .share-snapshot-wrapper .levels-box { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; }
+        .share-snapshot-wrapper .level-row { border-bottom: 1px dashed #cbd5e1 !important; color: #334155 !important; }
+        .share-snapshot-wrapper .strategy-note { background: #fffbeb !important; border-left: 4px solid #d97706 !important; color: #451a03 !important; }
+        .share-snapshot-wrapper .highlight-val { color: #0f172a !important; }
+
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .highlight-val { color: #fff; font-weight: 600; }
+        
+        /* Hidden master export node styling */
+        #exportHiddenNode { position: absolute; left: -9999px; top: 0; width: 1200px; }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <header>
+        <h1>⚡ Smart Money Swing Analyzer Pro</h1>
+        <p>Advanced institutional volume & delivery tracker mapping strict 5-rule criteria</p>
+    </header>
+
+    <div class="nse-link-box">
+        🔗 <strong>NSE Data Stream:</strong> Copy full raw table structure directly from <a href="https://www.nseindia.com/report-detail/historical-corporate-data" target="_blank">NSE Historical Portal</a>[span_0](start_span)[span_0](end_span) or download the CSV file and upload it below.
+    </div>
+
+    <!-- Input Box & Files Handler -->
+    <div class="input-panel">
+        <div class="upload-row">
+            <label style="margin-bottom:0;">📁 Upload Downloaded NSE CSV File:</label>
+            <input type="file" id="csvFileInput" accept=".csv" onchange="handleFileLoad(event)">
+            <span style="color:var(--text-muted); font-size:12px;">OR paste text data details below:</span>
+        </div>
+        <textarea id="csvDataInput" placeholder="Paste copied NSE data table matrix block here..."></textarea>
+        
+        <div class="btn-group">
+            <button class="btn" onclick="processNseSwingData()">📊 Scan Swing Trade Potential</button>
+            <button class="btn btn-clear" onclick="clearDashboard()">🧹 Clear Data</button>
+        </div>
+    </div>
+
+    <!-- Table Layout Grid Summary -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th class="text-center">Latest Date</th>
+                    <th class="text-right">Price (High / Close)</th>
+                    <th class="text-right">20D High Breakout</th>
+                    <th class="text-right">20D Avg Vol</th>
+                    <th class="text-right">20D Avg Del Qty</th>
+                    <th class="text-right">20D Avg Del %</th>
+                    <th class="text-center">Signal</th>
+                    <th class="text-center">Points</th>
+                </tr>
+            </thead>
+            <tbody id="analysisResult">
+                <tr>
+                    <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                        Input raw dataset block or upload CSV above to initialize strict scoring.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- DEEP ANALYSIS BLOCK SECTION -->
+    <div class="analysis-panel" id="deepAnalysisBlock">
+        <div class="analysis-title">
+            <span>🔍 Deep Technical Audit & Strategy Blueprint</span>
+            <span id="targetSymbolText" style="color: #fff;"></span>
+        </div>
+        
+        <div class="grid-2">
+            <!-- 5 Checklist Audit Rules -->
+            <div class="checklist-box">
+                <h3 style="font-size: 14px; margin-bottom: 12px; color: #fff;">📋 Strict Rule Checklist Matrix</h3>
+                <div id="checklistContainer"></div>
+            </div>
+
+            <!-- Trade Level Trigger Maps -->
+            <div class="levels-box">
+                <h3 style="font-size: 14px; margin-bottom: 12px; color: #fff;">🎯 Smart Swing Trigger Levels (1% - 3% Setup)</h3>
+                <div id="levelsContainer"></div>
+            </div>
+        </div>
+
+        <div class="strategy-note" id="strategyExecutiveSummary"></div>
+        
+        <button class="btn btn-download" onclick="generateWhiteImageExport()">📸 Download PNG Report Card</button>
+    </div>
+</div>
+
+<!-- Hidden temporary workspace target layout node for exact pristine white canvas generation -->
+<div id="exportHiddenNode"></div>
+
+<script>
+// CSV File Reading Logic Handler
+function handleFileLoad(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('csvDataInput').value = e.target.result;
+    };
+    reader.readAsText(file);
+}
+
+// Clear dashboard function
+function clearDashboard() {
+    document.getElementById('csvFileInput').value = "";
+    document.getElementById('csvDataInput').value = "";
+    document.getElementById('analysisResult').innerHTML = `
+        <tr>
+            <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                Input raw dataset block or upload CSV above to initialize strict scoring.
+            </td>
+        </tr>`;
+    document.getElementById('deepAnalysisBlock').style.display = 'none';
+}
+
+function processNseSwingData() {
+    const rawData = document.getElementById('csvDataInput').value.trim();
+    if(!rawData) { alert("Kripya raw data copy-paste karein ya CSV upload karein!"); return; }
+
+    const lines = rawData.split(/\r?\n/);
+    let stockSymbol = "UNKNOWN";
+    let parsedRows = [];
+
+    lines.forEach(line => {
+        if(line.toLowerCase().includes('symbol') || line.toLowerCase().includes('series') || line.trim() === "") return;
+        let cleanedLine = line.replace(/,(?=\d)/g, '');
+        let tokens = cleanedLine.split(/[\t\s,]+/); // Added comma split variant to accept raw CSV format
+        
+        if (tokens.length >= 10) {
+            if(tokens[0] === "") tokens.shift(); // clean trailing empty rows shifts
+            stockSymbol = tokens[0].replace(/EQ$/i, '');
+            let totalTokens = tokens.length;
+            
+            let dlyPct = parseFloat(tokens[totalTokens - 1]);
+            let delQty = parseFloat(tokens[totalTokens - 2]);
+            let volume = parseFloat(tokens[totalTokens - 5]); 
+            let closePrice = parseFloat(tokens[totalTokens - 7]);
+            let lowPrice = parseFloat(tokens[totalTokens - 9]);
+            let highPrice = parseFloat(tokens[totalTokens - 10]);
+
+            if(!isNaN(closePrice) && !isNaN(volume)) {
+                parsedRows.push({
+                    date: tokens[2] || "N/A",
+                    close: closePrice,
+                    high: highPrice,
+                    low: lowPrice,
+                    volume: volume,
+                    delQty: delQty,
+                    delPct: isNaN(dlyPct) ? 0 : dlyPct
+                });
+            }
+        }
+    });
+
+    if(parsedRows.length === 0) { alert("Parsing engine failed to read standard formats. Ensure correct raw or CSV format dropped."); return; }
+
+    function getAvg(data, limit, key) {
+        let sum = 0, count = Math.min(data.length, limit);
+        for(let i = 0; i < count; i++) sum += data[i][key];
+        return sum / count;
+    }
+
+    const latest = parsedRows[0];
+    const avg20Close = getAvg(parsedRows, 20, 'close');
+    const avg20Vol = getAvg(parsedRows, 20, 'volume');
+    const avg20DelQty = getAvg(parsedRows, 20, 'delQty');
+    const avg20DelPct = getAvg(parsedRows, 20, 'delPct');
+
+    // Multi-Scanning elements expansion (Rule 1 & Rule Protection checks)
+    let max20High = 0;
+    let min20Low = Infinity;
+    let scanLimit = Math.min(parsedRows.length, 21);
+    for(let i = 1; i < scanLimit; i++) {
+        if(parsedRows[i].high > max20High) max20High = parsedRows[i].high;
+        if(parsedRows[i].low < min20Low) min20Low = parsedRows[i].low;
+    }
+
+    let rulesPassed = 0;
+    let checklistHtml = "";
+
+    // Rule 1: Price Action near/above 20D High
+    let rule1 = (latest.close >= max20High || latest.close >= (max20High * 0.98));
+    if(rule1) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 1 (Price): Close Price (₹${latest.close}) is matching/breaking 20D High (₹${max20High.toFixed(2)}).</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 1 (Price): Below 20D High trigger setup.</div>`; }
+
+    // Rule 2: Volume Spikes > 1.5x 20DMA
+    let rule2 = (latest.volume >= (avg20Vol * 1.5));
+    if(rule2) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 2 (Volume): Heavy volume expansion! Today's Vol is ${(latest.volume/avg20Vol).toFixed(1)}x over 20D Avg.</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 2 (Volume): Volume accumulation below institutional 1.5x target.</div>`; }
+
+    // Rule 3: Delivery Qty > 20D Avg
+    let rule3 = (latest.delQty > avg20DelQty);
+    if(rule3) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 3 (Del Qty): Smart Money detected. Delivery Qty exceeds 20D Average.</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 3 (Del Qty): Normal transactional absorption levels.</div>`; }
+
+    // Rule 4: Delivery Pct > 45-50% range or building momentum
+    let rule4 = (latest.delPct >= 45 || latest.delPct > avg20DelPct);
+    if(rule4) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 4 (Del %): Solid Delivery lock-in at ${latest.delPct}% (Avg: ${avg20DelPct.toFixed(1)}%).</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 4 (Del %): Weak collection ratio (${latest.delPct}%).</div>`; }
+
+    // Rule 5: Closing Strength (Upper 25% of intraday range)
+    let dayRange = latest.high - latest.low;
+    let closeThreshold = latest.high - (dayRange * 0.25);
+    let rule5 = (latest.close >= closeThreshold);
+    if(rule5 && dayRange > 0) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 5 (Closing): Bulls dominant! Closed near Day High in upper 25% zone.</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 5 (Closing): Closed weak or lower intraday quadrant.</div>`; }
+
+    // Protection Scan Layer Check (Improvement Segment)
+    let isNearLowDanger = (latest.close <= (min20Low * 1.03));
+    if(isNearLowDanger) {
+        checklistHtml += `<div class="check-item fail" style="color:var(--danger); font-weight:bold;"><span class="check-icon">⚠️</span> PROTECTION ALERT: Asset is stuck within 3% zone of 20D structural Low (₹${min20Low.toFixed(2)}). Momentum weak.</div>`;
+        if(rulesPassed > 0) rulesPassed--; // Adjust dynamic point metrics penalty
+    }
+
+    let finalSignal = "🔴 Avoid"; let badgeStyle = "sig-avoid";
+    if(rulesPassed >= 4 && !isNearLowDanger) { finalSignal = "🟢 Strong Buy"; badgeStyle = "sig-buy"; }
+    else if(rulesPassed >= 2) { finalSignal = "🟡 Watch"; badgeStyle = "sig-watch"; }
+
+    let t1 = latest.close * 1.01; let t3 = latest.close * 1.03;
+    let sl1 = latest.close * 0.99; let sl15 = latest.close * 0.985;
+
+    let rowTemplateHtml = `
+        <tr>
+            <td class="highlight-val">${stockSymbol.toUpperCase()}</td>
+            <td class="text-center">${latest.date}</td>
+            <td class="text-right font-semibold">H: ${latest.high} / C: ${latest.close}</td>
+            <td class="text-right highlight-val">₹${max20High.toFixed(2)}</td>
+            <td class="text-right">${(avg20Vol/100000).toFixed(1)} L</td>
+            <td class="text-right">${(avg20DelQty/100000).toFixed(1)} L</td>
+            <td class="text-right">${avg20DelPct.toFixed(1)}%</td>
+            <td class="text-center"><span class="signal-badge ${badgeStyle}">${finalSignal}</span></td>
+            <td class="text-center rank-stars">${"⭐".repeat(Math.max(0, rulesPassed))} (${Math.max(0, rulesPassed)}/5)</td>
+        </tr>
+    `;
+    
+    document.getElementById('analysisResult').innerHTML = rowTemplateHtml;
+    document.getElementById('targetSymbolText').innerText = `TARGET SYMBOL: ${stockSymbol.toUpperCase()}`;
+    document.getElementById('checklistContainer').innerHTML = checklistHtml;
+    
+    let levelsHtml = `
+        <div class="level-row"><span style="color:var(--text-muted)">⚡ Ideal Entry Trigger:</span><span class="highlight-val">Above ₹${latest.close.toFixed(2)}</span></div>
+        <div class="level-row"><span style="color:var(--success)">🎯 Conservative Target (1%):</span><span style="color:var(--success); font-weight:700;">₹${t1.toFixed(2)}</span></div>
+        <div class="level-row"><span style="color:var(--success)">🎯 Maximum Target (3%):</span><span style="color:var(--success); font-weight:700;">₹${t3.toFixed(2)}</span></div>
+        <div class="level-row"><span style="color:var(--danger)">🛑 Strict Stop Loss (1%):</span><span style="color:var(--danger)">₹${sl1.toFixed(2)}</span></div>
+        <div class="level-row"><span style="color:var(--danger)">🛑 Deep Stop Loss (1.5%):</span><span style="color:var(--danger)">₹${sl15.toFixed(2)}</span></div>
+    `;
+    document.getElementById('levelsContainer').innerHTML = levelsHtml;
+
+    let commentary = `<strong>💡 Strategy Executive Summary Note:</strong> `;
+    if(rulesPassed >= 4) {
+        commentary += `This asset resembles a premium <strong>Stock B criteria</strong> matrix setup. Volume expansion is backed up heavily by real physical Delivery Quantity accumulation (${(latest.delQty/100000).toFixed(1)} Lakh shares locked in). Institutional accumulation is highly probable. Entry is highly feasible above current swing line breakout with safe target parameters.`;
+    } else if (latest.delPct > 65 && latest.volume < (avg20Vol * 0.5)) {
+        commentary += `Warning: This mirrors a typical <strong>Stock A criteria</strong> profile danger flag. Even though Delivery % looks sky-high at ${latest.delPct}%, the total Volume (${(latest.volume/100000).toFixed(1)} Lakh) is extremely dry and weak. <strong>Do not execute entry based on pure isolated high delivery percentages.</strong> Avoid this liquidity trap!`;
+    } else if(isNearLowDanger) {
+        commentary += `Structural risk parameter triggered. Asset possesses structural multi-day breakdown indicators despite superficial indicators because it trades highly proximal to 20-day historical support baseline low bounds. Strictly prioritize safety limits.`;
+    } else {
+        commentary += `The metrics present normal retail action or choppy rotation. Crucial volume multipliers or structural high closing parameters failed the quantitative threshold limit. Maintain watchful observation on support zones.`;
+    }
+    document.getElementById('strategyExecutiveSummary').innerHTML = commentary;
+    document.getElementById('deepAnalysisBlock').style.display = 'block';
+}
+
+// PNG White Canvas Engine Builder Logic
+function generateWhiteImageExport() {
+    const symbol = document.getElementById('targetSymbolText').innerText;
+    const currentDateTime = new Date().toLocaleString();
+    
+    // Copy content nodes inside clean canvas container workspace dynamically
+    const tableHeader = document.querySelector('table dataSheet thead')?.innerHTML || document.querySelector('table').tHead.innerHTML;
+    const tableRow = document.getElementById('analysisResult').innerHTML;
+    const checklist = document.getElementById('checklistContainer').innerHTML;
+    const levels = document.getElementById('levelsContainer').innerHTML;
+    const summary = document.getElementById('strategyExecutiveSummary').innerHTML;
+
+    const exportWrapper = document.getElementById('exportHiddenNode');
+    exportWrapper.innerHTML = `
+        <div class="share-snapshot-wrapper">
+            <h2 style="font-size:24px; color:#0f172a; margin-bottom:4px; font-weight:800;">⚡ Smart Money Technical Audit Card</h2>
+            <p style="color:#64748b; font-size:12px; margin-bottom:16px;">Generated on: ${currentDateTime} | ${symbol}</p>
+            
+            <table style="width:100%; border-collapse:collapse; text-align:left; margin-bottom:20px;">
+                <thead>${tableHeader}</thead>
+                <tbody>${tableRow}</tbody>
+            </table>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
+                <div class="checklist-box">
+                    <h3 style="font-size:13px; color:#0f172a; margin-bottom:8px; font-weight:700;">📋 Checklist Metrics Map</h3>
+                    ${checklist}
+                </div>
+                <div class="levels-box">
+                    <h3 style="font-size:13px; color:#0f172a; margin-bottom:8px; font-weight:700;">🎯 Action Target Parameters</h3>
+                    ${levels}
+                </div>
+            </div>
+            <div class="strategy-note">${summary}</div>
+        </div>
+    `;
+
+    // Render snapshot engine canvas execution
+    html2canvas(exportWrapper, {
+        backgroundColor: "#ffffff",
+        scale: 2 // Premium crisp high definition multi-resolution export matrix scaling
+    }).then(canvas => {
+        const image = canvas.toDataURL("image/png");
+        const link = document.createElement('a');
+        link.download = `Swing_Audit_${symbol.replace(/[^a-zA-Z0-9]/g, "_")}.png`;
+        link.href = image;
+        link.click();
+        exportWrapper.innerHTML = ""; // clean tracking nodes workspace
+    });
+}
+</script>
+</body>
+</html>
