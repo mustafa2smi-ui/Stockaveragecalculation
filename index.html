@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Stock Analyzer & Ranking Engine</title>
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #6366f1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-light); padding: 16px; font-size: 14px; }
+        .wrapper { max-width: 1200px; margin: 0 auto; }
+        
+        header { margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+        header h1 { font-size: 22px; font-weight: 700; color: var(--text-light); }
+        header p { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
+
+        .nse-link-box { background: rgba(99, 102, 241, 0.1); border: 1px dashed var(--accent); padding: 12px; border-radius: 8px; margin-bottom: 20px; }
+        .nse-link-box a { color: #a5b4fc; font-weight: 600; text-decoration: none; }
+        .nse-link-box a:hover { text-decoration: underline; }
+
+        .input-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+        .input-group { margin-bottom: 12px; }
+        label { display: block; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+        input[type="text"] { width: 100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: white; margin-bottom: 12px; }
+        textarea { width: 100%; height: 120px; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: white; font-family: monospace; font-size: 12px; resize: vertical; }
+        
+        .btn { width: 100%; background: var(--accent); color: white; padding: 12px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 14px; }
+        .btn:hover { background: #4f46e5; }
+
+        .signal-badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 700; display: inline-block; }
+        .sig-buy { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+        .sig-watch { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .sig-avoid { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        
+        .rank-stars { color: #facc15; font-weight: bold; }
+
+        .table-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 900px; }
+        th { background: #1e293b; color: var(--text-muted); padding: 12px 16px; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid var(--border); }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        tr:hover td { background: #243146; }
+        
+        .text-right { text-align: right; }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <header>
+        <h1>⚡ Smart Stock Analyzer</h1>
+        <p>Instant Historical Data Parser, Multi-Day Averages & Ranking Engine</p>
+    </header>
+
+    <!-- NSE Direct Data Download Link -->
+    <div class="nse-link-box">
+        ℹ️ <strong>NSE Direct Download:</strong> Go to the <a href="https://www.nseindia.com/report-detail/historical-corporate-data" target="_blank">NSE Historical Data Portal</a> to download 6 Months of data as CSV, copy the rows, and paste below.
+    </div>
+
+    <!-- Data Input Panel -->
+    <div class="input-panel">
+        <div class="input-group">
+            <label>1. Stock Symbol / Name</label>
+            <input type="text" id="stockSymbol" placeholder="e.g. RELIANCE">
+        </div>
+        <div class="input-group">
+            <label>2. Paste Historical Data (Format: Date, Close, Volume, Delivery % or Tab-separated CSV rows)</label>
+            <textarea id="csvDataInput" placeholder="Date	Close	Volume	Delivery%&#10;2026-07-01	2450	5000000	55%&#10;2026-06-30	2430	4800000	52%"></textarea>
+        </div>
+        <button class="btn" onclick="analyzeStockData()">📊 Run Smart Analysis</button>
+    </div>
+
+    <!-- Output Dashboard Table -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Stock</th>
+                    <th>Latest Close (₹)</th>
+                    <th class="text-right">Averages (20D / 30D / 50D)</th>
+                    <th class="text-right">Avg Volume (20D)</th>
+                    <th class="text-right">Avg Delivery %</th>
+                    <th>Smart Signal</th>
+                    <th>Ranking Points</th>
+                </tr>
+            </thead>
+            <tbody id="analysisResult">
+                <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 30px;">
+                        Paste 6 months historical data above and click Analyze to view results.
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function analyzeStockData() {
+    const symbol = document.getElementById('stockSymbol').value.trim() || "UNKNOWN";
+    const rawData = document.getElementById('csvDataInput').value.trim();
+    
+    if(!rawData) {
+        alert("Kripya historical data paste karein!");
+        return;
+    }
+
+    // Lines break split karna (handles both windows/linux line endings)
+    const lines = rawData.split(/\r?\n/);
+    let parsedRows = [];
+
+    // Data Parsing Logic (Handles Tab, Comma, or Space separation)
+    lines.forEach(line => {
+        let cleaned = line.replace(/%/g, ''); // Delivery % text clean karna
+        let parts = cleaned.split(/[\t,]/); // Split by tab or comma
+        if(parts.length >= 4 && !isNaN(parseFloat(parts[1]))) {
+            parsedRows.push({
+                date: parts[0].trim(),
+                close: parseFloat(parts[1]),
+                volume: parseFloat(parts[2]),
+                delPct: parseFloat(parts[3])
+            });
+        }
+    });
+
+    if(parsedRows.length < 50) {
+        alert("Warning: Kam se kam 50 rows ka data hona chahiye taaki 50 Days Average accurately nikal sake!");
+    }
+
+    // Function to calculate Moving Average helper
+    function getAverage(data, limit, key) {
+        let sum = 0;
+        let count = Math.min(data.length, limit);
+        for(let i = 0; i < count; i++) {
+            sum += data[i][key];
+        }
+        return sum / count;
+    }
+
+    // Averages Calculations
+    const latest = parsedRows[0]; // Sabse top row = Latest entry
+    const avg20Close = getAverage(parsedRows, 20, 'close');
+    const avg30Close = getAverage(parsedRows, 30, 'close');
+    const avg50Close = getAverage(parsedRows, 50, 'close');
+    const avg20Vol = getAverage(parsedRows, 20, 'volume');
+    const avg20Del = getAverage(parsedRows, 20, 'delPct');
+
+    // --- SMART SIGNAL & RANKING ENGINE ---
+    let rankPoints = 0;
+    
+    // Condition 1: Price above multi-day averages
+    if(latest.close > avg20Close) rankPoints++;
+    if(latest.close > avg50Close) rankPoints++;
+    // Condition 2: Volume Spikes
+    if(latest.volume > avg20Vol) rankPoints++;
+    // Condition 3: Delivery accumulation
+    if(latest.delPct > avg20Del) rankPoints++;
+    if(latest.delPct > 50) rankPoints++; // Hard check for heavy delivery
+
+    // Minimum ranking constraints
+    if(rankPoints === 0) rankPoints = 1;
+
+    let signal = "";
+    let signalClass = "";
+    
+    if(rankPoints >= 4) {
+        signal = "🟢 Strong Buy";
+        signalClass = "sig-buy";
+    } else if(rankPoints >= 2) {
+        signal = "🟡 Watch";
+        signalClass = "sig-watch";
+    } else {
+        signal = "🔴 Avoid";
+        signalClass = "sig-avoid";
+    }
+
+    // Generate Stars display string
+    let stars = "⭐".repeat(rankPoints) + ` (${rankPoints}/5)`;
+
+    // Inject Results into Table
+    const tbody = document.getElementById('analysisResult');
+    tbody.innerHTML = `
+        <tr>
+            <td><strong>${symbol.toUpperCase()}</strong><br><small style="color:var(--text-muted)">Latest Date: ${latest.date}</small></td>
+            <td class="font-semibold" style="color:#fff">${latest.close.toFixed(2)}</td>
+            <td class="text-right">
+                <span style="color:#a5b4fc">${avg20Close.toFixed(1)}</span> / 
+                <span style="color:#cbd5e1">${avg30Close.toFixed(1)}</span> / 
+                <span style="color:#94a3b8">${avg50Close.toFixed(1)}</span>
+            </td>
+            <td class="text-right">${(avg20Vol/1000000).toFixed(2)}M</td>
+            <td class="text-right">${avg20Del.toFixed(1)}%</td>
+            <td><span class="signal-badge ${signalClass}">${signal}</span></td>
+            <td class="rank-stars">${stars}</td>
+        </tr>
+    `;
+}
+</script>
+</body>
+</html>
