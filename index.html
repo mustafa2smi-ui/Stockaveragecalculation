@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Money Swing Analyzer Ultra Pro</title>
+    <title>Smart Money Swing Analyzer - Final Edition</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -31,16 +31,13 @@
         @media(min-width: 992px) { .dashboard-grid { grid-template-columns: 2.5fr 1fr; } }
 
         .input-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-        .helper-card { background: rgba(99, 102, 241, 0.1); border: 1px dashed var(--accent); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; }
+        .helper-card { background: rgba(99, 102, 241, 0.1); border: 1px dashed var(--accent); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; justify-content: center; }
         
         label { display: block; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; font-size: 13px; }
-        
-        .upload-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 12px; }
-        input[type="file"] { background: var(--bg-dark); border: 1px solid var(--border); padding: 6px; border-radius: 6px; color: var(--text-muted); font-size: 13px; cursor: pointer; }
 
         textarea { 
             width: 100%; 
-            height: 100px; 
+            height: 120px; 
             padding: 12px; 
             background: var(--bg-dark); 
             border: 1px solid var(--border); 
@@ -102,18 +99,14 @@
 
 <div class="wrapper">
     <header>
-        <h1>⚡ Smart Money Swing Analyzer Pro Max (Universal Engine)</h1>
-        <p>Supports Multi-Format CSV/Semicolon Files, Automated String Filters & Performance Charts</p>
+        <h1>⚡ Smart Money Swing Analyzer (Manual Paste Engine)</h1>
+        <p>100% Stable Copy-Paste System | Automated 5-Rule Checklist, 10D Price Chart & Image Export</p>
     </header>
 
     <div class="dashboard-grid">
-        <!-- Input Panel -->
         <div class="input-panel">
-            <div class="upload-row">
-                <label style="margin-bottom:0;">📁 Drop/Upload Any NSE CSV File:</label>
-                <input type="file" id="csvFileInput" accept=".csv" onchange="handleFileLoad(event)">
-            </div>
-            <textarea id="csvDataInput" placeholder="Paste data text or upload file above..."></textarea>
+            <label for="csvDataInput">📋 Paste Copied Data Table Rows Below:</label>
+            <textarea id="csvDataInput" placeholder="NSE page se data copy karke yahan paste karein..."></textarea>
             
             <div class="btn-group">
                 <button class="btn" onclick="processNseSwingData()">📊 Scan Swing Trade Potential</button>
@@ -121,17 +114,13 @@
             </div>
         </div>
 
-        <!-- Smart Quick Navigation Guide -->
         <div class="helper-card">
-            <div>
-                <h3 style="font-size:14px; margin-bottom:8px; color:#fff;">🌐 Quick NSE Portal Integration</h3>
-                <p style="font-size:12px; color:var(--text-muted); line-height:1.4;">Bhai, security policies ki wajah se official data directly embed nahi ho sakta, par aap yahan click karke direct data le sakte hain:</p>
-            </div>
-            <a href="https://www.nseindia.com/report-detail/historical-corporate-data" target="_blank" class="btn" style="text-align:center; text-decoration:none; padding:8px; font-size:12px; margin-top:8px;">Open NSE Historical Hub ↗</a>
+            <h3 style="font-size:14px; margin-bottom:6px; color:#fff;">💡 Quick Guide</h3>
+            <p style="font-size:12px; color:var(--text-muted); line-height:1.4;">NSE site par jaakar pooray table ka data select karke copy karein aur is box me paste kar dein. Kisi file download ki zaroorat nahi hai!</p>
+            <a href="https://www.nseindia.com/report-detail/historical-corporate-data" target="_blank" class="btn" style="text-align:center; text-decoration:none; padding:8px; font-size:12px; margin-top:10px;">Open NSE Hub ↗</a>
         </div>
     </div>
 
-    <!-- Summary Metrics Dashboard Table -->
     <div class="table-container">
         <table>
             <thead>
@@ -150,14 +139,13 @@
             <tbody id="analysisResult">
                 <tr>
                     <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                        Upload CSV file or paste columns block above to instantly calculate.
+                        Paste rows block above to instantly calculate averages.
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- DEEP ANALYSIS RUNTIME BLOCK CONTAINER -->
     <div class="analysis-panel" id="deepAnalysisBlock">
         <div class="analysis-title">
             <span>🔍 Deep Technical Audit & Strategy Blueprint</span>
@@ -193,23 +181,12 @@
 let globalChartInstance = null;
 let historicalDataForChart = [];
 
-function handleFileLoad(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        document.getElementById('csvDataInput').value = e.target.result;
-    };
-    reader.readAsText(file);
-}
-
 function clearDashboard() {
-    document.getElementById('csvFileInput').value = "";
     document.getElementById('csvDataInput').value = "";
     document.getElementById('analysisResult').innerHTML = `
         <tr>
             <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                Upload CSV file or paste columns block above to instantly calculate.
+                Paste rows block above to instantly calculate averages.
             </td>
         </tr>`;
     document.getElementById('deepAnalysisBlock').style.display = 'none';
@@ -218,27 +195,25 @@ function clearDashboard() {
 
 function processNseSwingData() {
     const rawData = document.getElementById('csvDataInput').value.trim();
-    if(!rawData) { alert("Data block input empty!"); return; }
+    if(!rawData) { alert("Data box khali hai! Kripya data paste karein."); return; }
 
     const lines = rawData.split(/\r?\n/);
-    let stockSymbol = "UNKNOWN";
+    let stockSymbol = "STOCK";
     let parsedRows = [];
 
     lines.forEach(line => {
         let trimmed = line.trim();
-        if(trimmed === "" || trimmed.toLowerCase().includes('historical') || trimmed.toLowerCase().includes('symbol')) return;
+        if(trimmed === "" || trimmed.toLowerCase().includes('historical') || trimmed.toLowerCase().includes('symbol') || trimmed.toLowerCase().includes('series')) return;
         
-        // Advanced cleaning node: handles messy text quotes, spaces, tabs and semicolons perfectly
-        let cleanedLine = trimmed.replace(/"/g, ''); // Clear internal literal quotes structure
-        cleanedLine = cleanedLine.replace(/,(?=\d)/g, ''); // Clear dynamic internal grouping commas (e.g. 1,50,000 -> 150000)
-        
-        // Smart splitter handles both Standard Comma CSVs, Semicolons and raw tabs
-        let tokens = cleanedLine.split(/[\t,;]+/).map(t => t.trim()).filter(t => t !== "");
+        // Fail-proof clean text processor: replaces quotes, commas, semicolons into clean spaces
+        let formatted = trimmed.replace(/"/g, '').replace(/,/g, ' ').replace(/;/g, ' ');
+        let tokens = formatted.split(/\s+/).map(t => t.trim()).filter(t => t !== "");
 
         if (tokens.length >= 10) {
             stockSymbol = tokens[0].replace(/EQ$/i, '').trim();
             let totalTokens = tokens.length;
             
+            // Re-mapping indexes from backend to bypass text issues
             let dlyPct = parseFloat(tokens[totalTokens - 1]);
             let delQty = parseFloat(tokens[totalTokens - 2]);
             let volume = parseFloat(tokens[totalTokens - 5]); 
@@ -262,7 +237,7 @@ function processNseSwingData() {
     });
 
     if(parsedRows.length === 0) { 
-        alert("Parser alert: File formats are completely scrambled. Try fresh export copy."); 
+        alert("Error: Data lines parse nahi ho sakin. Kripya table se rows theek se copy karke paste karein."); 
         return; 
     }
 
