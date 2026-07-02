@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hybrid Speed Bill (Local + Online)</title>
+  <title>Hybrid Speed Bill (Local + Online) - V2</title>
   <script src="https://cdn.jsdelivr.net/npm/uuid@latest/dist/umd/uuidv4.min.js"></script>
   <style>
     :root { --wa-green: #075E54; --wa-light-green: #dcf8c6; --bg-gray: #ece5dd; --local-blue: #007bff; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { background: var(--bg-gray); padding-bottom: 100px; }
+    body { background: var(--bg-gray); padding-bottom: 120px; }
     
     /* Login Modal */
     #authModal { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
@@ -19,7 +19,11 @@
     /* Main Layout */
     header { background: var(--wa-green); color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 1.2rem; }
     .status-badge { font-size: 11px; padding: 2px 6px; border-radius: 10px; background: orange; color: black; display: inline-block; margin-top: 5px; }
-    .meta-sec { background: white; padding: 10px; border-bottom: 2px solid #ccc; display: flex; flex-direction: column; gap: 5px; }
+    
+    /* Meta section improvement with flex row */
+    .meta-sec { background: white; padding: 10px; border-bottom: 2px solid #ccc; display: flex; flex-direction: row; gap: 10px; align-items: center; justify-content: space-between; }
+    .cust-input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 15px; }
+    .current-date-display { font-weight: bold; color: #555; font-size: 14px; padding: 0 5px; white-space: nowrap; }
     
     /* Mode Toggle & Search */
     .mode-container { display: flex; justify-content: space-between; padding: 10px; background: #f0f0f0; }
@@ -35,9 +39,16 @@
     .list-container { max-width: 600px; margin: auto; padding: 10px; }
     .chat-bubble { background: white; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; display: flex; justify-content: space-between; align-items: center; }
     .chat-bubble.in-bill { background: var(--wa-light-green); }
-    .item-info { flex: 2; cursor: pointer; }
+    
+    .item-info { flex: 2; }
+    .item-info.clickable { cursor: pointer; } /* Added for bill mode selection */
+    
     .item-name { font-weight: bold; font-size: 16px; }
     .item-sub { font-size: 12px; color: #666; margin-top: 2px; }
+    
+    /* Bold Price Styling */
+    .bold-price { font-weight: bold; color: #000; }
+    
     .item-actions { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
     
     /* Inline Editing & Delete */
@@ -47,6 +58,12 @@
 
     /* Add Item Panel Form */
     .add-item-panel { max-width: 600px; margin: 10px auto; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+
+    /* Bill Invoice Summary Sheet View */
+    .bill-invoice-sheet { max-width: 600px; margin: 15px auto; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-top: 4px solid var(--wa-green); }
+    .invoice-header { font-weight: bold; font-size: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 5px; margin-bottom: 10px; color: #333; }
+    .invoice-row { display: flex; justify-content: space-between; font-size: 14px; padding: 4px 0; border-bottom: 1px dashed #f5f5f5; }
+    .invoice-total { display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; color: #d9534f; margin-top: 10px; padding-top: 10px; border-top: 2px solid #333; }
 
     /* Bottom Sticky Bar */
     .footer-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 10px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-around; z-index: 900; overflow-x: auto; }
@@ -80,11 +97,11 @@
     </header>
     
     <div class="meta-sec">
-      <input type="text" id="custName" placeholder="Customer Name" class="input-field" style="margin:0;">
-      <input type="date" id="billDate" class="input-field" style="margin:0;">
+      <input type="text" id="custName" placeholder="Customer Name" class="cust-input">
+      <div id="dateDisplay" class="current-date-display">Date: 02/07/2026</div>
     </div>
 
-    <div class="add-item-panel">
+    <div class="add-item-panel" id="quickAddSection">
       <h4 style="margin-bottom: 5px; color: #333;">Quick Add/Edit Item</h4>
       <div style="display: flex; flex-wrap: wrap; gap: 5px;">
         <input type="text" id="pCode" placeholder="Code" style="width:50px; padding:5px;">
@@ -106,6 +123,15 @@
 
     <div class="list-container" id="masterList"></div>
 
+    <div id="billInvoiceSection" class="bill-invoice-sheet" style="display: none;">
+      <div class="invoice-header">📄 Live Bill Estimate Breakdown</div>
+      <div id="invoiceItemsRows"></div>
+      <div class="invoice-total">
+        <span>Grand Total:</span>
+        <span id="invoiceGrandTotal">₹0.00</span>
+      </div>
+    </div>
+
     <div class="footer-bar">
       <button class="bg-print" onclick="window.print()">Print</button>
       <button class="bg-csv" onclick="exportCSV()">CSV</button>
@@ -116,22 +142,26 @@
   </div>
 
   <script>
-    // Configuration (Apna deployed web app URL yahan dalein)
     const SCRIPT_URL = "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL"; 
     
-    let sheetItems = []; // Google Sheet se aaye items
-    let localItems = []; // Local storage wale items
+    let sheetItems = []; 
+    let localItems = []; 
     let currentBill = {};
     let currentMode = 'entry'; 
     let isOnlineMode = false;
 
     window.onload = function() {
-      document.getElementById('billDate').valueAsDate = new Date();
+      // Automatic current date setup without calendar picker
+      const today = new Date();
+      const dd = String(today.getDate()).padStart(2, '0');
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const yyyy = today.getFullYear();
+      document.getElementById('dateDisplay').innerText = `Date: ${dd}/${mm}/${yyyy}`;
+
       loadLocalItems();
       checkExistingAuth();
     }
 
-    // Local Storage Data Load
     function loadLocalItems() {
       let stored = localStorage.getItem('local_items_db');
       localItems = stored ? JSON.parse(stored) : [];
@@ -141,13 +171,12 @@
       localStorage.setItem('local_items_db', JSON.stringify(localItems));
     }
 
-    // Guest / Without Email Login
     function startAsGuest() {
       isOnlineMode = false;
       document.getElementById('appModeBadge').innerText = "Offline/Local Mode Only";
       document.getElementById('appModeBadge').style.background = "#0d6efd";
       document.getElementById('appModeBadge').style.color = "white";
-      document.getElementById('btnOnlineSave').style.display = "none"; // Hide Online save button
+      document.getElementById('btnOnlineSave').style.display = "none"; 
       launchApp();
     }
 
@@ -175,7 +204,7 @@
             launchApp();
             return;
           }
-        } catch(e) { console.log("Offline mode due to network or server config."); }
+        } catch(e) { console.log("Offline mode triggered."); }
       }
     }
 
@@ -221,17 +250,25 @@
       fetch(`${SCRIPT_URL}?action=getItems`)
         .then(r => r.json())
         .then(data => { sheetItems = data; renderList(); })
-        .catch(err => { alert("Google sheet data fetch failed. Showing local data."); renderList(); });
+        .catch(err => { alert("Cloud Data load error. Using offline state."); renderList(); });
     }
 
+    // Improvement 5: Toggle UI Section layout dynamically
     function setMode(mode) {
       currentMode = mode;
       document.getElementById('btnEntry').classList.toggle('active', mode === 'entry');
       document.getElementById('btnBill').classList.toggle('active', mode === 'bill');
+      
+      if(mode === 'bill') {
+        document.getElementById('quickAddSection').style.display = 'none'; // Hide form panel
+        document.getElementById('billInvoiceSection').style.display = 'block'; // Show bottom invoice sheet
+      } else {
+        document.getElementById('quickAddSection').style.display = 'block'; // Show form panel
+        document.getElementById('billInvoiceSection').style.display = 'none'; // Hide bottom invoice sheet
+      }
       renderList();
     }
 
-    // Master Item Add/Edit Mechanism
     async function addNewMasterItem() {
       let code = document.getElementById('pCode').value;
       let nameEn = document.getElementById('pNameEn').value;
@@ -242,25 +279,22 @@
 
       if(!code || !nameEn) return alert("Code aur English Name zaroori hai!");
 
-      let newItem = { Code: code, ItemNameEn: nameEn, ItemNameHi: nameHi, Unit: unit, Retail: retail, Wholesale: wholesale, origin: isOnlineMode ? 'online' : 'local' };
+      let newItem = { Code: code, ItemNameEn: nameEn, ItemNameHi: nameHi, Unit: unit, Retail: retail, Wholesale: wholesale };
 
       if(isOnlineMode) {
-        // Online Mode: Send data to Google Apps Script to save in sheet
         let res = await fetch(SCRIPT_URL, {
           method: 'POST',
           body: JSON.stringify({ action: 'addOrUpdateItem', item: newItem })
         }).then(r => r.json());
         if(res.success) { fetchOnlineItems(); }
       } else {
-        // Local Mode: Save to local Storage
         let idx = localItems.findIndex(i => i.Code == code);
-        if(idx > -1) localItems[idx] = newItem; // Update if exists
+        if(idx > -1) localItems[idx] = newItem; 
         else localItems.push(newItem);
         saveLocalItemsToStorage();
         renderList();
       }
 
-      // Clear Inputs
       document.getElementById('pCode').value = '';
       document.getElementById('pNameEn').value = '';
       document.getElementById('pNameHi').value = '';
@@ -268,9 +302,8 @@
       document.getElementById('pWholesale').value = '';
     }
 
-    // Delete Master Item
     async function deleteMasterItem(code, origin) {
-      if(!confirm("Kya aap is item ko master list se permanent delete karna chahte hain?")) return;
+      if(!confirm("Kya aap is item ko permanent delete karna chahte hain?")) return;
 
       if(origin === 'online' && isOnlineMode) {
         let res = await fetch(SCRIPT_URL, {
@@ -298,35 +331,34 @@
       }
     }
 
-    // Core Dual Section UI Render Engine
+    // Core Dual Section Engine Updates
     function renderList() {
       const container = document.getElementById('masterList');
       container.innerHTML = '';
       
+      const query = document.getElementById('search').value.toLowerCase();
+      
       if (currentMode === 'bill') {
-        // Bill Mode: Just render items in current bill
+        // Bill Mode: Filter items that are currently inside currentBill dictionary
         let items = Object.values(currentBill);
-        renderSectionBucket(container, items, "Current Invoice Items", false);
+        renderSectionBucket(container, items, "Active Invoice Bill Items", false);
+        calculateInvoiceSheet();
       } else {
-        // Entry Mode: Render Sections Separately
-        // 1. Local Items Section
+        // Entry Mode: Render Sections Separately with Bold Prices & Click Blocked
         if(localItems.length > 0) {
           renderSectionBucket(container, localItems, "Local Storage Items (Device Saved)", true, 'local');
         }
-        // 2. Google Sheet Items Section
         if(isOnlineMode && sheetItems.length > 0) {
           renderSectionBucket(container, sheetItems, "Google Spreadsheet Items (Cloud Saved)", true, 'online');
-        } else if (isOnlineMode && sheetItems.length === 0) {
-          container.innerHTML += `<p style="padding:10px; color:#666;">Loading items from cloud...</p>`;
         }
       }
       document.getElementById('countBadge').innerText = Object.keys(currentBill).length;
     }
 
-    function renderSectionBucket(container, itemsList, titleText, showManagementButtons, originType = 'local') {
+    // Dynamic Section Builder Engine
+    function renderSectionBucket(container, itemsList, titleText, isManagementActive, originType = 'local') {
       const query = document.getElementById('search').value.toLowerCase();
       
-      // Filter list first
       let filtered = itemsList.filter(item => {
         if(!query) return true;
         return item.ItemNameEn.toLowerCase().includes(query) || 
@@ -334,7 +366,7 @@
                item.Code.toString().includes(query);
       });
 
-      if(filtered.length === 0 && currentMode === 'entry') return;
+      if(filtered.length === 0) return;
 
       const titleDiv = document.createElement('div');
       titleDiv.className = `section-title ${originType}`;
@@ -344,39 +376,72 @@
       filtered.forEach(item => {
         const inBill = currentBill[item.Code];
         const qty = inBill ? inBill.qty : 0;
-        const rate = inBill ? inBill.rate : item.Retail;
+        
+        // Dynamic detection if already loaded in bill
+        const activeRate = inBill ? inBill.rate : item.Retail;
 
         const bubble = document.createElement('div');
         bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
         
+        // Improvement 4: Entry mode touch block, Bill mode touch allowed
+        let clickableClass = (currentMode === 'bill') ? 'item-info clickable' : 'item-info';
+        let clickHandler = (currentMode === 'bill') ? `onclick="selectPriceTierOrAction('${item.Code}')"` : '';
+
         bubble.innerHTML = `
-          <div class="item-info" onclick="handleBubbleTap('${item.Code}', '${originType}')">
+          <div class="${clickableClass}" ${clickHandler}>
             <div class="item-name">${item.ItemNameEn} (${item.ItemNameHi || ''})</div>
-            <div class="item-sub">Code: ${item.Code} | Unit: ${item.Unit} | Price: ₹${item.Retail}</div>
+            <div class="item-sub">
+              Code: ${item.Code} | Unit: ${item.Unit} | 
+              Retail: <span class="bold-price">₹${item.Retail}</span> | 
+              Wholesale: <span class="bold-price">₹${item.Wholesale}</span>
+              ${qty > 0 ? `<br><span style='color:green; font-weight:bold;'>Selected rate: ₹${activeRate}</span>` : ''}
+            </div>
           </div>
           <div class="item-actions">
-            ${qty > 0 ? `
+            ${currentMode === 'bill' ? `
               <button class="qty-btn" onclick="updateQty('${item.Code}', -1)">-</button>
               <input type="number" class="edit-input" value="${qty}" onchange="directQty('${item.Code}', this.value)">
               <button class="qty-btn" onclick="updateQty('${item.Code}', 1)">+</button>
             ` : `
-              ${showManagementButtons ? `
-                <button onclick="editMasterItem('${item.Code}', '${originType}')" style="background:none; border:none; color:blue; font-size:12px; margin-right:5px; cursor:pointer;">✏️</button>
-                <button class="del-btn" onclick="deleteMasterItem('${item.Code}', '${originType}')">X</button>
-              ` : '<span style="color:#aaa; font-size:12px;">Tap to Bill</span>'}
+              <button onclick="editMasterItem('${item.Code}', '${originType}')" style="background:none; border:none; color:blue; font-size:14px; margin-right:10px; cursor:pointer;">✏️</button>
+              <button class="del-btn" onclick="deleteMasterItem('${item.Code}', '${originType}')">X</button>
             `}
           </div>
         `;
+        
+        // If Entry Mode, let's also allow adding items by tapping on it? 
+        // As per rule #4: "entry Mode me touch na ho sirf edit/delete active ho".
+        // So we do NOT give tap tracking on bubble during entry mode. 
+        // To add items to bill, user can switch to Bill mode, search the item and tap it!
+        if(currentMode === 'entry') {
+          // Do nothing on bubble tap.
+        } else {
+          // Bill Mode tap action
+        }
+        
         container.appendChild(bubble);
       });
     }
 
-    function handleBubbleTap(code, originType) {
+    // Improvement 5: Handle Pricing selection model when building the bill invoice
+    function selectPriceTierOrAction(code) {
+      // Find the item from database references
+      let item = sheetItems.find(i => i.Code == code) || localItems.find(i => i.Code == code);
+      if(!item) return;
+
       if(!currentBill[code]) {
-        let originalItem = originType === 'online' ? sheetItems.find(i => i.Code == code) : localItems.find(i => i.Code == code);
-        currentBill[code] = { ...originalItem, qty: 1, rate: originalItem.Retail };
-        renderList();
+        // Ask if Retail or Wholesale tier is needed
+        let type = prompt("Select Price Type:\nEnter 'r' for Retail (₹" + item.Retail + ")\nEnter 'w' for Wholesale (₹" + item.Wholesale + ")", "r");
+        let rateChosen = item.Retail;
+        if(type && type.toLowerCase() === 'w') {
+          rateChosen = item.Wholesale;
+        }
+        currentBill[code] = { ...item, qty: 1, rate: rateChosen };
+      } else {
+        // If already exists, increment count
+        currentBill[code].qty += 1;
       }
+      renderList();
     }
 
     function updateQty(code, change) {
@@ -393,48 +458,66 @@
       renderList();
     }
 
-    function clearBill() {
-      if(confirm("Clear current invoice?")) { currentBill = {}; renderList(); }
+    // Calculation breakdown framework
+    function calculateInvoiceSheet() {
+      const rowsBox = document.getElementById('invoiceItemsRows');
+      rowsBox.innerHTML = '';
+      let total = 0;
+      
+      Object.values(currentBill).forEach(i => {
+        let sub = i.qty * i.rate;
+        total += sub;
+        rowsBox.innerHTML += `
+          <div class="invoice-row">
+            <span>${i.ItemNameEn} (${i.qty} ${i.Unit})</span>
+            <strong>₹${sub.toFixed(2)}</strong>
+          </div>
+        `;
+      });
+      document.getElementById('invoiceGrandTotal').innerText = `₹${total.toFixed(2)}`;
     }
 
-    // Google sheet cloud saving code 
+    function clearBill() {
+      if(confirm("Clear active invoice?")) { currentBill = {}; renderList(); }
+    }
+
     async function saveToGoogleSheet() {
-      if(!isOnlineMode) return alert("Aap Offline mode me hain! Pehle Google login karein.");
+      if(!isOnlineMode) return alert("Offline mode active! Can't cloud sync.");
       let customer = document.getElementById('custName').value;
-      let date = document.getElementById('billDate').value;
+      let date = new Date().toLocaleDateString();
       let itemsArray = Object.values(currentBill);
-      if(itemsArray.length === 0) return alert("Bill khali hai!");
+      if(itemsArray.length === 0) return alert("Bill details empty!");
       let total = itemsArray.reduce((acc, i) => acc + (i.qty * i.rate), 0);
 
       let res = await fetch(SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify({ action: "saveBill", date: date, customer: customer || "Cash Bill", items: itemsArray, total: total })
+        body: JSON.stringify({ action: "saveBill", date: date, customer: customer || "Cash Counter", items: itemsArray, total: total })
       }).then(r => r.json());
 
       if(res.success) {
-        alert("Saved to Google Cloud! Inv No: " + res.invoiceNo);
+        alert("Synced successfully to Google Cloud Sheet! Invoice: " + res.invoiceNo);
         currentBill = {}; renderList();
       }
     }
 
     function shareWhatsApp() {
-      let txt = `*Invoice Bill*\nCust: ${document.getElementById('custName').value || 'Cash'}\nDate: ${document.getElementById('billDate').value}\n-------------------------\n`;
+      let txt = `*Kirana Receipt*\nCustomer: ${document.getElementById('custName').value || 'Cash'}\n-------------------------\n`;
       let total = 0;
       Object.values(currentBill).forEach(i => {
         let sub = i.qty * i.rate; total += sub;
         txt += `${i.ItemNameEn} - ${i.qty} ${i.Unit} x ₹${i.rate} = ₹${sub}\n`;
       });
-      txt += `-------------------------\n*Total: ₹${total}*`;
+      txt += `-------------------------\n*Total Bill Amount: ₹${total}*`;
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`);
     }
 
     function exportCSV() {
-      let rows = [["Item Name", "Qty", "Rate", "Subtotal"]];
+      let rows = [["Item Description", "Quantity Ordered", "Final Rate Applied", "Subtotal Cost"]];
       Object.values(currentBill).forEach(i => rows.push([i.ItemNameEn, i.qty, i.rate, i.qty * i.rate]));
       let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
       let link = document.createElement("a");
       link.setAttribute("href", encodeURI(csvContent));
-      link.setAttribute("download", `Bill_${Date.now()}.csv`);
+      link.setAttribute("download", `Invoice_Bill_${Date.now()}.csv`);
       document.body.appendChild(link); link.click();
     }
   </script>
