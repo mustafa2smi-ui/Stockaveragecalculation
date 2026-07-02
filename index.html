@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Money Swing Analyzer Ultra Pro</title>
+    <title>Smart Money Swing Analyzer - RSI Momentum Pro</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -31,16 +31,13 @@
         @media(min-width: 992px) { .dashboard-grid { grid-template-columns: 2.5fr 1fr; } }
 
         .input-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-        .helper-card { background: rgba(99, 102, 241, 0.1); border: 1px dashed var(--accent); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; }
+        .helper-card { background: rgba(99, 102, 241, 0.1); border: 1px dashed var(--accent); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; justify-content: center; }
         
         label { display: block; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; font-size: 13px; }
-        
-        .upload-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 12px; }
-        input[type="file"] { background: var(--bg-dark); border: 1px solid var(--border); padding: 6px; border-radius: 6px; color: var(--text-muted); font-size: 13px; cursor: pointer; }
 
         textarea { 
             width: 100%; 
-            height: 100px; 
+            height: 120px; 
             padding: 12px; 
             background: var(--bg-dark); 
             border: 1px solid var(--border); 
@@ -102,18 +99,14 @@
 
 <div class="wrapper">
     <header>
-        <h1>⚡ Smart Money Swing Analyzer Pro Max (Universal Engine)</h1>
-        <p>Supports Multi-Format CSV/Semicolon Files, Automated String Filters & Performance Charts</p>
+        <h1>⚡ Smart Money Swing Analyzer (RSI Momentum Edition)</h1>
+        <p>100% Mobile Optimized Data Parser | 5-Rule Checklist Matrix + 14D RSI Dynamic Scan & Export</p>
     </header>
 
     <div class="dashboard-grid">
-        <!-- Input Panel -->
         <div class="input-panel">
-            <div class="upload-row">
-                <label style="margin-bottom:0;">📁 Drop/Upload Any NSE CSV File:</label>
-                <input type="file" id="csvFileInput" accept=".csv" onchange="handleFileLoad(event)">
-            </div>
-            <textarea id="csvDataInput" placeholder="Paste data text or upload file above..."></textarea>
+            <label for="csvDataInput">📋 Paste Copied Data Table Rows Below:</label>
+            <textarea id="csvDataInput" placeholder="NSE page se data copy karke yahan paste karein..."></textarea>
             
             <div class="btn-group">
                 <button class="btn" onclick="processNseSwingData()">📊 Scan Swing Trade Potential</button>
@@ -121,13 +114,10 @@
             </div>
         </div>
 
-        <!-- Smart Quick Navigation Guide -->
         <div class="helper-card">
-            <div>
-                <h3 style="font-size:14px; margin-bottom:8px; color:#fff;">🌐 Quick NSE Portal Integration</h3>
-                <p style="font-size:12px; color:var(--text-muted); line-height:1.4;">Bhai, security policies ki wajah se official data directly embed nahi ho sakta, par aap yahan click karke direct data le sakte hain:</p>
-            </div>
-            <a href="https://www.nseindia.com/report-detail/historical-corporate-data" target="_blank" class="btn" style="text-align:center; text-decoration:none; padding:8px; font-size:12px; margin-top:8px;">Open NSE Historical Hub ↗</a>
+            <h3 style="font-size:14px; margin-bottom:6px; color:#fff;">💡 Quick Guide</h3>
+            <p style="font-size:12px; color:var(--text-muted); line-height:1.4;">NSE site par jaakar pooray table ka data select karke copy karein aur is box me paste kar dein. RSI aur moving averages automatic compute ho jayenge.</p>
+            <a href="https://www.nseindia.com/report-detail/historical-corporate-data" target="_blank" class="btn" style="text-align:center; text-decoration:none; padding:8px; font-size:12px; margin-top:10px;">Open NSE Hub ↗</a>
         </div>
     </div>
 
@@ -139,18 +129,18 @@
                     <th>Symbol</th>
                     <th class="text-center">Latest Date</th>
                     <th class="text-right">Price (High / Close)</th>
+                    <th class="text-right">14D RSI Value</th>
                     <th class="text-right">20D High Breakout</th>
                     <th class="text-right">20D Avg Vol</th>
-                    <th class="text-right">20D Avg Del Qty</th>
                     <th class="text-right">20D Avg Del %</th>
                     <th class="text-center">Signal</th>
-                    <th class="text-center">Points</th>
+                    <th class="text-center">Scoring Points</th>
                 </tr>
             </thead>
             <tbody id="analysisResult">
                 <tr>
                     <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                        Upload CSV file or paste columns block above to instantly calculate.
+                        Paste rows block above to instantly calculate momentum structures.
                     </td>
                 </tr>
             </tbody>
@@ -193,47 +183,63 @@
 let globalChartInstance = null;
 let historicalDataForChart = [];
 
-function handleFileLoad(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        document.getElementById('csvDataInput').value = e.target.result;
-    };
-    reader.readAsText(file);
-}
-
 function clearDashboard() {
-    document.getElementById('csvFileInput').value = "";
     document.getElementById('csvDataInput').value = "";
     document.getElementById('analysisResult').innerHTML = `
         <tr>
             <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                Upload CSV file or paste columns block above to instantly calculate.
+                Paste rows block above to instantly calculate momentum structures.
             </td>
         </tr>`;
     document.getElementById('deepAnalysisBlock').style.display = 'none';
     if(globalChartInstance) { globalChartInstance.destroy(); globalChartInstance = null; }
 }
 
+// Math logic to calculate 14 Days RSI Module dynamically
+function calculateRSI(data) {
+    if(data.length < 15) return 50; // default protection
+    let gains = 0;
+    let losses = 0;
+    
+    // First 14 days baseline calculation
+    for(let i = data.length - 2; i >= data.length - 15; i--) {
+        let diff = data[i].close - data[i+1].close;
+        if(diff > 0) gains += diff;
+        else losses -= diff;
+    }
+    
+    let avgGain = gains / 14;
+    let avgLoss = losses / 14;
+    
+    // Smooth moving average for remaining data until today (index 0)
+    for(let i = data.length - 16; i >= 0; i--) {
+        let diff = data[i].close - data[i+1].close;
+        let currentGain = diff > 0 ? diff : 0;
+        let currentLoss = diff < 0 ? -diff : 0;
+        
+        avgGain = (avgGain * 13 + currentGain) / 14;
+        avgLoss = (avgLoss * 13 + currentLoss) / 14;
+    }
+    
+    if(avgLoss === 0) return 100;
+    let rs = avgGain / avgLoss;
+    return 100 - (100 / (1 + rs));
+}
+
 function processNseSwingData() {
     const rawData = document.getElementById('csvDataInput').value.trim();
-    if(!rawData) { alert("Data block input empty!"); return; }
+    if(!rawData) { alert("Data box khali hai! Kripya data paste karein."); return; }
 
     const lines = rawData.split(/\r?\n/);
-    let stockSymbol = "UNKNOWN";
+    let stockSymbol = "STOCK";
     let parsedRows = [];
 
     lines.forEach(line => {
         let trimmed = line.trim();
-        if(trimmed === "" || trimmed.toLowerCase().includes('historical') || trimmed.toLowerCase().includes('symbol')) return;
+        if(trimmed === "" || trimmed.toLowerCase().includes('historical') || trimmed.toLowerCase().includes('symbol') || trimmed.toLowerCase().includes('series')) return;
         
-        // Advanced cleaning node: handles messy text quotes, spaces, tabs and semicolons perfectly
-        let cleanedLine = trimmed.replace(/"/g, ''); // Clear internal literal quotes structure
-        cleanedLine = cleanedLine.replace(/,(?=\d)/g, ''); // Clear dynamic internal grouping commas (e.g. 1,50,000 -> 150000)
-        
-        // Smart splitter handles both Standard Comma CSVs, Semicolons and raw tabs
-        let tokens = cleanedLine.split(/[\t,;]+/).map(t => t.trim()).filter(t => t !== "");
+        let formatted = trimmed.replace(/"/g, '').replace(/,/g, ' ').replace(/;/g, ' ');
+        let tokens = formatted.split(/\s+/).map(t => t.trim()).filter(t => t !== "");
 
         if (tokens.length >= 10) {
             stockSymbol = tokens[0].replace(/EQ$/i, '').trim();
@@ -261,8 +267,8 @@ function processNseSwingData() {
         }
     });
 
-    if(parsedRows.length === 0) { 
-        alert("Parser alert: File formats are completely scrambled. Try fresh export copy."); 
+    if(parsedRows.length < 15) { 
+        alert("Error: RSI calculate karne ke liye kam se kam 15 dinon ka data chahiye."); 
         return; 
     }
 
@@ -277,6 +283,9 @@ function processNseSwingData() {
     const avg20Vol = getAvg(parsedRows, 20, 'volume');
     const avg20DelQty = getAvg(parsedRows, 20, 'delQty');
     const avg20DelPct = getAvg(parsedRows, 20, 'delPct');
+    
+    // Dynamic RSI Fetch Execution
+    const currentRSI = calculateRSI(parsedRows);
 
     let max20High = 0;
     let min20Low = Infinity;
@@ -303,12 +312,18 @@ function processNseSwingData() {
 
     let rule4 = (latest.delPct >= 45 || latest.delPct > avg20DelPct);
     if(rule4) { rulesPassed++; checklistHtml += `<div class="check-item pass">✅ Rule 4 (Del %): Heavy delivery conversion ratio at ${latest.delPct}%.</div>`; }
-    else { checklistHtml += `<div class="check-item fail">❌ Rule 4 (Del %): Dry speculative market action layout.</div>`; }
+    else { checklistHtml += `<div class="check-item fail">❌ Rule 4 (Del %): Speculative market action layout.</div>`; }
 
     let dayRange = latest.high - latest.low;
     let rule5 = (latest.close >= (latest.high - (dayRange * 0.25)));
-    if(rule5 && dayRange > 0) { rulesPassed++; checklistHtml += `<div class="check-item pass">✅ Rule 5 (Closing): Dominant execution. Closed in premium top 25% quadrant.</div>`; }
+    if(rule5 && dayRange > 0) { rulesPassed++; checklistHtml += `<div class="check-item pass">✅ Rule 5 (Closing): Closed in premium top 25% quadrant.</div>`; }
     else { checklistHtml += `<div class="check-item fail">❌ Rule 5 (Closing): Bear pressure forced close down lower bands.</div>`; }
+
+    // Rule 6: RSI Momentum Filter Layer Setup
+    let rsiPassed = (currentRSI >= 60);
+    if(rsiPassed) { rulesPassed++; checklistHtml += `<div class="check-item pass" style="font-weight:600;"><span class="check-icon">🔥</span> Rule 6 (RSI Momentum): High Speed Engine Active! RSI is ${currentRSI.toFixed(1)} (>60 Golden Zone).</div>`; }
+    else if (currentRSI < 40) { checklistHtml += `<div class="check-item fail" style="color:var(--danger); font-weight:bold;"><span class="check-icon">⚠️</span> Rule 6 (RSI Momentum): Avoid Zone! RSI is dangerously dry at ${currentRSI.toFixed(1)} (<40 Downtrend).</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">💤</span> Rule 6 (RSI Momentum): Neutral Range. RSI is sideways at ${currentRSI.toFixed(1)} (Between 40-60).</div>`; }
 
     let isNearLowDanger = (latest.close <= (min20Low * 1.03));
     if(isNearLowDanger) {
@@ -317,20 +332,21 @@ function processNseSwingData() {
     }
 
     let finalSignal = "🔴 Avoid"; let badgeStyle = "sig-avoid";
-    if(rulesPassed >= 4 && !isNearLowDanger) { finalSignal = "🟢 Strong Buy"; badgeStyle = "sig-buy"; }
-    else if(rulesPassed >= 2) { finalSignal = "🟡 Watch"; badgeStyle = "sig-watch"; }
+    // Modified dynamic validation logic targeting maximum 6 scoring point caps
+    if(rulesPassed >= 4 && currentRSI >= 50 && !isNearLowDanger) { finalSignal = "🟢 Strong Buy"; badgeStyle = "sig-buy"; }
+    else if(rulesPassed >= 2 && currentRSI >= 40) { finalSignal = "🟡 Watch"; badgeStyle = "sig-watch"; }
 
     document.getElementById('analysisResult').innerHTML = `
         <tr>
             <td class="highlight-val">${stockSymbol.toUpperCase()}</td>
             <td class="text-center">${latest.date}</td>
             <td class="text-right font-semibold">H: ${latest.high} / C: ${latest.close}</td>
+            <td class="text-right highlight-val" style="color: ${currentRSI >= 60 ? 'var(--success)' : currentRSI < 40 ? 'var(--danger)' : '#fff'}">${currentRSI.toFixed(1)}</td>
             <td class="text-right highlight-val">₹${max20High.toFixed(2)}</td>
             <td class="text-right">${(avg20Vol/100000).toFixed(1)} L</td>
-            <td class="text-right">${(avg20DelQty/100000).toFixed(1)} L</td>
             <td class="text-right">${avg20DelPct.toFixed(1)}%</td>
             <td class="text-center"><span class="signal-badge ${badgeStyle}">${finalSignal}</span></td>
-            <td class="text-center rank-stars">${"⭐".repeat(Math.max(0, rulesPassed))}</td>
+            <td class="text-center rank-stars">${"⭐".repeat(Math.max(0, rulesPassed))} (${Math.max(0, rulesPassed)}/6)</td>
         </tr>
     `;
     
@@ -345,12 +361,12 @@ function processNseSwingData() {
     `;
 
     let commentary = `<strong>💡 Strategy Executive Summary Note:</strong> `;
-    if(rulesPassed >= 4) {
-        commentary += `Premium <strong>Stock B parameters</strong> matched. Heavy volume triggers backed directly by dense delivery accumulation arrays. High break potential configuration verified.`;
-    } else if (latest.delPct > 65 && latest.volume < (avg20Vol * 0.5)) {
-        commentary += `Danger: Classic <strong>Stock A retail trap</strong> signature. High delivery ratio (${latest.delPct}%) with critically dry overall volume levels. Maintain absolute execution avoidance parameters.`;
+    if(rulesPassed >= 4 && currentRSI >= 60) {
+        commentary += `Asset possesses flawless institutional convergence configuration. Heavy volume breakouts are backed directly by strong physical Delivery Accumulation and **High-Velocity RSI Momentum (${currentRSI.toFixed(1)})**. High probability swing candidate for rapid target capture.`;
+    } else if (currentRSI < 40) {
+        commentary += `Strict Avoidance Advised: Despite any delivery metrics spikes, the **RSI is in a structural bear grip at ${currentRSI.toFixed(1)}**. Buying here blocks capital inside slow or falling ranges.`;
     } else {
-        commentary += `Standard range distribution matrix. Insufficient volume push to validate institutional block tracking.`;
+        commentary += `Standard range metrics distribution setup. Volume push and RSI momentum fields present choppy cyclical retail trends rather than real institutional execution sweeps.`;
     }
     document.getElementById('strategyExecutiveSummary').innerHTML = commentary;
 
