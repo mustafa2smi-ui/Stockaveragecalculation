@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp Speed Bill</title>
+  <script src="https://cdn.jsdelivr.net/npm/uuid@latest/dist/umd/uuidv4.min.js"></script>
+  <style>
+    :root { --wa-green: #075E54; --wa-light-green: #dcf8c6; --bg-gray: #ece5dd; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background: var(--bg-gray); padding-bottom: 80px; }
+    
+    /* Login Modal */
+    #authModal { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
+    .input-field { width:100%; max-width:300px; padding:12px; margin:8px 0; border:1px solid #ccc; border-radius:5px; font-size:16px; }
+    .btn { background: var(--wa-green); color:white; border:none; padding:12px 24px; border-radius:5px; font-size:16px; cursor:pointer; }
+    
+    /* Main Layout */
+    header { background: var(--wa-green); color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 1.2rem; }
+    .meta-sec { background: white; padding: 10px; border-bottom: 2px solid #ccc; display: flex; flex-direction: column; gap: 5px; }
+    
+    /* Mode Toggle & Search */
+    .mode-container { display: flex; justify-content: space-between; padding: 10px; background: #f0f0f0; }
+    .toggle-btn { flex: 1; padding: 10px; text-align: center; background: #ddd; font-weight: bold; border: none; cursor: pointer; }
+    .toggle-btn.active { background: var(--wa-green); color: white; }
+    .search-box { width: 95%; margin: 10px auto; display: block; padding: 10px; border-radius: 20px; border: 1px solid #ccc; font-size: 16px; }
+
+    /* Active Bill / Items List (WhatsApp Chat Style) */
+    .list-container { max-width: 600px; margin: auto; padding: 10px; }
+    .chat-bubble { background: white; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; display: flex; justify-content: space-between; align-items: center; }
+    .chat-bubble.in-bill { background: var(--wa-light-green); }
+    .item-info { flex: 2; }
+    .item-name { font-weight: bold; font-size: 16px; }
+    .item-sub { font-size: 12px; color: #666; margin-top: 2px; }
+    .item-actions { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+    
+    /* Inline Editing Inputs */
+    .qty-btn { background: var(--wa-green); color: white; border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 18px; font-weight: bold; }
+    .edit-input { width: 50px; text-align: center; padding: 4px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+
+    /* Bottom Sticky Bar */
+    .footer-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 10px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-around; z-index: 900; }
+    .footer-bar button { padding: 8px 12px; border: none; border-radius: 4px; color: white; font-weight: bold; font-size: 13px; cursor: pointer; }
+    .bg-print { background: #007bff; } .bg-csv { background: #28a745; } .bg-share { background: #25D366; } .bg-clear { background: #dc3545; } .bg-save { background: #ffc107; color: black !important; }
+  </style>
+</head>
+<body>
+
+  <!-- Single-Device Auth Layer -->
+  <div id="authModal">
+    <h2 style="color:var(--wa-green); margin-bottom:15px;">Billing App Verification</h2>
+    <div id="emailSection">
+      <input type="email" id="authEmail" class="input-field" placeholder="Enter Registered Email">
+      <button class="btn" onclick="requestOTP()">Send OTP</button>
+    </div>
+    <div id="otpSection" style="display:none;">
+      <p style="font-size:14px; margin-bottom:5px; color:#555;">Enter OTP sent to your email:</p>
+      <input type="number" id="authOTP" class="input-field" placeholder="6-Digit OTP">
+      <button class="btn" onclick="verifyOTP()">Verify & Lock Device</button>
+    </div>
+  </div>
+
+  <!-- Billing App Core UI -->
+  <div id="appContent" style="display:none;">
+    <header id="shopName">My Digital Kirana Shop</header>
+    
+    <div class="meta-sec">
+      <input type="text" id="custName" placeholder="Customer Name" class="input-field" style="margin:0;">
+      <input type="date" id="billDate" class="input-field" style="margin:0;">
+    </div>
+
+    <div class="mode-container">
+      <button class="toggle-btn active" id="btnEntry" onclick="setMode('entry')">Entry Mode</button>
+      <button class="toggle-btn" id="btnBill" onclick="setMode('bill')">Bill Mode (<span id="countBadge">0</span>)</button>
+    </div>
+
+    <input type="text" id="search" class="search-box" placeholder="Search item name or code... 🔎" oninput="renderList()">
+
+    <div class="list-container" id="masterList"></div>
+
+    <!-- Actions Footer -->
+    <div class="footer-bar">
+      <button class="bg-print" onclick="window.print()">Print</button>
+      <button class="bg-csv" onclick="exportCSV()">CSV</button>
+      <button class="bg-share" onclick="shareWhatsApp()">WhatsApp</button>
+      <button class="bg-clear" onclick="clearBill()">Clear</button>
+      <button class="bg-save" onclick="saveToGoogleSheet()">Save Online</button>
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const SCRIPT_URL = "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL"; 
+    
+    let dbItems = [];
+    let currentBill = {};
+    let currentMode = 'entry'; // 'entry' or 'bill'
+
+    // Auth & Lifecycle Check
+    window.onload = function() {
+      document.getElementById('billDate').valueAsDate = new Date();
+      checkExistingAuth();
+    }
+
+    function getDeviceToken() {
+      let token = localStorage.getItem('device_token');
+      if (!token) {
+        token = uuidv4();
+        localStorage.setItem('device_token', token);
+      }
+      return token;
+    }
+
+    async function checkExistingAuth() {
+      let email = localStorage.getItem('auth_email');
+      let token = getDeviceToken();
+      if(email && token) {
+        let res = await fetch(`${SCRIPT_URL}`, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'checkAuth', email: email, token: token })
+        }).then(r => r.json());
+        
+        if(res.authorized) {
+          launchApp();
+          return;
+        }
+      }
+      document.getElementById('authModal').style.display = 'flex';
+    }
+
+    async function requestOTP() {
+      let email = document.getElementById('authEmail').value;
+      if(!email) return alert('Email enter karein');
+      let res = await fetch(`${SCRIPT_URL}`, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'requestOTP', email: email })
+      }).then(r => r.json());
+      
+      if(res.success) {
+        document.getElementById('emailSection').style.display = 'none';
+        document.getElementById('otpSection').style.display = 'block';
+        localStorage.setItem('auth_email', email);
+      } else {
+        alert(res.message);
+      }
+    }
+
+    async function verifyOTP() {
+      let email = localStorage.getItem('auth_email');
+      let otp = document.getElementById('authOTP').value;
+      let token = getDeviceToken();
+      
+      let res = await fetch(`${SCRIPT_URL}`, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'verifyOTP', email: email, otp: otp, token: token })
+      }).then(r => r.json());
+
+      if(res.success) {
+        launchApp();
+      } else {
+        alert(res.message);
+      }
+    }
+
+    function launchApp() {
+      document.getElementById('authModal').style.display = 'none';
+      document.getElementById('appContent').style.display = 'block';
+      fetchItems();
+    }
+
+    // Load Stock Data from Google Sheet
+    function fetchItems() {
+      fetch(`${SCRIPT_URL}?action=getItems`)
+        .then(r => r.json())
+        .then(data => {
+          dbItems = data;
+          renderList();
+        });
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('btnEntry').classList.toggle('active', mode === 'entry');
+      document.getElementById('btnBill').classList.toggle('active', mode === 'bill');
+      renderList();
+    }
+
+    // Core Render Engine
+    function renderList() {
+      const container = document.getElementById('masterList');
+      container.innerHTML = '';
+      const query = document.getElementById('search').value.toLowerCase();
+
+      let itemsToRender = currentMode === 'entry' ? dbItems : Object.values(currentBill);
+
+      itemsToRender.forEach(item => {
+        // Search Filter
+        if(query && !item.ItemNameEn.toLowerCase().includes(query) && !item.ItemNameHi.includes(query) && !item.Code.toString().includes(query)) {
+          return;
+        }
+
+        const inBill = currentBill[item.Code];
+        const qty = inBill ? inBill.qty : 0;
+        const rate = inBill ? inBill.rate : item.Retail;
+
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
+        
+        // WhatsApp tap functionality or manual controls
+        bubble.innerHTML = `
+          <div class="item-info" onclick="handleBubbleTap('${item.Code}')">
+            <div class="item-name">${item.ItemNameEn} (${item.ItemNameHi || ''})</div>
+            <div class="item-sub">Code: ${item.Code} | Unit: ${item.Unit} | R: ₹${item.Retail} W: ₹${item.Wholesale}</div>
+          </div>
+          <div class="item-actions">
+            ${qty > 0 ? `
+              <button class="qty-btn" onclick="updateQty('${item.Code}', -1)">-</button>
+              <input type="number" class="edit-input" value="${qty}" onchange="directQty('${item.Code}', this.value)">
+              <button class="qty-btn" onclick="updateQty('${item.Code}', 1)">+</button>
+              <input type="number" class="edit-input" style="width:60px;" value="${rate}" onchange="updateRate('${item.Code}', this.value)">
+            ` : `
+              <span style="color:#aaa; font-size:13px;">Tap to Add</span>
+            `}
+          </div>
+        `;
+        container.appendChild(bubble);
+      });
+      
+      // Update badge count
+      document.getElementById('countBadge').innerText = Object.keys(currentBill).length;
+    }
+
+    // Tap Handling Logic
+    function handleBubbleTap(code) {
+      if(!currentBill[code]) {
+        let originalItem = dbItems.find(i => i.Code == code);
+        currentBill[code] = { ...originalItem, qty: 1, rate: originalItem.Retail };
+        renderList();
+      }
+    }
+
+    function updateQty(code, change) {
+      if(currentBill[code]) {
+        currentBill[code].qty += change;
+        if(currentBill[code].qty <= 0) delete currentBill[code];
+        renderList();
+      }
+    }
+
+    function directQty(code, val) {
+      if(val <= 0) delete currentBill[code];
+      else currentBill[code].qty = parseFloat(val);
+      renderList();
+    }
+
+    function updateRate(code, val) {
+      if(currentBill[code]) {
+        currentBill[code].rate = parseFloat(val);
+      }
+    }
+
+    // Actions & Tools
+    function clearBill() {
+      if(confirm("Kya aap current bill clear karna chahte hain?")) {
+        currentBill = {};
+        renderList();
+      }
+    }
+
+    async function saveToGoogleSheet() {
+      let customer = document.getElementById('custName').value;
+      let date = document.getElementById('billDate').value;
+      let itemsArray = Object.values(currentBill);
+      
+      if(itemsArray.length === 0) return alert("Bill me koi item nahi hai!");
+
+      let total = itemsArray.reduce((acc, i) => acc + (i.qty * i.rate), 0);
+
+      let payload = {
+        action: "saveBill",
+        date: date,
+        customer: customer || "Cash",
+        items: itemsArray,
+        total: total
+      };
+
+      let res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      }).then(r => r.json());
+
+      if(res.success) {
+        alert("Bill Successfully saved to Google Sheet! Invoice: " + res.invoiceNo);
+        currentBill = {};
+        renderList();
+      }
+    }
+
+    function shareWhatsApp() {
+      let txt = `*${document.getElementById('shopName').innerText}*\n`;
+      txt += `Cust: ${document.getElementById('custName').value || 'Guest'}\n`;
+      txt += `Date: ${document.getElementById('billDate').value}\n`;
+      txt += `-------------------------\n`;
+      let total = 0;
+      Object.values(currentBill).forEach(i => {
+        let sub = i.qty * i.rate;
+        total += sub;
+        txt += `${i.ItemNameEn} - ${i.qty} ${i.Unit} x ₹${i.rate} = ₹${sub}\n`;
+      });
+      txt += `-------------------------\n`;
+      txt += `*Total: ₹${total}*`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`);
+    }
+
+    function exportCSV() {
+      let rows = [["Item Name", "Qty", "Rate", "Subtotal"]];
+      Object.values(currentBill).forEach(i => rows.push([i.ItemNameEn, i.qty, i.rate, i.qty * i.rate]));
+      let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+      let encodedUri = encodeURI(csvContent);
+      let link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `Bill_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+    }
+  </script>
+</body>
+</html>
