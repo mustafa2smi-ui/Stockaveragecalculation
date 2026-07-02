@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hybrid Speed Bill (Mobile Friendly) - V5</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Hybrid Speed Bill (Fixed Invoice View) - V6</title>
   <script src="https://cdn.jsdelivr.net/npm/uuid@latest/dist/umd/uuidv4.min.js"></script>
   <style>
     :root { --wa-green: #075E54; --wa-light-green: #dcf8c6; --bg-gray: #ece5dd; --local-blue: #007bff; --accent-orange: #ff9800; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
     
-    /* Mobile-First Natural Flow Layout (No freezing) */
-    body { background: var(--bg-gray); padding-bottom: 80px; min-height: 100vh; display: flex; flex-direction: column; }
+    /* Mobile-First Natural Flow with Room for Fixed Bill + Buttons */
+    body { background: var(--bg-gray); padding-bottom: 240px; min-height: 100vh; display: flex; flex-direction: column; }
     
     /* Login Modal Layer */
     #authModal { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; overflow-y: auto; }
@@ -28,7 +28,7 @@
     .current-date-display { font-weight: bold; color: #555; font-size: 13px; white-space: nowrap; }
     
     /* Header Active Navigation Controller Section Panels */
-    .controls-wrapper { background: white; border-bottom: 2px solid #ccc; display: flex; flex-direction: column; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .controls-wrapper { background: white; border-bottom: 2px solid #ccc; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     .mode-container { display: flex; justify-content: space-between; background: #f0f0f0; gap: 2px; padding: 4px; }
     .toggle-btn { flex: 1; padding: 10px; text-align: center; background: #ddd; font-weight: bold; border: none; cursor: pointer; font-size: 14px; }
     .toggle-btn.active { background: var(--wa-green); color: white; }
@@ -38,14 +38,28 @@
     .add-item-grid { display: flex; flex-wrap: wrap; gap: 6px; }
     .add-item-grid input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
     
-    .pricing-control { background: #fff; padding: 8px 12px; border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: space-between; }
+    .pricing-control { background: #fff; padding: 6px 12px; border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: space-between; }
     .pricing-select { padding: 6px; font-weight: bold; border-radius: 4px; border: 1px solid var(--wa-green); color: var(--wa-green); font-size: 13px; outline: none; }
     .search-box { width: 94%; margin: 8px auto; display: block; padding: 10px 14px; border-radius: 20px; border: 1px solid #ccc; font-size: 15px; }
 
     /* Open Natural Flow Scrolling Layout Pane Panels */
-    .workspace-split { padding: 8px; width: 100%; }
+    .workspace-split { padding: 8px; width: 100%; min-height: 200px; }
     .scrollable-items-pane { width: 100%; }
-    .scrollable-bill-pane { background: #fff; border: 2px solid var(--wa-green); border-radius: 8px; padding: 12px; margin-top: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    
+    /* CRITICAL CHANGE: ONLY BILL PAGE FIXED STICKY ABOVE FOOTER BUTTONS */
+    .scrollable-bill-pane { 
+      position: fixed; 
+      bottom: 58px; /* Perfectly aligned just above footer buttons height */
+      left: 0; 
+      width: 100%; 
+      height: 150px; /* Fixed height for bill viewport */
+      background: #fff; 
+      border-top: 3px solid var(--wa-green); 
+      padding: 8px 12px; 
+      box-shadow: 0 -4px 10px rgba(0,0,0,0.12); 
+      z-index: 998; 
+      overflow-y: auto; /* Internal scrolling within the bill area */
+    }
 
     /* UI Dashboard Row Elements Components Design Framework */
     .section-title { background: #ddd; padding: 6px 10px; font-size: 13px; font-weight: bold; color: #333; margin: 12px 0 6px 0; border-radius: 4px; }
@@ -67,13 +81,13 @@
 
     /* Invoice Receipt Voucher Sheet Content Element Stylings */
     .bill-invoice-sheet { width: 100%; }
-    .invoice-header { font-weight: bold; font-size: 15px; border-bottom: 2px dashed #bbb; padding-bottom: 6px; margin-bottom: 8px; color: #222; display: flex; justify-content: space-between; }
-    .invoice-row { display: flex; justify-content: space-between; font-size: 14px; padding: 5px 0; border-bottom: 1px dashed #eee; }
-    .invoice-total { display: flex; justify-content: space-between; font-weight: bold; font-size: 17px; color: #d9534f; margin-top: 10px; padding-top: 8px; border-top: 2px dashed #222; }
+    .invoice-header { font-weight: bold; font-size: 13px; border-bottom: 1px dashed #bbb; padding-bottom: 4px; margin-bottom: 6px; color: #222; display: flex; justify-content: space-between; }
+    .invoice-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; border-bottom: 1px dashed #eee; }
+    .invoice-total { display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; color: #d9534f; margin-top: 6px; padding-top: 4px; border-top: 1px dashed #222; position: sticky; bottom: 0; background: white; }
 
     /* Sticky Bottom Utility Mobile Responsive Action Panel Execution Bar */
-    .footer-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 8px; box-shadow: 0 -3px 12px rgba(0,0,0,0.15); display: flex; flex-wrap: wrap; justify-content: space-around; gap: 6px; z-index: 999; }
-    .footer-bar button { flex: 1; padding: 10px 4px; border: none; border-radius: 4px; color: white; font-weight: bold; font-size: 12px; cursor: pointer; min-width: 60px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .footer-bar { position: fixed; bottom: 0; left: 0; width: 100%; height: 52px; background: white; padding: 6px; box-shadow: 0 -3px 12px rgba(0,0,0,0.15); display: flex; flex-wrap: wrap; justify-content: space-around; gap: 4px; z-index: 999; }
+    .footer-bar button { flex: 1; padding: 8px 2px; border: none; border-radius: 4px; color: white; font-weight: bold; font-size: 12px; cursor: pointer; min-width: 50px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     .bg-print { background: #007bff; } .bg-csv { background: #28a745; } .bg-share { background: #25D366; } 
     .bg-clear { background: #dc3545; } .bg-save { background: #ff9800; color: white !important; }
     .bg-local-save { background: #17a2b8; }
@@ -82,7 +96,7 @@
 <body>
 
   <div id="authModal">
-    <h2 style="color:var(--wa-green); margin-bottom:15px;">Billing App Access (V5)</h2>
+    <h2 style="color:var(--wa-green); margin-bottom:15px;">Billing App Access (V6)</h2>
     <div id="emailSection" style="text-align: center; width: 100%;">
       <input type="email" id="authEmail" class="input-field" placeholder="Enter Registered Email"><br>
       <button class="btn" onclick="requestOTP()">Send OTP (Online Mode)</button>
@@ -142,8 +156,8 @@
       <div class="scrollable-bill-pane" id="billInvoiceSection">
         <div class="bill-invoice-sheet">
           <div class="invoice-header">
-            <span>📄 Current Invoice Estimates</span>
-            <span id="activeBillIdDisplay" style="color: blue; font-size:12px;">New Bill</span>
+            <span>📄 Invoice Details</span>
+            <span id="activeBillIdDisplay" style="color: blue; font-size:11px;">New Bill</span>
           </div>
           <div id="invoiceItemsRows"></div>
           <div class="invoice-total">
@@ -295,10 +309,8 @@
       
       if(mode === 'bill') {
         document.getElementById('pricingModeBar').style.display = 'flex'; 
-        document.getElementById('quickAddSection').style.display = 'none'; 
       } else {
         document.getElementById('pricingModeBar').style.display = 'none'; 
-        document.getElementById('quickAddSection').style.display = 'block'; 
       }
       renderList();
     }
@@ -379,6 +391,7 @@
 
     function renderList() {
       const container = document.getElementById('masterList');
+      // Save current search input selection/scroll state partially by doing direct overwrite safely
       container.innerHTML = '';
       
       if(currentMode === 'entry' && savedLocalBills.length > 0) {
@@ -477,7 +490,8 @@
       let item = sheetItems.find(i => i.Code == code) || localItems.find(i => i.Code == code);
       if(!item) return;
 
-      let selectedPricingMode = document.getElementById('billingPriceTier').value;
+      let selectEl = document.getElementById('billingPriceTier');
+      let selectedPricingMode = selectEl ? selectEl.value : 'retail';
       let targetRate = (selectedPricingMode === 'wholesale') ? item.Wholesale : item.Retail;
 
       if(!currentBill[code]) {
@@ -496,7 +510,8 @@
       } else if (change > 0) {
         let item = sheetItems.find(i => i.Code == code) || localItems.find(i => i.Code == code);
         if(item) {
-          let selectedPricingMode = document.getElementById('billingPriceTier').value;
+          let selectEl = document.getElementById('billingPriceTier');
+          let selectedPricingMode = selectEl ? selectEl.value : 'retail';
           let targetRate = (selectedPricingMode === 'wholesale') ? item.Wholesale : item.Retail;
           currentBill[code] = { ...item, qty: 1, rate: targetRate };
         }
@@ -511,7 +526,8 @@
       } else {
         let item = sheetItems.find(i => i.Code == code) || localItems.find(i => i.Code == code);
         if(!currentBill[code] && item) {
-          let selectedPricingMode = document.getElementById('billingPriceTier').value;
+          let selectEl = document.getElementById('billingPriceTier');
+          let selectedPricingMode = selectEl ? selectEl.value : 'retail';
           let targetRate = (selectedPricingMode === 'wholesale') ? item.Wholesale : item.Retail;
           currentBill[code] = { ...item, qty: parseFloatVal, rate: targetRate };
         } else if(currentBill[code]) {
@@ -587,8 +603,8 @@
       document.getElementById('activeBillIdDisplay').style.color = "red";
 
       setMode('bill'); 
-      // Scroll smoothly down to the bill block area so user sees the loaded data instantly on mobile
-      document.getElementById('billInvoiceSection').scrollIntoView({ behavior: 'smooth' });
+      // Smoothly view inside fixed window area instantly 
+      document.getElementById('billInvoiceSection').scrollTop = 0;
     }
 
     function deleteSavedLocalBill(billId) {
