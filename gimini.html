@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Money Swing Analyzer - Final Fixed Pro</title>
+    <title>Smart Money Swing Analyzer Pro Max</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -27,26 +27,29 @@
         header h1 { font-size: 22px; font-weight: 700; color: var(--text-light); }
         header p { color: var(--text-muted); font-size: 12px; margin-top: 4px; }
 
-        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 20px; }
-        @media(min-width: 992px) { .dashboard-grid { grid-template-columns: 2.5fr 1fr; } }
-
-        .input-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-        .helper-card { background: rgba(99, 102, 241, 0.1); border: 1px dashed var(--accent); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; justify-content: center; }
+        .nse-link-box { background: rgba(99, 102, 241, 0.1); border: 1px dashed var(--accent); padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 13px; }
+        .nse-link-box a { color: #a5b4fc; font-weight: 600; text-decoration: none; }
         
+        .input-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; }
         label { display: block; color: var(--text-muted); margin-bottom: 8px; font-weight: 600; font-size: 13px; }
+        
+        .upload-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 12px; }
+        input[type="file"] { background: var(--bg-dark); border: 1px solid var(--border); padding: 6px; border-radius: 6px; color: var(--text-muted); font-size: 13px; cursor: pointer; }
 
         textarea { 
             width: 100%; 
-            height: 120px; 
+            height: 100px; 
             padding: 12px; 
             background: var(--bg-dark); 
             border: 1px solid var(--border); 
             border-radius: 6px; 
             color: #38bdf8; 
-            font-family: monospace; 
+            font-family: 'Courier New', Courier, monospace; 
             font-size: 12px; 
-            margin-bottom: 16px;
+            white-space: pre; 
+            overflow-x: auto;
             resize: vertical;
+            margin-bottom: 16px;
         }
         
         .btn-group { display: flex; gap: 12px; }
@@ -55,11 +58,14 @@
         .btn-clear { flex: 1; background: #475569; }
         .btn-clear:hover { background: #334155; }
         .btn-download { background: #059669; margin-top: 16px; width: auto; display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer;}
-        
+        .btn-download:hover { background: #047857; }
+
+        /* Output Summary Grid */
         .table-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; overflow-x: auto; margin-top: 20px; }
         table { width: 100%; border-collapse: collapse; text-align: left; min-width: 1100px; }
         th { background: #1e293b; color: var(--text-muted); padding: 12px 14px; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid var(--border); font-weight: 700; }
         td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 13px; }
+        tr:hover td { background: #243146; }
         
         .signal-badge { padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; display: inline-block; text-align: center; width: 95px; }
         .sig-buy { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
@@ -67,6 +73,7 @@
         .sig-avoid { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
         .rank-stars { color: #facc15; font-weight: bold; }
 
+        /* Advanced Analysis Panels */
         .analysis-panel { display: none; margin-top: 24px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
         .analysis-title { font-size: 16px; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: 8px; margin-bottom: 16px; color: #a5b4fc; display: flex; justify-content: space-between; }
         
@@ -79,15 +86,23 @@
         .check-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 10px; font-size: 13px; }
         .check-item.pass { color: var(--success); }
         .check-item.fail { color: var(--text-muted); opacity: 0.8; }
+        .check-icon { font-weight: bold; }
+
+        .level-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #334155; font-size: 13px; }
+        .level-row:last-child { border: none; }
         
         .strategy-note { background: rgba(245, 158, 11, 0.05); border-left: 4px solid var(--warning); padding: 12px; border-radius: 4px; font-size: 13px; color: #cbd5e1; margin-bottom: 16px; }
 
-        .share-snapshot-wrapper { background: #ffffff !important; color: #0f172a !important; padding: 24px; }
-        .share-snapshot-wrapper table { border: 1px solid #cbd5e1; }
+        /* Snapshot export formatting structures */
+        .share-snapshot-wrapper { background: #ffffff !important; color: #0f172a !important; padding: 24px; border-radius: 0px; }
+        .share-snapshot-wrapper table { min-width: 100% !important; border: 1px solid #cbd5e1; }
         .share-snapshot-wrapper th { background: #f1f5f9 !important; color: #475569 !important; border-bottom: 2px solid #cbd5e1; }
         .share-snapshot-wrapper td { color: #0f172a !important; border-bottom: 1px solid #e2e8f0 !important; }
         .share-snapshot-wrapper .checklist-box, .share-snapshot-wrapper .levels-box, .share-snapshot-wrapper .chart-box { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; }
-        
+        .share-snapshot-wrapper .level-row { border-bottom: 1px dashed #cbd5e1 !important; color: #334155 !important; }
+        .share-snapshot-wrapper .strategy-note { background: #fffbeb !important; border-left: 4px solid #d97706 !important; color: #451a03 !important; }
+        .share-snapshot-wrapper .highlight-val { color: #0f172a !important; }
+
         .text-right { text-align: right; }
         .text-center { text-align: center; }
         .highlight-val { color: #fff; font-weight: 600; }
@@ -99,29 +114,28 @@
 
 <div class="wrapper">
     <header>
-        <h1>⚡ Smart Money Swing Analyzer (Fixed Pro Edition)</h1>
-        <p>100% Fixed Columns Mapping | Accurate 20D High, 14D RSI, 20D Averages & High-Close Trend Chart</p>
+        <h1>⚡ Smart Money Swing Analyzer Pro Max</h1>
+        <p>Advanced institutional volume & delivery tracker mapping strict 6-rule criteria with RSI Momentum Scan</p>
     </header>
 
-    <div class="dashboard-grid">
-        <div class="input-panel">
-            <label for="csvDataInput">📋 Paste Copied Data Table Rows Below:</label>
-            <textarea id="csvDataInput" placeholder="NSE page se full data rows select karke yahan paste karein..."></textarea>
-            
-            <div class="btn-group">
-                <button class="btn" onclick="processNseSwingData()">📊 Scan Swing Trade Potential</button>
-                <button class="btn btn-clear" onclick="clearDashboard()">🧹 Reset</button>
-            </div>
-        </div>
+    <div class="nse-link-box">
+        🔗 <strong>NSE Data Stream:</strong> Copy full raw table structure directly from <a href="https://www.nseindia.com/report-detail/historical-corporate-data" target="_blank">NSE Historical Portal</a> or upload the raw downloaded CSV file below.
+    </div>
 
-        <div class="helper-card">
-            <h3 style="font-size:14px; margin-bottom:6px; color:#fff;">💡 Quick Guide</h3>
-            <p style="font-size:12px; color:var(--text-muted); line-height:1.4;">NSE site se pure data blocks ko copy karein aur bina kisi badlav ke yahan paste kar dein. Calculations ab 100% accurate aayenge.</p>
-            <a href="https://www.nseindia.com/report-detail/historical-corporate-data" target="_blank" class="btn" style="text-align:center; text-decoration:none; padding:8px; font-size:12px; margin-top:10px;">Open NSE Hub ↗</a>
+    <div class="input-panel">
+        <div class="upload-row">
+            <label style="margin-bottom:0;">📁 Upload Downloaded NSE CSV File:</label>
+            <input type="file" id="csvFileInput" accept=".csv" onchange="handleFileLoad(event)">
+            <span style="color:var(--text-muted); font-size:12px;">OR paste text data details below:</span>
+        </div>
+        <textarea id="csvDataInput" placeholder="Paste copied NSE data table matrix block here..."></textarea>
+        
+        <div class="btn-group">
+            <button class="btn" onclick="processNseSwingData()">📊 Scan Swing Trade Potential</button>
+            <button class="btn btn-clear" onclick="clearDashboard()">🧹 Clear Data</button>
         </div>
     </div>
 
-    <!-- Summary Metrics Dashboard Table -->
     <div class="table-container">
         <table>
             <thead>
@@ -132,22 +146,22 @@
                     <th class="text-right">14D RSI Value</th>
                     <th class="text-right">20D High Breakout</th>
                     <th class="text-right">20D Avg Vol</th>
+                    <th class="text-right">20D Avg Del Qty</th>
                     <th class="text-right">20D Avg Del %</th>
                     <th class="text-center">Signal</th>
-                    <th class="text-center">Scoring Points</th>
+                    <th class="text-center">Points</th>
                 </tr>
             </thead>
             <tbody id="analysisResult">
                 <tr>
-                    <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                        Paste rows block above to instantly calculate momentum structures.
+                    <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                        Input raw dataset block or upload CSV above to initialize strict scoring.
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
 
-    <!-- DEEP ANALYSIS RUNTIME BLOCK CONTAINER -->
     <div class="analysis-panel" id="deepAnalysisBlock">
         <div class="analysis-title">
             <span>🔍 Deep Technical Audit & Strategy Blueprint</span>
@@ -155,7 +169,7 @@
         </div>
         
         <div class="chart-box">
-            <h3 style="font-size: 14px; margin-bottom: 12px; color: #fff;">📊 Last 10 Days High vs Close Price Action</h3>
+            <h3 style="font-size: 14px; margin-bottom: 12px; color: #fff;" id="chartTitleText">📊 Last 10 Days High vs Close Candlestick Trend</h3>
             <div style="height: 250px; position: relative;">
                 <canvas id="priceTrendChart"></canvas>
             </div>
@@ -166,6 +180,7 @@
                 <h3 style="font-size: 14px; margin-bottom: 12px; color: #fff;">📋 Strict Rule Checklist Matrix</h3>
                 <div id="checklistContainer"></div>
             </div>
+
             <div class="levels-box">
                 <h3 style="font-size: 14px; margin-bottom: 12px; color: #fff;">🎯 Smart Swing Trigger Levels (1% - 3% Setup)</h3>
                 <div id="levelsContainer"></div>
@@ -173,6 +188,7 @@
         </div>
 
         <div class="strategy-note" id="strategyExecutiveSummary"></div>
+        
         <button class="btn btn-download" onclick="generateWhiteImageExport()">📸 Download PNG Report Card</button>
     </div>
 </div>
@@ -183,64 +199,91 @@
 let globalChartInstance = null;
 let historicalDataForChart = [];
 
+// Advanced File Reader with multi-format text clean logic
+function handleFileLoad(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('csvDataInput').value = e.target.result;
+    };
+    reader.readAsText(file);
+}
+
+// Clear dashboard structure resets
 function clearDashboard() {
+    document.getElementById('csvFileInput').value = "";
     document.getElementById('csvDataInput').value = "";
     document.getElementById('analysisResult').innerHTML = `
         <tr>
-            <td colspan="9" style="text-align: center; color: var(--text-muted); padding: 40px;">
-                Paste rows block above to instantly calculate momentum structures.
+            <td colspan="10" style="text-align: center; color: var(--text-muted); padding: 40px;">
+                Input raw dataset block or upload CSV above to initialize strict scoring.
             </td>
         </tr>`;
     document.getElementById('deepAnalysisBlock').style.display = 'none';
     if(globalChartInstance) { globalChartInstance.destroy(); globalChartInstance = null; }
 }
 
-function calculateRSI(data) {
-    if(data.length < 15) return 50;
-    let gains = 0; let losses = 0;
+// 100% Safe 14-Days RSI Calculation Engine
+function compute14DayRSI(data) {
+    if(data.length < 15) return 50; 
+    let gains = 0, losses = 0;
     
+    // Initial 14 base row changes
     for(let i = data.length - 2; i >= data.length - 15; i--) {
         let diff = data[i].close - data[i+1].close;
         if(diff > 0) gains += diff; else losses -= diff;
     }
     
-    let avgGain = gains / 14; let avgLoss = losses / 14;
+    let avgGain = gains / 14;
+    let avgLoss = losses / 14;
     
+    // Smooth moving average calculation up to latest row
     for(let i = data.length - 16; i >= 0; i--) {
         let diff = data[i].close - data[i+1].close;
-        let currentGain = diff > 0 ? diff : 0;
-        let currentLoss = diff < 0 ? -diff : 0;
-        avgGain = (avgGain * 13 + currentGain) / 14;
-        avgLoss = (avgLoss * 13 + currentLoss) / 14;
+        let cGain = diff > 0 ? diff : 0;
+        let cLoss = diff < 0 ? -diff : 0;
+        avgGain = (avgGain * 13 + cGain) / 14;
+        avgLoss = (avgLoss * 13 + cLoss) / 14;
     }
+    
     if(avgLoss === 0) return 100;
-    return 100 - (100 / (1 + (avgGain / avgLoss)));
+    let rs = avgGain / avgLoss;
+    return 100 - (100 / (1 + rs));
 }
 
 function processNseSwingData() {
     const rawData = document.getElementById('csvDataInput').value.trim();
-    if(!rawData) { alert("Data box khali hai!"); return; }
+    if(!rawData) { alert("Kripya raw data copy-paste karein ya CSV file feed karein!"); return; }
 
     const lines = rawData.split(/\r?\n/);
-    let stockSymbol = "STOCK";
+    let stockSymbol = "UNKNOWN";
     let parsedRows = [];
 
     lines.forEach(line => {
         let trimmed = line.trim();
+        // Skip junk metadata lines and headers
         if(trimmed === "" || trimmed.toLowerCase().includes('historical') || trimmed.toLowerCase().includes('symbol') || trimmed.toLowerCase().includes('series')) return;
         
-        // Exact column text clean: tabs filter separate mapping
-        let tokens = trimmed.split(/[\t,;]+/).map(t => t.trim().replace(/,/g, ''));
+        // Dynamic separator resolver: supports commas, tabs or double spaces perfectly
+        let cleanedLine = trimmed.replace(/,(?=\d)/g, ''); // Clear internal numeric grouping formatting commas
+        let tokens = cleanedLine.split(/[\t,]+/);
+        if(tokens.length < 10) {
+            tokens = cleanedLine.split(/[\s]{2,}/); // Fallback split
+        }
 
-        if (tokens.length >= 15) {
-            stockSymbol = tokens[0];
-            let dateVal = tokens[2];
-            let highPrice = parseFloat(tokens[5]);
-            let lowPrice = parseFloat(tokens[6]);
-            let closePrice = parseFloat(tokens[8]);
-            let volume = parseFloat(tokens[10]);
-            let delQty = parseFloat(tokens[13]);
-            let dlyPct = parseFloat(tokens[14]);
+        if (tokens.length >= 10) {
+            if(tokens[0] === "") tokens.shift();
+            stockSymbol = tokens[0].replace(/EQ$/i, '').trim();
+            let totalTokens = tokens.length;
+            
+            let dlyPct = parseFloat(tokens[totalTokens - 1]);
+            let delQty = parseFloat(tokens[totalTokens - 2]);
+            let volume = parseFloat(tokens[totalTokens - 5]); 
+            let closePrice = parseFloat(tokens[totalTokens - 7]);
+            let lowPrice = parseFloat(tokens[totalTokens - 9]);
+            let highPrice = parseFloat(tokens[totalTokens - 10]);
+            let dateVal = tokens[2] ? tokens[2].trim() : "N/A";
 
             if(!isNaN(closePrice) && !isNaN(volume)) {
                 parsedRows.push({
@@ -250,14 +293,14 @@ function processNseSwingData() {
                     low: lowPrice,
                     volume: volume,
                     delQty: delQty,
-                    delPct: dlyPct
+                    delPct: isNaN(dlyPct) ? 0 : dlyPct
                 });
             }
         }
     });
 
     if(parsedRows.length === 0) { 
-        alert("Parsing Error: Data columns align nahi ho sake. Please ensure full table lines are pasted."); 
+        alert("Parsing engine failed to read format. Kripya check karein ki data row column headers ke sath sahi format me hai."); 
         return; 
     }
 
@@ -272,9 +315,11 @@ function processNseSwingData() {
     const avg20Vol = getAvg(parsedRows, 20, 'volume');
     const avg20DelQty = getAvg(parsedRows, 20, 'delQty');
     const avg20DelPct = getAvg(parsedRows, 20, 'delPct');
-    const currentRSI = calculateRSI(parsedRows);
+    
+    // Fetch RSI Calculation from same clean dataset array
+    const rsiValue = compute14DayRSI(parsedRows);
 
-    // Exact 20 Day High mapping from past data rows index 1 to 21
+    // Multi-Day extreme points detection pipelines
     let max20High = 0;
     let min20Low = Infinity;
     let scanLimit = Math.min(parsedRows.length, 21);
@@ -286,144 +331,206 @@ function processNseSwingData() {
     let rulesPassed = 0;
     let checklistHtml = "";
 
+    // Rule 1: Price Action Breakouts mapping
     let rule1 = (latest.close >= max20High || latest.close >= (max20High * 0.98));
-    if(rule1) { rulesPassed++; checklistHtml += `<div class="check-item pass">✅ Rule 1 (Price): Closes near/above 20D Breakout Line (₹${max20High.toFixed(2)}).</div>`; }
-    else { checklistHtml += `<div class="check-item fail">❌ Rule 1 (Price): Below structural 20D High bounds.</div>`; }
+    if(rule1) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 1 (Price): Close Price (₹${latest.close}) is matching/breaking 20D High (₹${max20High.toFixed(2)}).</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 1 (Price): Below 20D High trigger setup.</div>`; }
 
+    // Rule 2: Volume Spikes
     let rule2 = (latest.volume >= (avg20Vol * 1.5));
-    if(rule2) { rulesPassed++; checklistHtml += `<div class="check-item pass">✅ Rule 2 (Volume): High Vol breakout! Multiple is ${(latest.volume/avg20Vol).toFixed(1)}x vs Avg.</div>`; }
-    else { checklistHtml += `<div class="check-item fail">❌ Rule 2 (Volume): Volume expansion below institutional threshold.</div>`; }
+    if(rule2) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 2 (Volume): Heavy volume expansion! Today's Vol is ${(latest.volume/avg20Vol).toFixed(1)}x over 20D Avg.</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 2 (Volume): Volume accumulation below institutional 1.5x target.</div>`; }
 
+    // Rule 3: Delivery Quantity mapping
     let rule3 = (latest.delQty > avg20DelQty);
-    if(rule3) { rulesPassed++; checklistHtml += `<div class="check-item pass">✅ Rule 3 (Del Qty): Net Physical delivery accumulation matches institutional trace.</div>`; }
-    else { checklistHtml += `<div class="check-item fail">❌ Rule 3 (Del Qty): Passive standard transaction volume absorption.</div>`; }
+    if(rule3) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 3 (Del Qty): Smart Money detected. Delivery Qty exceeds 20D Average.</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 3 (Del Qty): Normal transactional absorption levels.</div>`; }
 
+    // Rule 4: Delivery Percentage triggers
     let rule4 = (latest.delPct >= 45 || latest.delPct > avg20DelPct);
-    if(rule4) { rulesPassed++; checklistHtml += `<div class="check-item pass">✅ Rule 4 (Del %): Heavy delivery conversion ratio at ${latest.delPct}%.</div>`; }
-    else { checklistHtml += `<div class="check-item fail">❌ Rule 4 (Del %): Speculative market action layout.</div>`; }
+    if(rule4) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 4 (Del %): Solid Delivery lock-in at ${latest.delPct}% (Avg: ${avg20DelPct.toFixed(1)}%).</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 4 (Del %): Weak collection ratio (${latest.delPct}%).</div>`; }
 
+    // Rule 5: Intraday Close Location quadrants
     let dayRange = latest.high - latest.low;
-    let rule5 = (latest.close >= (latest.high - (dayRange * 0.25)));
-    if(rule5 && dayRange > 0) { rulesPassed++; checklistHtml += `<div class="check-item pass">✅ Rule 5 (Closing): Closed in premium top 25% quadrant.</div>`; }
-    else { checklistHtml += `<div class="check-item fail">❌ Rule 5 (Closing): Bear pressure forced close down lower bands.</div>`; }
+    let closeThreshold = latest.high - (dayRange * 0.25);
+    let rule5 = (latest.close >= closeThreshold);
+    if(rule5 && dayRange > 0) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">✅</span> Rule 5 (Closing): Bulls dominant! Closed near Day High in upper 25% zone.</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 5 (Closing): Closed weak or lower intraday quadrant.</div>`; }
 
-    let rsiPassed = (currentRSI >= 60);
-    if(rsiPassed) { rulesPassed++; checklistHtml += `<div class="check-item pass">🔥 Rule 6 (RSI Momentum): Engine Active! RSI is ${currentRSI.toFixed(1)} (>60 Golden Zone).</div>`; }
-    else if (currentRSI < 40) { checklistHtml += `<div class="check-item fail" style="color:var(--danger);">⚠️ Rule 6 (RSI Momentum): Avoid Zone! RSI is downtrending at ${currentRSI.toFixed(1)}.</div>`; }
-    else { checklistHtml += `<div class="check-item fail">💤 Rule 6 (RSI Momentum): Neutral Range. RSI is sideways at ${currentRSI.toFixed(1)}.</div>`; }
+    // Rule 6: RSI Momentum Golden Filter Setup
+    let rule6 = (rsiValue >= 60);
+    if(rule6) { rulesPassed++; checklistHtml += `<div class="check-item pass"><span class="check-icon">🔥</span> Rule 6 (RSI Momentum): High Speed Engine Active! RSI is ${rsiValue.toFixed(1)} (>60 Golden Zone).</div>`; }
+    else if(rsiValue < 40) { checklistHtml += `<div class="check-item fail"><span class="check-icon">❌</span> Rule 6 (RSI Momentum): Avoid Zone! RSI is downtrending at ${rsiValue.toFixed(1)} (<40 Bear Grip).</div>`; }
+    else { checklistHtml += `<div class="check-item fail"><span class="check-icon">💤</span> Rule 6 (RSI Momentum): Neutral Range. RSI is sideways at ${rsiValue.toFixed(1)} (Between 40-60).</div>`; }
 
+    // Protection constraints check pipeline
     let isNearLowDanger = (latest.close <= (min20Low * 1.03));
     if(isNearLowDanger) {
-        checklistHtml += `<div class="check-item fail" style="color:var(--danger); font-weight:bold;">⚠️ RISK LOCK: Trading proximal to 20D Low (₹${min20Low.toFixed(2)}).</div>`;
+        checklistHtml += `<div class="check-item fail" style="color:var(--danger); font-weight:bold;"><span class="check-icon">⚠️</span> PROTECTION ALERT: Asset is trading close to 20D Low base (₹${min20Low.toFixed(2)}). Avoid entry.</div>`;
         if(rulesPassed > 0) rulesPassed--;
     }
 
     let finalSignal = "🔴 Avoid"; let badgeStyle = "sig-avoid";
-    if(rulesPassed >= 4 && currentRSI >= 50 && !isNearLowDanger) { finalSignal = "🟢 Strong Buy"; badgeStyle = "sig-buy"; }
-    else if(rulesPassed >= 2 && currentRSI >= 40) { finalSignal = "🟡 Watch"; badgeStyle = "sig-watch"; }
+    if(rulesPassed >= 4 && !isNearLowDanger && rsiValue >= 45) { finalSignal = "🟢 Strong Buy"; badgeStyle = "sig-buy"; }
+    else if(rulesPassed >= 2 && rsiValue >= 40) { finalSignal = "🟡 Watch"; badgeStyle = "sig-watch"; }
+
+    let t1 = latest.close * 1.01; let t3 = latest.close * 1.03;
+    let sl1 = latest.close * 0.99; let sl15 = latest.close * 0.985;
 
     document.getElementById('analysisResult').innerHTML = `
         <tr>
             <td class="highlight-val">${stockSymbol.toUpperCase()}</td>
             <td class="text-center">${latest.date}</td>
             <td class="text-right font-semibold">H: ${latest.high} / C: ${latest.close}</td>
-            <td class="text-right highlight-val" style="color: ${currentRSI >= 60 ? 'var(--success)' : currentRSI < 40 ? 'var(--danger)' : '#fff'}">${currentRSI.toFixed(1)}</td>
+            <td class="text-right highlight-val" style="color: ${rsiValue >= 60 ? 'var(--success)' : rsiValue < 40 ? 'var(--danger)' : '#fff'}">${rsiValue.toFixed(1)}</td>
             <td class="text-right highlight-val">₹${max20High.toFixed(2)}</td>
             <td class="text-right">${(avg20Vol/100000).toFixed(1)} L</td>
+            <td class="text-right">${(avg20DelQty/100000).toFixed(1)} L</td>
             <td class="text-right">${avg20DelPct.toFixed(1)}%</td>
             <td class="text-center"><span class="signal-badge ${badgeStyle}">${finalSignal}</span></td>
             <td class="text-center rank-stars">${"⭐".repeat(Math.max(0, rulesPassed))} (${Math.max(0, rulesPassed)}/6)</td>
         </tr>
     `;
     
-    document.getElementById('targetSymbolText').innerText = `TARGET: ${stockSymbol.toUpperCase()}`;
+    document.getElementById('targetSymbolText').innerText = `TARGET SYMBOL: ${stockSymbol.toUpperCase()}`;
     document.getElementById('checklistContainer').innerHTML = checklistHtml;
     
     document.getElementById('levelsContainer').innerHTML = `
-        <div class="level-row"><span>⚡ Entry Baseline:</span><span class="highlight-val">₹${latest.close.toFixed(2)}</span></div>
-        <div class="level-row"><span style="color:var(--success)">🎯 Target 1 (1%):</span><span style="color:var(--success); font-weight:700;">₹${(latest.close*1.01).toFixed(2)}</span></div>
-        <div class="level-row"><span style="color:var(--success)">🎯 Target 2 (3%):</span><span style="color:var(--success); font-weight:700;">₹${(latest.close*1.03).toFixed(2)}</span></div>
-        <div class="level-row"><span style="color:var(--danger)">🛑 Stop Loss (1%):</span><span style="color:var(--danger)">₹${(latest.close*0.99).toFixed(2)}</span></div>
+        <div class="level-row"><span style="color:var(--text-muted)">⚡ Ideal Entry Trigger:</span><span class="highlight-val">Above ₹${latest.close.toFixed(2)}</span></div>
+        <div class="level-row"><span style="color:var(--success)">🎯 Conservative Target (1%):</span><span style="color:var(--success); font-weight:700;">₹${t1.toFixed(2)}</span></div>
+        <div class="level-row"><span style="color:var(--success)">🎯 Maximum Target (3%):</span><span style="color:var(--success); font-weight:700;">₹${t3.toFixed(2)}</span></div>
+        <div class="level-row"><span style="color:var(--danger)">🛑 Strict Stop Loss (1%):</span><span style="color:var(--danger)">₹${sl1.toFixed(2)}</span></div>
+        <div class="level-row"><span style="color:var(--danger)">🛑 Deep Stop Loss (1.5%):</span><span style="color:var(--danger)">₹${sl15.toFixed(2)}</span></div>
     `;
 
     let commentary = `<strong>💡 Strategy Executive Summary Note:</strong> `;
-    if(rulesPassed >= 4 && currentRSI >= 60) {
-        commentary += `Asset possesses flawless institutional convergence configuration. Heavy volume breakouts are backed directly by strong physical Delivery Accumulation and **High-Velocity RSI Momentum (${currentRSI.toFixed(1)})**. High probability swing candidate for rapid target capture.`;
-    } else if (currentRSI < 40) {
-        commentary += `Strict Avoidance Advised: Despite any delivery metrics spikes, the **RSI is in a structural bear grip at ${currentRSI.toFixed(1)}**. Buying here blocks capital inside slow ranges.`;
+    if(rulesPassed >= 4) {
+        commentary += `This asset resembles a premium <strong>Stock B criteria</strong> matrix setup. Volume expansion is backed up heavily by real physical Delivery Quantity accumulation (${(latest.delQty/100000).toFixed(1)} Lakh shares locked in) and strong RSI Momentum. Institutional accumulation is highly probable. Entry is highly feasible above current swing line breakout with safe target parameters.`;
+    } else if (latest.delPct > 65 && latest.volume < (avg20Vol * 0.5)) {
+        commentary += `Warning: This mirrors a typical <strong>Stock A criteria</strong> profile danger flag. Even though Delivery % looks sky-high at ${latest.delPct}%, the total Volume (${(latest.volume/100000).toFixed(1)} Lakh) is extremely dry and weak. <strong>Do not execute entry based on pure isolated high delivery percentages.</strong> Avoid this liquidity trap!`;
+    } else if (rsiValue < 40) {
+        commentary += `Strict Avoidance: Asset is under structural bear grip with RSI at ${rsiValue.toFixed(1)} (<40). Even if short-term triggers show up, momentum is extremely dry. Stay away.`;
+    } else if(isNearLowDanger) {
+        commentary += `Structural risk parameter triggered. Asset possesses structural multi-day breakdown indicators despite superficial indicators because it trades highly proximal to 20-day historical support baseline low bounds. Strictly prioritize safety limits.`;
     } else {
-        commentary += `Standard range metrics distribution setup. Volume push and RSI momentum fields present choppy cyclical retail trends rather than real institutional execution sweeps.`;
+        commentary += `The metrics present normal retail action or choppy rotation. Crucial volume multipliers or structural high closing parameters failed the quantitative threshold limit. Maintain watchful observation on support zones.`;
     }
     document.getElementById('strategyExecutiveSummary').innerHTML = commentary;
 
-    historicalDataForChart = parsedRows.slice(0, 10).reverse();
+    // --- CHART GENERATION WORKSPACE ---
+    historicalDataForChart = parsedRows.slice(0, 10).reverse(); // Extract pichle 10 days array logs
+    const chartLabels = historicalDataForChart.map(d => d.date);
+    const closePrices = historicalDataForChart.map(d => d.close);
+    const highPrices = historicalDataForChart.map(d => d.high);
+
     if(globalChartInstance) { globalChartInstance.destroy(); }
     
     const ctx = document.getElementById('priceTrendChart').getContext('2d');
     globalChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: historicalDataForChart.map(d => d.date),
+            labels: chartLabels,
             datasets: [
-                { label: 'High Price (₹)', data: historicalDataForChart.map(d => d.high), borderColor: '#ef4444', borderDash: [4, 4], fill: false, tension: 0.1 },
-                { label: 'Close Price (₹)', data: historicalDataForChart.map(d => d.close), borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.1 }
+                { label: 'High Price (₹)', data: highPrices, borderColor: '#ef4444', backgroundColor: 'transparent', borderDash: [4, 4], borderWidth: 2, pointRadius: 3 },
+                { label: 'Close Price (₹)', data: closePrices, borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 3, fill: true, tension: 0.1, pointRadius: 4 }
             ]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#94a3b8' } } } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+            scales: {
+                x: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 } } },
+                y: { grid: { color: '#334155' }, ticks: { color: '#94a3b8', font: { size: 10 } } }
+            }
+        }
     });
 
     document.getElementById('deepAnalysisBlock').style.display = 'block';
 }
 
+// Master Canvas PNG Image Export Core Generator
 function generateWhiteImageExport() {
     const symbol = document.getElementById('targetSymbolText').innerText;
     const currentDateTime = new Date().toLocaleString();
-    const tableHeader = document.querySelector('table').tHead.innerHTML;
+    
+    const tableHeader = document.querySelector('table th') ? document.querySelector('table').tHead.innerHTML : '';
     const tableRow = document.getElementById('analysisResult').innerHTML;
     const checklist = document.getElementById('checklistContainer').innerHTML;
     const levels = document.getElementById('levelsContainer').innerHTML;
     const summary = document.getElementById('strategyExecutiveSummary').innerHTML;
 
     const exportWrapper = document.getElementById('exportHiddenNode');
+    
+    // Inject structures mirroring crisp white scheme schema mapping
     exportWrapper.innerHTML = `
         <div class="share-snapshot-wrapper">
             <h2 style="font-size:24px; color:#0f172a; margin-bottom:4px; font-weight:800;">⚡ Smart Money Technical Audit Card</h2>
             <p style="color:#64748b; font-size:12px; margin-bottom:16px;">Generated on: ${currentDateTime} | ${symbol}</p>
+            
             <table style="width:100%; border-collapse:collapse; text-align:left; margin-bottom:20px;">
                 <thead>${tableHeader}</thead>
                 <tbody>${tableRow}</tbody>
             </table>
-            <div class="chart-box" style="margin-bottom:20px; height:200px;"><canvas id="snapshotChartWorkspace"></canvas></div>
+
+            <div class="chart-box" style="margin-bottom:20px; height:220px; position:relative;">
+                <h3 style="font-size:13px; color:#0f172a; margin-bottom:8px; font-weight:700;">📊 Last 10 Days Price Trend Chart Map</h3>
+                <canvas id="snapshotChartWorkspace"></canvas>
+            </div>
+            
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-bottom:16px;">
-                <div class="checklist-box">${checklist}</div>
-                <div class="levels-box">${levels}</div>
+                <div class="checklist-box">
+                    <h3 style="font-size:13px; color:#0f172a; margin-bottom:8px; font-weight:700;">📋 Checklist Metrics Map</h3>
+                    ${checklist}
+                </div>
+                <div class="levels-box">
+                    <h3 style="font-size:13px; color:#0f172a; margin-bottom:8px; font-weight:700;">🎯 Action Target Parameters</h3>
+                    ${levels}
+                </div>
             </div>
             <div class="strategy-note">${summary}</div>
         </div>
     `;
 
+    // Clone global chart instance inside white snapshot box targets
     const snapCtx = document.getElementById('snapshotChartWorkspace').getContext('2d');
     new Chart(snapCtx, {
         type: 'line',
         data: {
             labels: historicalDataForChart.map(d => d.date),
             datasets: [
-                { label: 'High Price', data: historicalDataForChart.map(d => d.high), borderColor: '#dc2626', borderDash: [3, 3], fill: false },
-                { label: 'Close Price', data: historicalDataForChart.map(d => d.close), borderColor: '#059669', backgroundColor: 'rgba(5, 150, 105, 0.05)', fill: true }
+                { label: 'High Price (₹)', data: historicalDataForChart.map(d => d.high), borderColor: '#dc2626', borderDash: [3, 3], borderWidth: 2, fill: false, pointRadius: 2 },
+                { label: 'Close Price (₹)', data: historicalDataForChart.map(d => d.close), borderColor: '#059669', backgroundColor: 'rgba(5, 150, 105, 0.05)', borderWidth: 3, fill: true, pointRadius: 3 }
             ]
         },
-        options: { responsive: false, animation: false, width: 1150, height: 180 }
+        options: {
+            responsive: false,
+            animation: false,
+            width: 1150,
+            height: 200,
+            plugins: { legend: { labels: { color: '#334155' } } },
+            scales: {
+                x: { grid: { color: '#e2e8f0' }, ticks: { color: '#475569' } },
+                y: { grid: { color: '#e2e8f0' }, ticks: { color: '#475569' } }
+            }
+        }
     });
 
+    // Fire canvas snap execution triggers
     setTimeout(() => {
-        html2canvas(exportWrapper, { backgroundColor: "#ffffff", scale: 2 }).then(canvas => {
+        html2canvas(exportWrapper, {
+            backgroundColor: "#ffffff",
+            scale: 2
+        }).then(canvas => {
+            const image = canvas.toDataURL("image/png");
             const link = document.createElement('a');
             link.download = `Swing_Audit_${symbol.replace(/[^a-zA-Z0-9]/g, "_")}.png`;
-            link.href = canvas.toDataURL("image/png");
+            link.href = image;
             link.click();
-            exportWrapper.innerHTML = "";
+            exportWrapper.innerHTML = ""; // reset temporary view elements workspace
         });
-    }, 300);
+    }, 300); // 300ms buffering block ensures Chart renders pristine data shapes prior mapping to image
 }
 </script>
 </body>
