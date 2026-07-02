@@ -3,81 +3,87 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hybrid Speed Bill (Local + Online) - V3</title>
+  <title>Hybrid Speed Bill (Local + Online) - V4</title>
   <script src="https://cdn.jsdelivr.net/npm/uuid@latest/dist/umd/uuidv4.min.js"></script>
   <style>
-    :root { --wa-green: #075E54; --wa-light-green: #dcf8c6; --bg-gray: #ece5dd; --local-blue: #007bff; }
+    :root { --wa-green: #075E54; --wa-light-green: #dcf8c6; --bg-gray: #ece5dd; --local-blue: #007bff; --accent-orange: #ff9800; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { background: var(--bg-gray); padding-bottom: 120px; }
+    
+    /* Strict Height Fixed Layout Architecture */
+    html, body { height: 100%; overflow: hidden; background: var(--bg-gray); }
+    body { display: flex; flex-direction: column; }
     
     /* Login Modal */
-    #authModal { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
+    #authModal { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; overflow-y: auto; }
     .input-field { width:100%; max-width:300px; padding:12px; margin:8px 0; border:1px solid #ccc; border-radius:5px; font-size:16px; }
     .btn { background: var(--wa-green); color:white; border:none; padding:12px 24px; border-radius:5px; font-size:16px; cursor:pointer; margin: 5px; }
     .btn-secondary { background: #6c757d; }
     
-    /* Main Layout */
-    header { background: var(--wa-green); color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 1.2rem; }
-    .status-badge { font-size: 11px; padding: 2px 6px; border-radius: 10px; background: orange; color: black; display: inline-block; margin-top: 5px; }
+    /* Main Layout Viewport */
+    header { background: var(--wa-green); color: white; padding: 10px; text-align: center; font-weight: bold; font-size: 1.1rem; flex-shrink: 0; }
+    .status-badge { font-size: 10px; padding: 2px 6px; border-radius: 10px; background: orange; color: black; display: inline-block; margin-top: 3px; }
     
-    /* Meta section row style */
-    .meta-sec { background: white; padding: 10px; border-bottom: 2px solid #ccc; display: flex; flex-direction: row; gap: 10px; align-items: center; justify-content: space-between; }
-    .cust-input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 15px; }
-    .current-date-display { font-weight: bold; color: #555; font-size: 14px; padding: 0 5px; white-space: nowrap; }
+    /* Meta bar Container Row */
+    .meta-sec { background: white; padding: 8px 12px; border-bottom: 1px solid #ccc; display: flex; flex-direction: row; gap: 10px; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .cust-input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+    .current-date-display { font-weight: bold; color: #555; font-size: 13px; white-space: nowrap; }
     
-    /* Mode Toggle & Control Panel */
-    .mode-container { display: flex; justify-content: space-between; padding: 10px; background: #f0f0f0; gap: 5px; }
-    .toggle-btn { flex: 1; padding: 10px; text-align: center; background: #ddd; font-weight: bold; border: none; cursor: pointer; }
+    /* Dynamic Header Controls & Quick Panel */
+    .controls-wrapper { background: white; border-bottom: 2px solid #ccc; display: flex; flex-direction: column; flex-shrink: 0; }
+    .mode-container { display: flex; justify-content: space-between; background: #f0f0f0; gap: 2px; padding: 4px; }
+    .toggle-btn { flex: 1; padding: 8px; text-align: center; background: #ddd; font-weight: bold; border: none; cursor: pointer; font-size: 14px; }
     .toggle-btn.active { background: var(--wa-green); color: white; }
     
-    /* Dynamic Pricing Mode Dropdown Selector */
-    .pricing-control { background: #fff; padding: 8px 12px; margin: 0 10px; border-radius: 5px; border: 1px solid #ccc; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-    .pricing-select { padding: 6px; font-weight: bold; border-radius: 4px; border: 1px solid var(--wa-green); color: var(--wa-green); font-size: 14px; outline: none; }
-
-    .search-box { width: 95%; margin: 10px auto; display: block; padding: 10px; border-radius: 20px; border: 1px solid #ccc; font-size: 16px; }
-
-    /* List Sections Headers */
-    .section-title { background: #ddd; padding: 6px 12px; font-size: 14px; font-weight: bold; color: #333; margin-top: 10px; border-radius: 4px; }
-    .section-title.local { background: #cfe2ff; color: #084298; }
-
-    /* List Items Styling */
-    .list-container { max-width: 600px; margin: auto; padding: 10px; }
-    .chat-bubble { background: white; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-    .chat-bubble.in-bill { background: var(--wa-light-green); border-left: 5px solid var(--wa-green); }
+    /* Persistent Quick Add Item Form Controls */
+    .add-item-panel { padding: 8px 12px; background: #f9f9f9; border-bottom: 1px solid #ddd; }
+    .add-item-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+    .add-item-grid input { padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
     
+    .pricing-control { background: #fff; padding: 6px 12px; border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: space-between; }
+    .pricing-select { padding: 4px; font-weight: bold; border-radius: 4px; border: 1px solid var(--wa-green); color: var(--wa-green); font-size: 13px; outline: none; }
+    .search-box { width: 96%; margin: 6px auto; display: block; padding: 8px 12px; border-radius: 20px; border: 1px solid #ccc; font-size: 15px; }
+
+    /* Dual Independent Scroll Screens Layout */
+    .workspace-split { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .scrollable-items-pane { flex: 1; overflow-y: auto; padding: 8px; background: var(--bg-gray); }
+    .scrollable-bill-pane { height: 180px; overflow-y: auto; background: #fff; border-top: 3px solid var(--wa-green); padding: 10px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+
+    /* Component List Row Elements */
+    .section-title { background: #ddd; padding: 4px 8px; font-size: 12px; font-weight: bold; color: #333; margin: 8px 0 4px 0; border-radius: 4px; }
+    .section-title.local { background: #cfe2ff; color: #084298; }
+    .section-title.saved-logs { background: #fff3cd; color: #664d03; }
+
+    .chat-bubble { background: white; padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+    .chat-bubble.in-bill { background: var(--wa-light-green); border-left: 5px solid var(--wa-green); }
     .item-info { flex: 2; }
     .item-info.clickable { cursor: pointer; } 
-    
-    .item-name { font-weight: bold; font-size: 16px; }
-    .item-sub { font-size: 12px; color: #666; margin-top: 2px; }
+    .item-name { font-weight: bold; font-size: 15px; }
+    .item-sub { font-size: 11px; color: #666; margin-top: 1px; }
     .bold-price { font-weight: bold; color: #000; }
     
-    .item-actions { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
-    
-    /* Qty Counters */
-    .qty-btn { background: var(--wa-green); color: white; border: none; width: 26px; height: 26px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; }
-    .edit-input { width: 45px; text-align: center; padding: 4px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; }
-    .del-btn { background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+    .item-actions { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+    .qty-btn { background: var(--wa-green); color: white; border: none; width: 24px; height: 24px; border-radius: 50%; font-size: 14px; font-weight: bold; cursor: pointer; }
+    .edit-input { width: 40px; text-align: center; padding: 2px; font-size: 12px; border: 1px solid #ccc; border-radius: 4px; }
+    .del-btn { background: #dc3545; color: white; border: none; padding: 3px 6px; border-radius: 4px; font-size: 11px; cursor: pointer; }
 
-    /* Add Item Panel Form */
-    .add-item-panel { max-width: 600px; margin: 10px auto; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    /* Fixed Live Invoice Sheet Inside View */
+    .bill-invoice-sheet { width: 100%; }
+    .invoice-header { font-weight: bold; font-size: 14px; border-bottom: 1px dashed #ccc; padding-bottom: 4px; margin-bottom: 6px; color: #333; display: flex; justify-content: space-between; }
+    .invoice-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; border-bottom: 1px dashed #f5f5f5; }
+    .invoice-total { display: flex; justify-content: space-between; font-weight: bold; font-size: 16px; color: #d9534f; margin-top: 6px; padding-top: 6px; border-top: 1px dashed #333; }
 
-    /* Live Invoice Receipt Sheet */
-    .bill-invoice-sheet { max-width: 600px; margin: 15px auto; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); border-top: 4px solid var(--wa-green); }
-    .invoice-header { font-weight: bold; font-size: 15px; border-bottom: 1px dashed #ccc; padding-bottom: 5px; margin-bottom: 10px; color: #333; }
-    .invoice-row { display: flex; justify-content: space-between; font-size: 14px; padding: 4px 0; border-bottom: 1px dashed #f5f5f5; }
-    .invoice-total { display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; color: #d9534f; margin-top: 10px; padding-top: 10px; border-top: 2px solid #333; }
-
-    /* Bottom Footer Bar */
-    .footer-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 10px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-around; z-index: 900; }
-    .footer-bar button { padding: 10px 14px; border: none; border-radius: 4px; color: white; font-weight: bold; font-size: 13px; cursor: pointer; min-width: 70px; }
-    .bg-print { background: #007bff; } .bg-csv { background: #28a745; } .bg-share { background: #25D366; } .bg-clear { background: #dc3545; } .bg-save { background: #ffc107; color: black !important; }
+    /* Footer Static Control Bar */
+    .footer-bar { background: white; padding: 8px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; justify-content: space-around; gap: 5px; flex-shrink: 0; }
+    .footer-bar button { flex: 1; padding: 8px 5px; border: none; border-radius: 4px; color: white; font-weight: bold; font-size: 12px; cursor: pointer; min-width: 65px; text-align: center; }
+    .bg-print { background: #007bff; } .bg-csv { background: #28a745; } .bg-share { background: #25D366; } 
+    .bg-clear { background: #dc3545; } .bg-save { background: #ffc107; color: black !important; }
+    .bg-local-save { background: #17a2b8; }
   </style>
 </head>
 <body>
 
   <div id="authModal">
-    <h2 style="color:var(--wa-green); margin-bottom:15px;">Billing App Access</h2>
+    <h2 style="color:var(--wa-green); margin-bottom:15px;">Billing App Access (V4)</h2>
     <div id="emailSection" style="text-align: center; width: 100%;">
       <input type="email" id="authEmail" class="input-field" placeholder="Enter Registered Email"><br>
       <button class="btn" onclick="requestOTP()">Send OTP (Online Mode)</button>
@@ -91,53 +97,61 @@
     </div>
   </div>
 
-  <div id="appContent" style="display:none;">
+  <div id="appContent" style="display:none; height: 100%; display: flex; flex-direction: column;">
     <header id="shopName">
       My Digital Kirana Shop
       <br><span id="appModeBadge" class="status-badge">Local Mode</span>
     </header>
     
     <div class="meta-sec">
-      <input type="text" id="custName" placeholder="Customer Name" class="cust-input">
+      <input type="text" id="custName" placeholder="Customer Name (Zaroori for Local Save)" class="cust-input">
       <div id="dateDisplay" class="current-date-display">Date: --/--/----</div>
     </div>
 
-    <div class="add-item-panel" id="quickAddSection">
-      <h4 style="margin-bottom: 5px; color: #333;">Quick Add/Edit Item</h4>
-      <div style="display: flex; flex-wrap: wrap; gap: 5px;">
-        <input type="text" id="pCode" placeholder="Code" style="width:50px; padding:5px;">
-        <input type="text" id="pNameEn" placeholder="Name (En)" style="flex:1; padding:5px;">
-        <input type="text" id="pNameHi" placeholder="Name (Hi)" style="flex:1; padding:5px;">
-        <input type="text" id="pUnit" placeholder="Unit" style="width:50px; padding:5px;">
-        <input type="number" id="pRetail" placeholder="Retail" style="width:65px; padding:5px;">
-        <input type="number" id="pWholesale" placeholder="Wholesale" style="width:65px; padding:5px;">
-        <button onclick="addNewMasterItem()" style="background:var(--wa-green); color:white; padding:5px 10px; border:none; border-radius:4px;">Save Item</button>
+    <div class="controls-wrapper">
+      <div class="mode-container">
+        <button class="toggle-btn active" id="btnEntry" onclick="setMode('entry')">⚙️ Master Entry Mode</button>
+        <button class="toggle-btn" id="btnBill" onclick="setMode('bill')">🛒 Fast Bill Mode (<span id="countBadge">0</span>)</button>
       </div>
+
+      <div class="add-item-panel" id="quickAddSection">
+        <div class="add-item-grid">
+          <input type="text" id="pCode" placeholder="Code" style="width:50px;">
+          <input type="text" id="pNameEn" placeholder="Item Name (En)" style="flex:1; min-width: 100px;">
+          <input type="text" id="pNameHi" placeholder="नाम (Hi)" style="flex:1; min-width: 80px;">
+          <input type="text" id="pUnit" placeholder="Unit" style="width:45px;" value="Kg">
+          <input type="number" id="pRetail" placeholder="Retail" style="width:55px;">
+          <input type="number" id="pWholesale" placeholder="W'sale" style="width:55px;">
+          <button onclick="addNewMasterItem()" style="background:var(--wa-green); color:white; padding:5px 10px; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">💾 Save</button>
+        </div>
+      </div>
+
+      <div class="pricing-control" id="pricingModeBar" style="display: none;">
+        <span style="font-weight: bold; font-size: 13px; color: #555;">Select Rates Applied:</span>
+        <select id="billingPriceTier" class="pricing-select" onchange="renderList()">
+          <option value="retail" selected>🛒 Retail Pricing Rates</option>
+          <option value="wholesale">📦 Wholesale Pricing Rates</option>
+        </select>
+      </div>
+
+      <input type="text" id="search" class="search-box" placeholder="Type item name or code to search instantly... 🔎" oninput="renderList()">
     </div>
 
-    <div class="mode-container">
-      <button class="toggle-btn active" id="btnEntry" onclick="setMode('entry')">Entry Mode</button>
-      <button class="toggle-btn" id="btnBill" onclick="setMode('bill')">Bill Mode (<span id="countBadge">0</span>)</button>
-    </div>
+    <div class="workspace-split">
+      <div class="scrollable-items-pane" id="masterList"></div>
 
-    <div class="pricing-control" id="pricingModeBar" style="display: none; margin-top: 5px;">
-      <span style="font-weight: bold; font-size: 14px; color: #555;"> Billing Price Type:</span>
-      <select id="billingPriceTier" class="pricing-select" onchange="renderList()">
-        <option value="retail" selected>🛒 Retail Mode Rates</option>
-        <option value="wholesale">📦 Wholesale Mode Rates</option>
-      </select>
-    </div>
-
-    <input type="text" id="search" class="search-box" placeholder="Search item name or code... 🔎" oninput="renderList()">
-
-    <div class="list-container" id="masterList"></div>
-
-    <div id="billInvoiceSection" class="bill-invoice-sheet" style="display: none;">
-      <div class="invoice-header">📄 Live Bill Estimate Breakdown</div>
-      <div id="invoiceItemsRows"></div>
-      <div class="invoice-total">
-        <span>Grand Total:</span>
-        <span id="invoiceGrandTotal">₹0.00</span>
+      <div class="scrollable-bill-pane" id="billInvoiceSection" style="display: none;">
+        <div class="bill-invoice-sheet">
+          <div class="invoice-header">
+            <span>📄 Current Invoice Estimates</span>
+            <span id="activeBillIdDisplay" style="color: blue; font-size:11px;">New Bill</span>
+          </div>
+          <div id="invoiceItemsRows"></div>
+          <div class="invoice-total">
+            <span>Grand Total Amount:</span>
+            <span id="invoiceGrandTotal">₹0.00</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -145,8 +159,9 @@
       <button class="bg-print" onclick="window.print()">Print</button>
       <button class="bg-csv" onclick="exportCSV()">CSV</button>
       <button class="bg-share" onclick="shareWhatsApp()">WhatsApp</button>
+      <button class="bg-local-save" onclick="saveBillToLocalStorage()">💾 Save Local Bill</button>
+      <button class="bg-save" id="btnOnlineSave" onclick="saveToGoogleSheet()">Cloud Save</button>
       <button class="bg-clear" onclick="clearBill()">Clear</button>
-      <button class="bg-save" id="btnOnlineSave" onclick="saveToGoogleSheet()">Save Online</button>
     </div>
   </div>
 
@@ -156,8 +171,10 @@
     let sheetItems = []; 
     let localItems = []; 
     let currentBill = {};
+    let savedLocalBills = []; // Local memory storage log records array cache
     let currentMode = 'entry'; 
     let isOnlineMode = false;
+    let editingBillId = null; // Pointer placeholder tracking if editing an historical document reference
 
     window.onload = function() {
       const today = new Date();
@@ -167,6 +184,7 @@
       document.getElementById('dateDisplay').innerText = `Date: ${dd}/${mm}/${yyyy}`;
 
       loadLocalItems();
+      loadSavedLocalBills();
       checkExistingAuth();
     }
 
@@ -177,6 +195,15 @@
 
     function saveLocalItemsToStorage() {
       localStorage.setItem('local_items_db', JSON.stringify(localItems));
+    }
+
+    function loadSavedLocalBills() {
+      let stored = localStorage.getItem('local_saved_bills_log');
+      savedLocalBills = stored ? JSON.parse(stored) : [];
+    }
+
+    function saveLocalBillsLogToStorage() {
+      localStorage.setItem('local_saved_bills_log', JSON.stringify(savedLocalBills));
     }
 
     function startAsGuest() {
@@ -212,8 +239,10 @@
             launchApp();
             return;
           }
-        } catch(e) { console.log("Offline mode routing triggered."); }
+        } catch(e) { console.log("Offline systems standby."); }
       }
+      // If network fails fallback default launch safely
+      startAsGuest();
     }
 
     async function requestOTP() {
@@ -258,7 +287,7 @@
       fetch(`${SCRIPT_URL}?action=getItems`)
         .then(r => r.json())
         .then(data => { sheetItems = data; renderList(); })
-        .catch(err => { console.log("Cloud Data offline state."); renderList(); });
+        .catch(err => { console.log("Cloud server unreachable. Local databases operative."); renderList(); });
     }
 
     function setMode(mode) {
@@ -267,17 +296,16 @@
       document.getElementById('btnBill').classList.toggle('active', mode === 'bill');
       
       if(mode === 'bill') {
-        document.getElementById('quickAddSection').style.display = 'none'; 
-        document.getElementById('pricingModeBar').style.display = 'flex'; // Pricing control drop panel show
+        document.getElementById('pricingModeBar').style.display = 'flex'; 
         document.getElementById('billInvoiceSection').style.display = 'block'; 
       } else {
-        document.getElementById('quickAddSection').style.display = 'block'; 
-        document.getElementById('pricingModeBar').style.display = 'none'; // Hide dropdown selector
-        document.getElementById('billInvoiceSection').style.display = 'none'; 
+        document.getElementById('pricingModeBar').style.display = 'none'; 
+        document.getElementById('billInvoiceSection').style.display = 'block'; 
       }
       renderList();
     }
 
+    // Advanced Improvement 1: Dynamic Auto-Save into active bill + permanent system list database integration
     async function addNewMasterItem() {
       let code = document.getElementById('pCode').value;
       let nameEn = document.getElementById('pNameEn').value;
@@ -286,10 +314,11 @@
       let retail = parseFloat(document.getElementById('pRetail').value || 0);
       let wholesale = parseFloat(document.getElementById('pWholesale').value || 0);
 
-      if(!code || !nameEn) return alert("Code aur English Name zaroori hai!");
+      if(!code || !nameEn) return alert("Code aur Item English Name daalna zaroori hai!");
 
       let newItem = { Code: code, ItemNameEn: nameEn, ItemNameHi: nameHi, Unit: unit, Retail: retail, Wholesale: wholesale };
 
+      // Save database globally or locally first
       if(isOnlineMode) {
         let res = await fetch(SCRIPT_URL, {
           method: 'POST',
@@ -301,18 +330,34 @@
         if(idx > -1) localItems[idx] = newItem; 
         else localItems.push(newItem);
         saveLocalItemsToStorage();
-        renderList();
       }
 
+      // Feature Implementation 1: Automatic check & apply instantly into active bill invoice profile if working under Billing view
+      let selectedPricingMode = document.getElementById('billingPriceTier') ? document.getElementById('billingPriceTier').value : 'retail';
+      let targetRate = (selectedPricingMode === 'wholesale') ? wholesale : retail;
+      
+      // Auto Add to active rolling invoice receipt basket
+      if(!currentBill[code]) {
+        currentBill[code] = { ...newItem, qty: 1, rate: targetRate };
+      } else {
+        currentBill[code].qty += 1;
+        currentBill[code].rate = targetRate;
+      }
+
+      // Reset Form fields safely
       document.getElementById('pCode').value = '';
       document.getElementById('pNameEn').value = '';
       document.getElementById('pNameHi').value = '';
       document.getElementById('pRetail').value = '';
       document.getElementById('pWholesale').value = '';
+
+      // Direct Refresh with layout repositioning logic
+      renderList();
+      autoScrollBillToBottom();
     }
 
     async function deleteMasterItem(code, origin) {
-      if(!confirm("Kya aap is item ko permanent delete karna chahte hain?")) return;
+      if(!confirm("Kya aap is item ko master system se delete karna chahte hain?")) return;
 
       if(origin === 'online' && isOnlineMode) {
         let res = await fetch(SCRIPT_URL, {
@@ -340,28 +385,29 @@
       }
     }
 
-    // Modern Render Core
+    // Core Control Render Viewport Management
     function renderList() {
       const container = document.getElementById('masterList');
       container.innerHTML = '';
       
-      // Fix: Dono mode me saare items load honge taaki search and layout perfect chale!
+      // 1. Render Saved Local Records logs underneath Entry mode only for layout protection
+      if(currentMode === 'entry' && savedLocalBills.length > 0) {
+        renderSavedBillsLogBucket(container);
+      }
+
+      // 2. Continuous system operations listings
       if(localItems.length > 0) {
-        renderSectionBucket(container, localItems, "Local Storage Items (Device)", 'local');
+        renderSectionBucket(container, localItems, "Local Storage Stock Items DB", 'local');
       }
       if(isOnlineMode && sheetItems.length > 0) {
-        renderSectionBucket(container, sheetItems, "Google Spreadsheet Items (Cloud)", 'online');
+        renderSectionBucket(container, sheetItems, "Cloud Spreadsheet Items Database", 'online');
       }
       
-      // Always calculate calculations summary view if required
-      if (currentMode === 'bill') {
-        calculateInvoiceSheet();
-      }
-      
+      // Compute calculations and updates instantly
+      calculateInvoiceSheet();
       document.getElementById('countBadge').innerText = Object.keys(currentBill).length;
     }
 
-    // Unified Architecture Engine
     function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
       const query = document.getElementById('search').value.toLowerCase();
       
@@ -387,9 +433,8 @@
         const bubble = document.createElement('div');
         bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
         
-        // Touch Configuration
-        let clickableClass = (currentMode === 'bill') ? 'item-info clickable' : 'item-info';
-        let clickHandler = (currentMode === 'bill') ? `onclick="addItemToBillDirect('${item.Code}')"` : '';
+        let clickableClass = 'item-info clickable';
+        let clickHandler = `onclick="addItemToBillDirect('${item.Code}')"`;
 
         bubble.innerHTML = `
           <div class="${clickableClass}" ${clickHandler}>
@@ -401,27 +446,51 @@
               ${qty > 0 ? `<br><span style='color:green; font-weight:bold;'>Added: ${qty} ${item.Unit} @ ₹${activeRate}</span>` : ''}
             </div>
           </div>
-          <div class="item-actions">
-            ${currentMode === 'bill' ? `
-              <button class="qty-btn" onclick="updateQty('${item.Code}', -1)">-</button>
-              <input type="number" class="edit-input" value="${qty}" onchange="directQty('${item.Code}', this.value)">
-              <button class="qty-btn" onclick="updateQty('${item.Code}', 1)">+</button>
-            ` : `
-              <button onclick="editMasterItem('${item.Code}', '${originType}')" style="background:none; border:none; color:blue; font-size:14px; margin-right:10px; cursor:pointer;">✏️</button>
+          <div class="item-actions" onclick="event.stopPropagation();">
+            <button class="qty-btn" onclick="updateQty('${item.Code}', -1)">-</button>
+            <input type="number" class="edit-input" value="${qty}" onchange="directQty('${item.Code}', this.value)">
+            <button class="qty-btn" onclick="updateQty('${item.Code}', 1)">+</button>
+            ${currentMode === 'entry' ? `
+              <button onclick="editMasterItem('${item.Code}', '${originType}')" style="background:none; border:none; color:blue; font-size:13px; margin-left:5px; cursor:pointer;">✏️</button>
               <button class="del-btn" onclick="deleteMasterItem('${item.Code}', '${originType}')">X</button>
-            `}
+            ` : ''}
           </div>
         `;
         container.appendChild(bubble);
       });
     }
 
-    // Fix: Dynamic addition utilizing the drop-down selected mode without pops
+    // Dynamic Saved Log Dashboard Renderer Architecture
+    function renderSavedBillsLogBucket(container) {
+      const titleDiv = document.createElement('div');
+      titleDiv.className = `section-title saved-logs`;
+      titleDiv.innerText = `📂 Saved Invoices Log Records (Local Memory)`;
+      container.appendChild(titleDiv);
+
+      savedLocalBills.forEach(b => {
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble`;
+        bubble.style.borderLeft = "5px solid var(--accent-orange)";
+        bubble.style.background = "#fffdf5";
+        
+        bubble.innerHTML = `
+          <div class="item-info">
+            <div class="item-name" style="color: #664d03;">👤 Customer: ${b.customerName}</div>
+            <div class="item-sub">ID: ${b.billId} | Items: ${Object.keys(b.billData).length} | Total Cost: <span class="bold-price" style="color:red;">₹${b.grandTotal.toFixed(2)}</span></div>
+          </div>
+          <div class="item-actions">
+            <button onclick="loadBillForEditing('${b.billId}')" style="background:var(--accent-orange); color:white; border:none; padding:5px 8px; border-radius:4px; font-weight:bold; font-size:12px; cursor:pointer;">✏️ Edit Bill</button>
+            <button onclick="deleteSavedLocalBill('${b.billId}')" style="background:#dc3545; color:white; border:none; padding:5px 8px; border-radius:4px; font-size:12px; margin-left:3px; cursor:pointer;">X</button>
+          </div>
+        `;
+        container.appendChild(bubble);
+      });
+    }
+
     function addItemToBillDirect(code) {
       let item = sheetItems.find(i => i.Code == code) || localItems.find(i => i.Code == code);
       if(!item) return;
 
-      // Check current mode selection row
       let selectedPricingMode = document.getElementById('billingPriceTier').value;
       let targetRate = (selectedPricingMode === 'wholesale') ? item.Wholesale : item.Retail;
 
@@ -429,34 +498,54 @@
         currentBill[code] = { ...item, qty: 1, rate: targetRate };
       } else {
         currentBill[code].qty += 1;
-        // Option to dynamically refresh rate if tier changes mid way
         currentBill[code].rate = targetRate;
       }
       renderList();
+      autoScrollBillToBottom();
     }
 
     function updateQty(code, change) {
       if(currentBill[code]) {
         currentBill[code].qty += change;
         if(currentBill[code].qty <= 0) delete currentBill[code];
-        renderList();
+      } else if (change > 0) {
+        let item = sheetItems.find(i => i.Code == code) || localItems.find(i => i.Code == code);
+        if(item) {
+          let selectedPricingMode = document.getElementById('billingPriceTier').value;
+          let targetRate = (selectedPricingMode === 'wholesale') ? item.Wholesale : item.Retail;
+          currentBill[code] = { ...item, qty: 1, rate: targetRate };
+        }
       }
+      renderList();
+      autoScrollBillToBottom();
     }
 
     function directQty(code, val) {
-      if(val <= 0) {
-        delete currentBill[code];
+      let parseFloatVal = parseFloat(val);
+      if(isNaN(parseFloatVal) || parseFloatVal <= 0) {
+        if(currentBill[code]) delete currentBill[code];
       } else {
         let item = sheetItems.find(i => i.Code == code) || localItems.find(i => i.Code == code);
         if(!currentBill[code] && item) {
           let selectedPricingMode = document.getElementById('billingPriceTier').value;
           let targetRate = (selectedPricingMode === 'wholesale') ? item.Wholesale : item.Retail;
-          currentBill[code] = { ...item, qty: parseFloat(val), rate: targetRate };
+          currentBill[code] = { ...item, qty: parseFloatVal, rate: targetRate };
         } else if(currentBill[code]) {
-          currentBill[code].qty = parseFloat(val);
+          currentBill[code].qty = parseFloatVal;
         }
       }
       renderList();
+      autoScrollBillToBottom();
+    }
+
+    // Improvement Requirement 3: Automated Screen Layout Internal Target Alignment Scroller Engine
+    function autoScrollBillToBottom() {
+      const pane = document.getElementById('billInvoiceSection');
+      if(pane) {
+        setTimeout(() => {
+          pane.scrollTop = pane.scrollHeight;
+        }, 30);
+      }
     }
 
     function calculateInvoiceSheet() {
@@ -469,7 +558,7 @@
         total += sub;
         rowsBox.innerHTML += `
           <div class="invoice-row">
-            <span>${i.ItemNameEn} (${i.qty} ${i.Unit} @ ₹${i.rate})</span>
+            <span>🔹 ${i.ItemNameEn} (${i.qty} ${i.Unit} @ ₹${i.rate})</span>
             <strong>₹${sub.toFixed(2)}</strong>
           </div>
         `;
@@ -477,12 +566,80 @@
       document.getElementById('invoiceGrandTotal').innerText = `₹${total.toFixed(2)}`;
     }
 
+    // Advanced Feature 2: Local Storage Billing Architecture (Save Invoice Records)
+    function saveBillToLocalStorage() {
+      let customerName = document.getElementById('custName').value.trim();
+      if(!customerName) {
+        alert("Pehle Customer Name likhna zaroori hai tabhi bill local me save hoga!");
+        return;
+      }
+      
+      let itemsArray = Object.values(currentBill);
+      if(itemsArray.length === 0) return alert("Current bill khali hai, save nahi kiya ja sakta!");
+
+      let grandTotal = itemsArray.reduce((acc, i) => acc + (i.qty * i.rate), 0);
+
+      if(editingBillId) {
+        // Update existing record
+        let idx = savedLocalBills.findIndex(b => b.billId === editingBillId);
+        if(idx > -1) {
+          savedLocalBills[idx].customerName = customerName;
+          savedLocalBills[idx].billData = { ...currentBill };
+          savedLocalBills[idx].grandTotal = grandTotal;
+          alert("Puraana Bill local storage me successfully update ho gaya hai!");
+        }
+      } else {
+        // Create brand new invoice entry record
+        let uniqueBillId = "BILL-" + Math.floor(1000 + Math.random() * 9000);
+        let newBillRecord = {
+          billId: uniqueBillId,
+          customerName: customerName,
+          billData: { ...currentBill },
+          grandTotal: grandTotal,
+          timestamp: Date.now()
+        };
+        savedLocalBills.unshift(newBillRecord); // Add to top
+        alert(`Bill Successfully Save Ho Gaya! ID: ${uniqueBillId}`);
+      }
+
+      saveLocalBillsLogToStorage();
+      clearBill();
+    }
+
+    // Advanced Feature 2 Continued: Fetch historical documents back to system workspace
+    function loadBillForEditing(billId) {
+      let billRecord = savedLocalBills.find(b => b.billId === billId);
+      if(!billRecord) return alert("Bill record nahi mila!");
+
+      // Load active values safely
+      currentBill = JSON.parse(JSON.stringify(billRecord.billData));
+      editingBillId = billRecord.billId;
+      document.getElementById('custName').value = billRecord.customerName;
+      document.getElementById('activeBillIdDisplay').innerText = `Editing: ${billRecord.billId}`;
+      document.getElementById('activeBillIdDisplay').style.color = "red";
+
+      // Direct workspace redirection as requested
+      setMode('bill'); 
+    }
+
+    function deleteSavedLocalBill(billId) {
+      if(!confirm("Kya aap is saved invoice record ko delete karna chahte hain?")) return;
+      savedLocalBills = savedLocalBills.filter(b => b.billId !== billId);
+      saveLocalBillsLogToStorage();
+      renderList();
+    }
+
     function clearBill() {
-      if(confirm("Clear active invoice?")) { currentBill = {}; renderList(); }
+      currentBill = {}; 
+      editingBillId = null;
+      document.getElementById('custName').value = '';
+      document.getElementById('activeBillIdDisplay').innerText = "New Bill";
+      document.getElementById('activeBillIdDisplay').style.color = "blue";
+      renderList();
     }
 
     async function saveToGoogleSheet() {
-      if(!isOnlineMode) return alert("Offline mode active! Can't cloud sync.");
+      if(!isOnlineMode) return alert("Offline mode me cloud sync kaam nahi karega.");
       let customer = document.getElementById('custName').value;
       let date = new Date().toLocaleDateString();
       let itemsArray = Object.values(currentBill);
@@ -496,7 +653,7 @@
 
       if(res.success) {
         alert("Synced successfully to Google Cloud Sheet! Invoice: " + res.invoiceNo);
-        currentBill = {}; renderList();
+        clearBill();
       }
     }
 
@@ -507,13 +664,13 @@
         let sub = i.qty * i.rate; total += sub;
         txt += `${i.ItemNameEn} - ${i.qty} ${i.Unit} x ₹${i.rate} = ₹${sub}\n`;
       });
-      txt += `-------------------------\n*Total Bill Amount: ₹${total}*`;
+      txt += `-------------------------\n*Total Bill Amount: ₹${total.toFixed(2)}*`;
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`);
     }
 
     function exportCSV() {
       let rows = [["Item Description", "Quantity Ordered", "Final Rate Applied", "Subtotal Cost"]];
-      Object.values(currentBill).forEach(i => rows.push([i.ItemNameEn, i.qty, i.rate, i.qty * i.rate]));
+      Object.values(currentBill).forEach(i => rows.push([i.ItemNameEn, i.qty, i.rate, (i.qty * i.rate).toFixed(2)]));
       let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
       let link = document.createElement("a");
       link.setAttribute("href", encodeURI(csvContent));
