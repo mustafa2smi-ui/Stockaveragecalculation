@@ -3,20 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WhatsApp Speed Bill</title>
+  <title>Hybrid Speed Bill (Local + Online)</title>
   <script src="https://cdn.jsdelivr.net/npm/uuid@latest/dist/umd/uuidv4.min.js"></script>
   <style>
-    :root { --wa-green: #075E54; --wa-light-green: #dcf8c6; --bg-gray: #ece5dd; }
+    :root { --wa-green: #075E54; --wa-light-green: #dcf8c6; --bg-gray: #ece5dd; --local-blue: #007bff; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
-    body { background: var(--bg-gray); padding-bottom: 80px; }
+    body { background: var(--bg-gray); padding-bottom: 100px; }
     
     /* Login Modal */
     #authModal { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; }
     .input-field { width:100%; max-width:300px; padding:12px; margin:8px 0; border:1px solid #ccc; border-radius:5px; font-size:16px; }
-    .btn { background: var(--wa-green); color:white; border:none; padding:12px 24px; border-radius:5px; font-size:16px; cursor:pointer; }
+    .btn { background: var(--wa-green); color:white; border:none; padding:12px 24px; border-radius:5px; font-size:16px; cursor:pointer; margin: 5px; }
+    .btn-secondary { background: #6c757d; }
     
     /* Main Layout */
     header { background: var(--wa-green); color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 1.2rem; }
+    .status-badge { font-size: 11px; padding: 2px 6px; border-radius: 10px; background: orange; color: black; display: inline-block; margin-top: 5px; }
     .meta-sec { background: white; padding: 10px; border-bottom: 2px solid #ccc; display: flex; flex-direction: column; gap: 5px; }
     
     /* Mode Toggle & Search */
@@ -25,34 +27,45 @@
     .toggle-btn.active { background: var(--wa-green); color: white; }
     .search-box { width: 95%; margin: 10px auto; display: block; padding: 10px; border-radius: 20px; border: 1px solid #ccc; font-size: 16px; }
 
-    /* Active Bill / Items List (WhatsApp Chat Style) */
+    /* Sections for Online and Local */
+    .section-title { background: #ddd; padding: 6px 12px; font-size: 14px; font-weight: bold; color: #333; margin-top: 10px; border-radius: 4px; }
+    .section-title.local { background: #cfe2ff; color: #084298; }
+
+    /* Active Bill / Items List */
     .list-container { max-width: 600px; margin: auto; padding: 10px; }
     .chat-bubble { background: white; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); position: relative; display: flex; justify-content: space-between; align-items: center; }
     .chat-bubble.in-bill { background: var(--wa-light-green); }
-    .item-info { flex: 2; }
+    .item-info { flex: 2; cursor: pointer; }
     .item-name { font-weight: bold; font-size: 16px; }
     .item-sub { font-size: 12px; color: #666; margin-top: 2px; }
-    .item-actions { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+    .item-actions { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
     
-    /* Inline Editing Inputs */
-    .qty-btn { background: var(--wa-green); color: white; border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 18px; font-weight: bold; }
-    .edit-input { width: 50px; text-align: center; padding: 4px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px; }
+    /* Inline Editing & Delete */
+    .qty-btn { background: var(--wa-green); color: white; border: none; width: 26px; height: 26px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .edit-input { width: 45px; text-align: center; padding: 4px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; }
+    .del-btn { background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+
+    /* Add Item Panel Form */
+    .add-item-panel { max-width: 600px; margin: 10px auto; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
 
     /* Bottom Sticky Bar */
-    .footer-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 10px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-around; z-index: 900; }
-    .footer-bar button { padding: 8px 12px; border: none; border-radius: 4px; color: white; font-weight: bold; font-size: 13px; cursor: pointer; }
+    .footer-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 10px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); display: flex; justify-content: space-around; z-index: 900; overflow-x: auto; }
+    .footer-bar button { padding: 10px 14px; border: none; border-radius: 4px; color: white; font-weight: bold; font-size: 13px; cursor: pointer; min-width: 70px; }
     .bg-print { background: #007bff; } .bg-csv { background: #28a745; } .bg-share { background: #25D366; } .bg-clear { background: #dc3545; } .bg-save { background: #ffc107; color: black !important; }
   </style>
 </head>
 <body>
 
-  <!-- Single-Device Auth Layer -->
   <div id="authModal">
-    <h2 style="color:var(--wa-green); margin-bottom:15px;">Billing App Verification</h2>
-    <div id="emailSection">
-      <input type="email" id="authEmail" class="input-field" placeholder="Enter Registered Email">
-      <button class="btn" onclick="requestOTP()">Send OTP</button>
+    <h2 style="color:var(--wa-green); margin-bottom:15px;">Billing App Access</h2>
+    
+    <div id="emailSection" style="text-align: center; width: 100%;">
+      <input type="email" id="authEmail" class="input-field" placeholder="Enter Registered Email"><br>
+      <button class="btn" onclick="requestOTP()">Send OTP (Online Mode)</button>
+      <hr style="width: 80%; margin: 20px auto; border-color: #eee;">
+      <button class="btn btn-secondary" onclick="startAsGuest()">Start Without Email (Local Mode)</button>
     </div>
+    
     <div id="otpSection" style="display:none;">
       <p style="font-size:14px; margin-bottom:5px; color:#555;">Enter OTP sent to your email:</p>
       <input type="number" id="authOTP" class="input-field" placeholder="6-Digit OTP">
@@ -60,13 +73,28 @@
     </div>
   </div>
 
-  <!-- Billing App Core UI -->
   <div id="appContent" style="display:none;">
-    <header id="shopName">My Digital Kirana Shop</header>
+    <header id="shopName">
+      My Digital Kirana Shop
+      <br><span id="appModeBadge" class="status-badge">Local Mode</span>
+    </header>
     
     <div class="meta-sec">
       <input type="text" id="custName" placeholder="Customer Name" class="input-field" style="margin:0;">
       <input type="date" id="billDate" class="input-field" style="margin:0;">
+    </div>
+
+    <div class="add-item-panel">
+      <h4 style="margin-bottom: 5px; color: #333;">Quick Add/Edit Item</h4>
+      <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+        <input type="text" id="pCode" placeholder="Code" style="width:50px; padding:5px;">
+        <input type="text" id="pNameEn" placeholder="Name (En)" style="flex:1; padding:5px;">
+        <input type="text" id="pNameHi" placeholder="Name (Hi)" style="flex:1; padding:5px;">
+        <input type="text" id="pUnit" placeholder="Unit" style="width:50px; padding:5px;">
+        <input type="number" id="pRetail" placeholder="Retail" style="width:65px; padding:5px;">
+        <input type="number" id="pWholesale" placeholder="Wholesale" style="width:65px; padding:5px;">
+        <button onclick="addNewMasterItem()" style="background:var(--wa-green); color:white; padding:5px 10px; border:none; border-radius:4px;">Save Item</button>
+      </div>
     </div>
 
     <div class="mode-container">
@@ -78,36 +106,54 @@
 
     <div class="list-container" id="masterList"></div>
 
-    <!-- Actions Footer -->
     <div class="footer-bar">
       <button class="bg-print" onclick="window.print()">Print</button>
       <button class="bg-csv" onclick="exportCSV()">CSV</button>
       <button class="bg-share" onclick="shareWhatsApp()">WhatsApp</button>
       <button class="bg-clear" onclick="clearBill()">Clear</button>
-      <button class="bg-save" onclick="saveToGoogleSheet()">Save Online</button>
+      <button class="bg-save" id="btnOnlineSave" onclick="saveToGoogleSheet()">Save Online</button>
     </div>
   </div>
 
   <script>
-    // Configuration
+    // Configuration (Apna deployed web app URL yahan dalein)
     const SCRIPT_URL = "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL"; 
     
-    let dbItems = [];
+    let sheetItems = []; // Google Sheet se aaye items
+    let localItems = []; // Local storage wale items
     let currentBill = {};
-    let currentMode = 'entry'; // 'entry' or 'bill'
+    let currentMode = 'entry'; 
+    let isOnlineMode = false;
 
-    // Auth & Lifecycle Check
     window.onload = function() {
       document.getElementById('billDate').valueAsDate = new Date();
+      loadLocalItems();
       checkExistingAuth();
+    }
+
+    // Local Storage Data Load
+    function loadLocalItems() {
+      let stored = localStorage.getItem('local_items_db');
+      localItems = stored ? JSON.parse(stored) : [];
+    }
+
+    function saveLocalItemsToStorage() {
+      localStorage.setItem('local_items_db', JSON.stringify(localItems));
+    }
+
+    // Guest / Without Email Login
+    function startAsGuest() {
+      isOnlineMode = false;
+      document.getElementById('appModeBadge').innerText = "Offline/Local Mode Only";
+      document.getElementById('appModeBadge').style.background = "#0d6efd";
+      document.getElementById('appModeBadge').style.color = "white";
+      document.getElementById('btnOnlineSave').style.display = "none"; // Hide Online save button
+      launchApp();
     }
 
     function getDeviceToken() {
       let token = localStorage.getItem('device_token');
-      if (!token) {
-        token = uuidv4();
-        localStorage.setItem('device_token', token);
-      }
+      if (!token) { token = uuidv4(); localStorage.setItem('device_token', token); }
       return token;
     }
 
@@ -115,17 +161,22 @@
       let email = localStorage.getItem('auth_email');
       let token = getDeviceToken();
       if(email && token) {
-        let res = await fetch(`${SCRIPT_URL}`, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'checkAuth', email: email, token: token })
-        }).then(r => r.json());
-        
-        if(res.authorized) {
-          launchApp();
-          return;
-        }
+        try {
+          let res = await fetch(`${SCRIPT_URL}`, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'checkAuth', email: email, token: token })
+          }).then(r => r.json());
+          
+          if(res.authorized) {
+            isOnlineMode = true;
+            document.getElementById('appModeBadge').innerText = "Online Mode (Sync ON)";
+            document.getElementById('appModeBadge').style.background = "#28a745";
+            document.getElementById('appModeBadge').style.color = "white";
+            launchApp();
+            return;
+          }
+        } catch(e) { console.log("Offline mode due to network or server config."); }
       }
-      document.getElementById('authModal').style.display = 'flex';
     }
 
     async function requestOTP() {
@@ -140,9 +191,7 @@
         document.getElementById('emailSection').style.display = 'none';
         document.getElementById('otpSection').style.display = 'block';
         localStorage.setItem('auth_email', email);
-      } else {
-        alert(res.message);
-      }
+      } else { alert(res.message); }
     }
 
     async function verifyOTP() {
@@ -156,26 +205,23 @@
       }).then(r => r.json());
 
       if(res.success) {
-        launchApp();
-      } else {
-        alert(res.message);
-      }
+        isOnlineMode = true;
+        location.reload();
+      } else { alert(res.message); }
     }
 
     function launchApp() {
       document.getElementById('authModal').style.display = 'none';
       document.getElementById('appContent').style.display = 'block';
-      fetchItems();
+      if(isOnlineMode) fetchOnlineItems();
+      else renderList();
     }
 
-    // Load Stock Data from Google Sheet
-    function fetchItems() {
+    function fetchOnlineItems() {
       fetch(`${SCRIPT_URL}?action=getItems`)
         .then(r => r.json())
-        .then(data => {
-          dbItems = data;
-          renderList();
-        });
+        .then(data => { sheetItems = data; renderList(); })
+        .catch(err => { alert("Google sheet data fetch failed. Showing local data."); renderList(); });
     }
 
     function setMode(mode) {
@@ -185,20 +231,117 @@
       renderList();
     }
 
-    // Core Render Engine
+    // Master Item Add/Edit Mechanism
+    async function addNewMasterItem() {
+      let code = document.getElementById('pCode').value;
+      let nameEn = document.getElementById('pNameEn').value;
+      let nameHi = document.getElementById('pNameHi').value;
+      let unit = document.getElementById('pUnit').value || 'Kg';
+      let retail = parseFloat(document.getElementById('pRetail').value || 0);
+      let wholesale = parseFloat(document.getElementById('pWholesale').value || 0);
+
+      if(!code || !nameEn) return alert("Code aur English Name zaroori hai!");
+
+      let newItem = { Code: code, ItemNameEn: nameEn, ItemNameHi: nameHi, Unit: unit, Retail: retail, Wholesale: wholesale, origin: isOnlineMode ? 'online' : 'local' };
+
+      if(isOnlineMode) {
+        // Online Mode: Send data to Google Apps Script to save in sheet
+        let res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'addOrUpdateItem', item: newItem })
+        }).then(r => r.json());
+        if(res.success) { fetchOnlineItems(); }
+      } else {
+        // Local Mode: Save to local Storage
+        let idx = localItems.findIndex(i => i.Code == code);
+        if(idx > -1) localItems[idx] = newItem; // Update if exists
+        else localItems.push(newItem);
+        saveLocalItemsToStorage();
+        renderList();
+      }
+
+      // Clear Inputs
+      document.getElementById('pCode').value = '';
+      document.getElementById('pNameEn').value = '';
+      document.getElementById('pNameHi').value = '';
+      document.getElementById('pRetail').value = '';
+      document.getElementById('pWholesale').value = '';
+    }
+
+    // Delete Master Item
+    async function deleteMasterItem(code, origin) {
+      if(!confirm("Kya aap is item ko master list se permanent delete karna chahte hain?")) return;
+
+      if(origin === 'online' && isOnlineMode) {
+        let res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'deleteItem', code: code })
+        }).then(r => r.json());
+        if(res.success) fetchOnlineItems();
+      } else {
+        localItems = localItems.filter(i => i.Code != code);
+        saveLocalItemsToStorage();
+        renderList();
+      }
+      if(currentBill[code]) delete currentBill[code];
+    }
+
+    function editMasterItem(code, origin) {
+      let item = origin === 'online' ? sheetItems.find(i => i.Code == code) : localItems.find(i => i.Code == code);
+      if(item) {
+        document.getElementById('pCode').value = item.Code;
+        document.getElementById('pNameEn').value = item.ItemNameEn;
+        document.getElementById('pNameHi').value = item.ItemNameHi;
+        document.getElementById('pUnit').value = item.Unit;
+        document.getElementById('pRetail').value = item.Retail;
+        document.getElementById('pWholesale').value = item.Wholesale;
+      }
+    }
+
+    // Core Dual Section UI Render Engine
     function renderList() {
       const container = document.getElementById('masterList');
       container.innerHTML = '';
-      const query = document.getElementById('search').value.toLowerCase();
-
-      let itemsToRender = currentMode === 'entry' ? dbItems : Object.values(currentBill);
-
-      itemsToRender.forEach(item => {
-        // Search Filter
-        if(query && !item.ItemNameEn.toLowerCase().includes(query) && !item.ItemNameHi.includes(query) && !item.Code.toString().includes(query)) {
-          return;
+      
+      if (currentMode === 'bill') {
+        // Bill Mode: Just render items in current bill
+        let items = Object.values(currentBill);
+        renderSectionBucket(container, items, "Current Invoice Items", false);
+      } else {
+        // Entry Mode: Render Sections Separately
+        // 1. Local Items Section
+        if(localItems.length > 0) {
+          renderSectionBucket(container, localItems, "Local Storage Items (Device Saved)", true, 'local');
         }
+        // 2. Google Sheet Items Section
+        if(isOnlineMode && sheetItems.length > 0) {
+          renderSectionBucket(container, sheetItems, "Google Spreadsheet Items (Cloud Saved)", true, 'online');
+        } else if (isOnlineMode && sheetItems.length === 0) {
+          container.innerHTML += `<p style="padding:10px; color:#666;">Loading items from cloud...</p>`;
+        }
+      }
+      document.getElementById('countBadge').innerText = Object.keys(currentBill).length;
+    }
 
+    function renderSectionBucket(container, itemsList, titleText, showManagementButtons, originType = 'local') {
+      const query = document.getElementById('search').value.toLowerCase();
+      
+      // Filter list first
+      let filtered = itemsList.filter(item => {
+        if(!query) return true;
+        return item.ItemNameEn.toLowerCase().includes(query) || 
+               (item.ItemNameHi && item.ItemNameHi.includes(query)) || 
+               item.Code.toString().includes(query);
+      });
+
+      if(filtered.length === 0 && currentMode === 'entry') return;
+
+      const titleDiv = document.createElement('div');
+      titleDiv.className = `section-title ${originType}`;
+      titleDiv.innerText = `${titleText} (${filtered.length})`;
+      container.appendChild(titleDiv);
+
+      filtered.forEach(item => {
         const inBill = currentBill[item.Code];
         const qty = inBill ? inBill.qty : 0;
         const rate = inBill ? inBill.rate : item.Retail;
@@ -206,34 +349,31 @@
         const bubble = document.createElement('div');
         bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
         
-        // WhatsApp tap functionality or manual controls
         bubble.innerHTML = `
-          <div class="item-info" onclick="handleBubbleTap('${item.Code}')">
+          <div class="item-info" onclick="handleBubbleTap('${item.Code}', '${originType}')">
             <div class="item-name">${item.ItemNameEn} (${item.ItemNameHi || ''})</div>
-            <div class="item-sub">Code: ${item.Code} | Unit: ${item.Unit} | R: ₹${item.Retail} W: ₹${item.Wholesale}</div>
+            <div class="item-sub">Code: ${item.Code} | Unit: ${item.Unit} | Price: ₹${item.Retail}</div>
           </div>
           <div class="item-actions">
             ${qty > 0 ? `
               <button class="qty-btn" onclick="updateQty('${item.Code}', -1)">-</button>
               <input type="number" class="edit-input" value="${qty}" onchange="directQty('${item.Code}', this.value)">
               <button class="qty-btn" onclick="updateQty('${item.Code}', 1)">+</button>
-              <input type="number" class="edit-input" style="width:60px;" value="${rate}" onchange="updateRate('${item.Code}', this.value)">
             ` : `
-              <span style="color:#aaa; font-size:13px;">Tap to Add</span>
+              ${showManagementButtons ? `
+                <button onclick="editMasterItem('${item.Code}', '${originType}')" style="background:none; border:none; color:blue; font-size:12px; margin-right:5px; cursor:pointer;">✏️</button>
+                <button class="del-btn" onclick="deleteMasterItem('${item.Code}', '${originType}')">X</button>
+              ` : '<span style="color:#aaa; font-size:12px;">Tap to Bill</span>'}
             `}
           </div>
         `;
         container.appendChild(bubble);
       });
-      
-      // Update badge count
-      document.getElementById('countBadge').innerText = Object.keys(currentBill).length;
     }
 
-    // Tap Handling Logic
-    function handleBubbleTap(code) {
+    function handleBubbleTap(code, originType) {
       if(!currentBill[code]) {
-        let originalItem = dbItems.find(i => i.Code == code);
+        let originalItem = originType === 'online' ? sheetItems.find(i => i.Code == code) : localItems.find(i => i.Code == code);
         currentBill[code] = { ...originalItem, qty: 1, rate: originalItem.Retail };
         renderList();
       }
@@ -253,62 +393,38 @@
       renderList();
     }
 
-    function updateRate(code, val) {
-      if(currentBill[code]) {
-        currentBill[code].rate = parseFloat(val);
-      }
-    }
-
-    // Actions & Tools
     function clearBill() {
-      if(confirm("Kya aap current bill clear karna chahte hain?")) {
-        currentBill = {};
-        renderList();
-      }
+      if(confirm("Clear current invoice?")) { currentBill = {}; renderList(); }
     }
 
+    // Google sheet cloud saving code 
     async function saveToGoogleSheet() {
+      if(!isOnlineMode) return alert("Aap Offline mode me hain! Pehle Google login karein.");
       let customer = document.getElementById('custName').value;
       let date = document.getElementById('billDate').value;
       let itemsArray = Object.values(currentBill);
-      
-      if(itemsArray.length === 0) return alert("Bill me koi item nahi hai!");
-
+      if(itemsArray.length === 0) return alert("Bill khali hai!");
       let total = itemsArray.reduce((acc, i) => acc + (i.qty * i.rate), 0);
-
-      let payload = {
-        action: "saveBill",
-        date: date,
-        customer: customer || "Cash",
-        items: itemsArray,
-        total: total
-      };
 
       let res = await fetch(SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ action: "saveBill", date: date, customer: customer || "Cash Bill", items: itemsArray, total: total })
       }).then(r => r.json());
 
       if(res.success) {
-        alert("Bill Successfully saved to Google Sheet! Invoice: " + res.invoiceNo);
-        currentBill = {};
-        renderList();
+        alert("Saved to Google Cloud! Inv No: " + res.invoiceNo);
+        currentBill = {}; renderList();
       }
     }
 
     function shareWhatsApp() {
-      let txt = `*${document.getElementById('shopName').innerText}*\n`;
-      txt += `Cust: ${document.getElementById('custName').value || 'Guest'}\n`;
-      txt += `Date: ${document.getElementById('billDate').value}\n`;
-      txt += `-------------------------\n`;
+      let txt = `*Invoice Bill*\nCust: ${document.getElementById('custName').value || 'Cash'}\nDate: ${document.getElementById('billDate').value}\n-------------------------\n`;
       let total = 0;
       Object.values(currentBill).forEach(i => {
-        let sub = i.qty * i.rate;
-        total += sub;
+        let sub = i.qty * i.rate; total += sub;
         txt += `${i.ItemNameEn} - ${i.qty} ${i.Unit} x ₹${i.rate} = ₹${sub}\n`;
       });
-      txt += `-------------------------\n`;
-      txt += `*Total: ₹${total}*`;
+      txt += `-------------------------\n*Total: ₹${total}*`;
       window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`);
     }
 
@@ -316,12 +432,10 @@
       let rows = [["Item Name", "Qty", "Rate", "Subtotal"]];
       Object.values(currentBill).forEach(i => rows.push([i.ItemNameEn, i.qty, i.rate, i.qty * i.rate]));
       let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
-      let encodedUri = encodeURI(csvContent);
       let link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
+      link.setAttribute("href", encodeURI(csvContent));
       link.setAttribute("download", `Bill_${Date.now()}.csv`);
-      document.body.appendChild(link);
-      link.click();
+      document.body.appendChild(link); link.click();
     }
   </script>
 </body>
