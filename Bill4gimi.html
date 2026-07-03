@@ -576,7 +576,7 @@
         container.appendChild(bubble);
       });
     }
-
+/*
     function addItemToBillDirect(code) {
       let activeItems = isOnlineMode ? sheetItems : localItems;
       let item = activeItems.find(i => i.Code == code);
@@ -596,7 +596,29 @@
       renderList();
       scrollBillToBottom();
     }
+*/
+    function addItemToBillDirect(code) {
+  let activeItems = isOnlineMode ? sheetItems : localItems;
+  let item = activeItems.find(i => i.Code == code);
+  if(!item) return;
 
+  let selectEl = document.getElementById('billingPriceTier');
+  let selectedPricingMode = selectEl ? selectEl.value : 'retail';
+  let targetRate = (selectedPricingMode === 'wholesale') ? item.Wholesale : item.Retail;
+
+  if(!currentBill[code]) {
+    currentBill[code] = { ...item, qty: 1, rate: targetRate };
+    billOrderKeys.push(code); 
+  } else {
+    currentBill[code].qty += 1;
+    currentBill[code].rate = targetRate;
+  }
+  
+  renderList();
+  calculateInvoiceSheet(); // FIX: Yeh line niche ke invoice page ko update karegi!
+  scrollBillToBottom();
+}
+/*
     function updateQty(code, change) {
       if(currentMode === 'entry') return; 
       if(currentBill[code]) {
@@ -619,6 +641,31 @@
       renderList();
       scrollBillToBottom();
     }
+*/
+    function updateQty(code, change) {
+  if(currentMode === 'entry') return; 
+  if(currentBill[code]) {
+    currentBill[code].qty += change;
+    if(currentBill[code].qty <= 0) {
+      delete currentBill[code];
+      billOrderKeys = billOrderKeys.filter(k => k != code);
+    }
+  } else if (change > 0) {
+    let activeItems = isOnlineMode ? sheetItems : localItems;
+    let item = activeItems.find(i => i.Code == code);
+    if(item) {
+      let selectEl = document.getElementById('billingPriceTier');
+      let selectedPricingMode = selectEl ? selectEl.value : 'retail';
+      let targetRate = (selectedPricingMode === 'wholesale') ? item.Wholesale : item.Retail;
+      currentBill[code] = { ...item, qty: 1, rate: targetRate };
+      billOrderKeys.push(code);
+    }
+  }
+  
+  renderList();
+  calculateInvoiceSheet(); // FIX: Plus ya minus dabane par bhi invoice refresh hoga!
+  scrollBillToBottom();
+}
 
     function directQty(code, val) {
       if(currentMode === 'entry') return; 
