@@ -323,7 +323,7 @@
         location.reload();
       } else { alert(res.message); }
     }
-
+/*
     function launchApp() {
       document.getElementById('authModal').style.display = 'none';
       document.getElementById('appContent').style.display = 'block';
@@ -332,6 +332,22 @@
       if(isOnlineMode) fetchOnlineItems();
       else renderList();
     }
+*/
+    function launchApp() {
+  document.getElementById('authModal').style.display = 'none';
+  document.getElementById('appContent').style.display = 'block';
+  
+  // Pehle local items aur bills ko load karein
+  loadLocalItems();
+  loadSavedLocalBills();
+  
+  // Agar online mode hai to data fetch karein, nahi to direct render karein
+  if(isOnlineMode && SCRIPT_URL !== "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL") { 
+    fetchOnlineItems();
+  } else { 
+    renderList(); 
+  }
+}
 
     function fetchOnlineItems() {
       fetch(`${SCRIPT_URL}?action=getItems&tab=${activeDukan}`)
