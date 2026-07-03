@@ -270,7 +270,7 @@
         processScannedCode(code);
       }
     }
-
+/*
     function processScannedCode(code) {
       document.getElementById('pCode').value = code;
       
@@ -296,6 +296,42 @@
         isScanning = false;
       }, 1500);
     }
+*/
+    function processScannedCode(code) {
+  // 1. Scan kiye hue code ko input box me daalein
+  document.getElementById('pCode').value = code;
+  
+  // 2. AAPKA LOGIC FIX: Pehle check karein online mode hai ya offline (local)
+  // Agar aap bina login ke hain, to data hamesha 'localItems' se hi check hoga!
+  let activeItems = isOnlineMode ? sheetItems : localItems;
+  
+  // 3. Database me code dhoondhein (Strict check: text aur number dono ke liye)
+  let itemExists = activeItems.find(i => i.Code == code || i.Code.toString() == code.toString() || i.Code.toString().trim() == code.trim());
+
+  if (itemExists) {
+    // === PROCEDURE STEP: MATCH SUCCESSFUL ===
+    if (navigator.vibrate) navigator.vibrate(100); // 1. Vibrate karega
+    addItemToBillDirect(code); // 2. Item ko automatic niche serial no ke sath jodega
+  } else {
+    // === PROCEDURE STEP: NOT MATCH ===
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]); // Error double vibrate
+    
+    // Naya item save karne ka dynamic popup prompt
+    setTimeout(() => {
+      if (confirm("Barcode '" + code + "' aapke Local Storage me nahi mila!\n\nKya aap is code ke sath naya item register karna chahte hain?")) {
+        setMode('entry');
+        document.getElementById('pNameEn').focus();
+      } else {
+        renderList();
+      }
+    }, 200);
+  }
+
+  // 1.5 Second ka lock kholein taaki camera ready ho sake agle scan ke liye
+  setTimeout(() => {
+    isScanning = false;
+  }, 1500);
+}
 
     function stopScanner() {
       if (html5QrCode) {
