@@ -251,7 +251,7 @@
         alert("Camera permission dijiye ya page refresh karein.");
       });
     }
-
+/*
     function handleBarcodeResult(code) {
       if (isScanning) return; 
       isScanning = true; 
@@ -265,6 +265,38 @@
         isScanning = false; 
       }, 1500); 
     }
+*/
+    function handleBarcodeResult(code) {
+  if (isScanning) return; // Agar pehle se process ho raha hai toh ruko
+  isScanning = true; // Lock lagao
+
+  // SCRIPT FIX: Is Online Mode ke hisab se sahi database select karein
+  let activeItems = isOnlineMode ? sheetItems : localItems;
+  
+  // Barcode ko dhoondhein (Humne variable name sahi kiya)
+  let itemExists = activeItems.find(i => i.Code == code);
+
+  if (itemExists) {
+    // Agar item mil gaya to direct bill me push karein (Yeh serial number aur invoice dono update karega)
+    addItemToBillDirect(code);
+    
+    // Scan ke baad vibration feedback
+    if (navigator.vibrate) navigator.vibrate(100);
+  } else {
+    // Agar barcode database me nahi hai, to scanning rok kar alert karein aur naya entry field kholein
+    stopScanner();
+    if (confirm("Barcode '" + code + "' database me nahi mila!\n\nKya aap is code ke sath naya item register karna chahte hain?")) {
+      document.getElementById('pCode').value = code;
+      setMode('entry');
+      document.getElementById('pNameEn').focus();
+    }
+  }
+
+  // 1.5 second ka gap dein taaki ek hi item baar-baar scan na ho
+  setTimeout(() => {
+    isScanning = false; // Lock kholo
+  }, 1500); 
+}
 
     function stopScanner() {
       if (html5QrCode) {
