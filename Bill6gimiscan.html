@@ -361,7 +361,7 @@
     function saveLocalBillsLogToStorage() {
       localStorage.setItem('local_saved_bills_log_' + activeDukan, JSON.stringify(savedLocalBills));
     }
-
+/*
     function startAsGuest() {
       isOnlineMode = false;
       document.getElementById('appModeBadge').innerText = "Offline/Local Mode Only";
@@ -370,7 +370,11 @@
       document.getElementById('btnOnlineSave').style.display = "none"; 
       launchApp();
     }
-
+*/
+    function startAsGuest() {
+      isOnlineMode = false;
+      launchApp();
+    }
     function goToStartPage() {
       if(!confirm("Start Screen par wapas jana chahte hain?")) return;
       localStorage.removeItem('auth_email'); 
