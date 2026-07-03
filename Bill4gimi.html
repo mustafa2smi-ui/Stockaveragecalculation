@@ -228,6 +228,7 @@
       else renderList();
     }
 */
+    /*
     function switchDukanMode(mode) {
   if(Object.keys(currentBill).length > 0) {
     if(!confirm("Dukan badalne se active bill clear ho jayega. Kya aap aage badhna chahte hain?")) return;
@@ -259,7 +260,7 @@
     renderList();
   }
 }
-
+*/
     function loadLocalItems() {
       let stored = localStorage.getItem('local_items_db_' + activeDukan);
       localItems = stored ? JSON.parse(stored) : [];
@@ -355,7 +356,7 @@
         location.reload();
       } else { alert(res.message); }
     }
-/*
+
     function launchApp() {
       document.getElementById('authModal').style.display = 'none';
       document.getElementById('appContent').style.display = 'block';
@@ -364,7 +365,8 @@
       if(isOnlineMode) fetchOnlineItems();
       else renderList();
     }
-*/
+
+    /*
     function launchApp() {
   document.getElementById('authModal').style.display = 'none';
   document.getElementById('appContent').style.display = 'block';
@@ -395,7 +397,7 @@
   }
 }
 
-
+*/
     function fetchOnlineItems() {
       fetch(`${SCRIPT_URL}?action=getItems&tab=${activeDukan}`)
         .then(r => r.json())
