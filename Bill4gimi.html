@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Hybrid Speed Bill (Dual Dukan Mode) - Final</title>
+  <title>Hybrid Speed Bill (Fixed Guest Login) - V12</title>
   <script src="https://cdn.jsdelivr.net/npm/uuid@latest/dist/umd/uuidv4.min.js"></script>
   <style>
     :root { 
@@ -23,13 +23,12 @@
     .btn { background: var(--wa-green); color:white; border:none; padding:12px 24px; border-radius:5px; font-size:16px; cursor:pointer; margin: 5px; }
     .btn-secondary { background: #6c757d; }
     
-    /* Top Dukan Mode Switcher Bar */
     .dukan-selector-bar { display: flex; background: #2c3e50; padding: 8px; justify-content: center; gap: 15px; }
     .dukan-btn { padding: 8px 20px; font-weight: bold; border: 2px solid #fff; border-radius: 20px; color: white; background: transparent; cursor: pointer; font-size: 14px; }
     .dukan-btn.active-g { background: var(--grocery-color); border-color: var(--grocery-color); }
     .dukan-btn.active-h { background: var(--hardware-color); border-color: var(--hardware-color); }
 
-    header { background: var(--wa-green); color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 1.1rem; transition: background 0.3s ease; }
+    header { background: var(--wa-green); color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 1.1rem; }
     .status-badge { font-size: 11px; padding: 2px 8px; border-radius: 10px; background: orange; color: black; display: inline-block; margin-top: 4px; }
     
     .meta-sec { background: white; padding: 10px; border-bottom: 1px solid #ccc; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
@@ -91,7 +90,7 @@
 <body>
 
   <div id="authModal">
-    <h2 style="color:var(--wa-green); margin-bottom:15px;">Billing App Access (V11-Final)</h2>
+    <h2 style="color:var(--wa-green); margin-bottom:15px;">Billing App Access (V12)</h2>
     <div id="emailSection" style="text-align: center; width: 100%;">
       <input type="email" id="authEmail" class="input-field" placeholder="Enter Registered Email"><br>
       <button class="btn" onclick="requestOTP()">Send OTP (Online Mode)</button>
@@ -129,9 +128,7 @@
           <input type="text" id="pCode" placeholder="Code" style="width:50px;" oninput="renderList()">
           <input type="text" id="pNameEn" placeholder="Item Name / Search 🔎" style="flex:2; min-width: 120px;" oninput="renderList()">
           <input type="text" id="pNameHi" placeholder="नाम (Hi)" style="flex:1; min-width: 70px;">
-          
           <input type="text" id="pCategory" placeholder="Category (e.g. Rice)" style="flex:1; min-width: 90px;">
-
           <input type="text" id="pUnit" placeholder="Unit" style="width:45px;" value="Kg">
           <input type="number" id="pRetail" placeholder="Retail" style="width:55px;">
           <input type="number" id="pWholesale" placeholder="W'sale" style="width:55px;">
@@ -180,7 +177,7 @@
   <script>
     const SCRIPT_URL = "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL"; 
     
-    let activeDukan = "Grocery"; // Default state toggle segment ('Grocery' or 'Hardware')
+    let activeDukan = "Grocery"; 
     let sheetItems = []; 
     let localItems = []; 
     let currentBill = {};
@@ -201,8 +198,7 @@
       loadSavedLocalBills();
       checkExistingAuth();
     }
-/*
-    // Dynamic Shop Mode Switcher Logic
+
     function switchDukanMode(mode) {
       if(Object.keys(currentBill).length > 0) {
         if(!confirm("Dukan badalne se active bill clear ho jayega. Kya aap aage badhna chahte hain?")) return;
@@ -215,52 +211,25 @@
       let headerText = document.getElementById('shopHeaderName');
       
       if(mode === 'Grocery') {
-        btnG.className = "dukan-btn active-g";
-        btnH.className = "dukan-btn";
-        headerText.innerText = "My Grocery Dukan";
+        if(btnG) btnG.className = "dukan-btn active-g";
+        if(btnH) btnH.className = "dukan-btn";
+        if(headerText) headerText.innerText = "My Grocery Dukan";
       } else {
-        btnG.className = "dukan-btn";
-        btnH.className = "dukan-btn active-h";
-        headerText.innerText = "My Hardware Dukan";
+        if(btnG) btnG.className = "dukan-btn";
+        if(btnH) btnH.className = "dukan-btn active-h";
+        if(headerText) headerText.innerText = "My Hardware Dukan";
       }
       
-      if(isOnlineMode) fetchOnlineItems();
-      else renderList();
+      loadLocalItems();
+      loadSavedLocalBills();
+      
+      if(isOnlineMode && SCRIPT_URL !== "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL" && SCRIPT_URL.trim() !== "") {
+        fetchOnlineItems();
+      } else {
+        renderList();
+      }
     }
-*/
-    /*
-    function switchDukanMode(mode) {
-  if(Object.keys(currentBill).length > 0) {
-    if(!confirm("Dukan badalne se active bill clear ho jayega. Kya aap aage badhna chahte hain?")) return;
-  }
-  activeDukan = mode;
-  clearBill();
-  
-  let btnG = document.getElementById('btnDukanG');
-  let btnH = document.getElementById('btnDukanH');
-  let headerText = document.getElementById('shopHeaderName');
-  
-  if(mode === 'Grocery') {
-    if(btnG) btnG.className = "dukan-btn active-g";
-    if(btnH) btnH.className = "dukan-btn";
-    if(headerText) headerText.innerText = "My Grocery Dukan";
-  } else {
-    if(btnG) btnG.className = "dukan-btn";
-    if(btnH) btnH.className = "dukan-btn active-h";
-    if(headerText) headerText.innerText = "My Hardware Dukan";
-  }
-  
-  // Local storage se nayi dukan ka data load karein taaki offline me crash na ho
-  loadLocalItems();
-  loadSavedLocalBills();
-  
-  if(isOnlineMode && SCRIPT_URL !== "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL" && SCRIPT_URL.trim() !== "") {
-    fetchOnlineItems();
-  } else {
-    renderList();
-  }
-}
-*/
+
     function loadLocalItems() {
       let stored = localStorage.getItem('local_items_db_' + activeDukan);
       localItems = stored ? JSON.parse(stored) : [];
@@ -281,10 +250,6 @@
 
     function startAsGuest() {
       isOnlineMode = false;
-      document.getElementById('appModeBadge').innerText = "Offline/Local Mode Only";
-      document.getElementById('appModeBadge').style.background = "#0d6efd";
-      document.getElementById('appModeBadge').style.color = "white";
-      document.getElementById('btnOnlineSave').style.display = "none"; 
       launchApp();
     }
 
@@ -307,7 +272,7 @@
     async function checkExistingAuth() {
       let email = localStorage.getItem('auth_email');
       let token = getDeviceToken();
-      if(email && token) {
+      if(email && token && SCRIPT_URL !== "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL" && SCRIPT_URL.trim() !== "") {
         try {
           let res = await fetch(`${SCRIPT_URL}`, {
             method: 'POST',
@@ -316,17 +281,17 @@
           
           if(res.authorized) {
             isOnlineMode = true;
-            document.getElementById('appModeBadge').innerText = "Online Mode (Sync ON)";
-            document.getElementById('appModeBadge').style.background = "#28a745";
-            document.getElementById('appModeBadge').style.color = "white";
             launchApp();
             return;
           }
-        } catch(e) { console.log("Offline routing."); }
+        } catch(e) { console.log("Offline bypass operation."); }
       }
     }
 
     async function requestOTP() {
+      if(SCRIPT_URL === "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL") {
+        return alert("Pehle aapko Google Apps Script ka URL setup karna hoga!");
+      }
       let email = document.getElementById('authEmail').value;
       if(!email) return alert('Email enter karein');
       let res = await fetch(`${SCRIPT_URL}`, {
@@ -360,44 +325,38 @@
     function launchApp() {
       document.getElementById('authModal').style.display = 'none';
       document.getElementById('appContent').style.display = 'block';
+      
+      let btnG = document.getElementById('btnDukanG');
+      let btnH = document.getElementById('btnDukanH');
+      let headerText = document.getElementById('shopHeaderName');
+      
+      if(activeDukan === 'Grocery') {
+        if(btnG) btnG.className = "dukan-btn active-g";
+        if(btnH) btnH.className = "dukan-btn";
+        if(headerText) headerText.innerText = "My Grocery Dukan";
+      } else {
+        if(btnG) btnG.className = "dukan-btn";
+        if(btnH) btnH.className = "dukan-btn active-h";
+        if(headerText) headerText.innerText = "My Hardware Dukan";
+      }
+
       loadLocalItems();
       loadSavedLocalBills();
-      if(isOnlineMode) fetchOnlineItems();
-      else renderList();
+      
+      if(isOnlineMode && SCRIPT_URL !== "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL" && SCRIPT_URL.trim() !== "") {
+        document.getElementById('appModeBadge').innerText = "Online Mode (Sync ON)";
+        document.getElementById('appModeBadge').style.background = "#28a745";
+        document.getElementById('btnOnlineSave').style.display = "block";
+        fetchOnlineItems();
+      } else {
+        isOnlineMode = false; 
+        document.getElementById('appModeBadge').innerText = "Offline/Local Mode Only";
+        document.getElementById('appModeBadge').style.background = "#0d6efd";
+        document.getElementById('btnOnlineSave').style.display = "none";
+        renderList();
+      }
     }
 
-    /*
-    function launchApp() {
-  document.getElementById('authModal').style.display = 'none';
-  document.getElementById('appContent').style.display = 'block';
-  
-  // Pehle sahi dukan ka background aur layout set karein bina load par atke
-  let btnG = document.getElementById('btnDukanG');
-  let btnH = document.getElementById('btnDukanH');
-  if(activeDukan === 'Grocery') {
-    if(btnG) btnG.className = "dukan-btn active-g";
-    if(btnH) btnH.className = "dukan-btn";
-  } else {
-    if(btnG) btnG.className = "dukan-btn";
-    if(btnH) btnH.className = "dukan-btn active-h";
-  }
-
-  loadLocalItems();
-  loadSavedLocalBills();
-  
-  // URL validation check taaki blank URL par fetch crash na ho
-  if(isOnlineMode && SCRIPT_URL !== "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL" && SCRIPT_URL.trim() !== "") {
-    fetchOnlineItems();
-  } else {
-    isOnlineMode = false; // Force local mode agar script URL default hai
-    document.getElementById('appModeBadge').innerText = "Offline/Local Mode Only";
-    document.getElementById('appModeBadge').style.background = "#0d6efd";
-    document.getElementById('btnOnlineSave').style.display = "none";
-    renderList();
-  }
-}
-
-*/
     function fetchOnlineItems() {
       fetch(`${SCRIPT_URL}?action=getItems&tab=${activeDukan}`)
         .then(r => r.json())
@@ -450,7 +409,7 @@
       if(currentMode === 'bill') {
         if(!currentBill[code]) {
           currentBill[code] = { ...newItem, qty: 1, rate: targetRate };
-          billOrderKeys.push(code); 
+          billOrderKeys.push(code);
         } else {
           currentBill[code].qty += 1;
           currentBill[code].rate = targetRate;
@@ -510,28 +469,33 @@
         renderSavedBillsLogBucket(container);
       }
 
-      if(localItems.length > 0) {
-        renderSectionBucket(container, localItems, `Local Stock Items [${activeDukan}]`, 'local');
+      let activeItems = isOnlineMode ? sheetItems : localItems;
+
+      if(!activeItems || activeItems.length === 0) {
+        container.innerHTML = `<p style="padding: 20px; text-align: center; color: #888; font-weight: bold;">No Items Found. Add items in Master Entry Mode to start billing! 🛒</p>`;
+        calculateInvoiceSheet();
+        return;
       }
-      if(isOnlineMode && sheetItems.length > 0) {
-        renderSectionBucket(container, sheetItems, `Cloud Spreadsheet Items [${activeDukan}]`, 'online');
-      }
-      
-      calculateInvoiceSheet();
-      document.getElementById('countBadge').innerText = Object.keys(currentBill).length;
+
+      renderSectionBucket(container, activeItems, `${isOnlineMode ? 'Cloud' : 'Local'} Stock Items [${activeDukan}]`, isOnlineMode ? 'online' : 'local');
     }
 
     function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
-      const query = document.getElementById('pNameEn').value.toLowerCase();
-      const codeQuery = document.getElementById('pCode').value.toLowerCase();
+      const nameInp = document.getElementById('pNameEn');
+      const codeInp = document.getElementById('pCode');
+      const query = nameInp ? nameInp.value.toLowerCase() : '';
+      const codeQuery = codeInp ? codeInp.value.toLowerCase() : '';
       
       let filtered = itemsList.filter(item => {
-        let matchName = !query || item.ItemNameEn.toLowerCase().includes(query) || (item.ItemNameHi && item.ItemNameHi.includes(query));
-        let matchCode = !codeQuery || item.Code.toString().toLowerCase().includes(codeQuery);
+        let matchName = !query || (item.ItemNameEn && item.ItemNameEn.toLowerCase().includes(query)) || (item.ItemNameHi && item.ItemNameHi.includes(query));
+        let matchCode = !codeQuery || (item.Code && item.Code.toString().toLowerCase().includes(codeQuery));
         return matchName && matchCode;
       });
 
-      if(filtered.length === 0) return;
+      if(filtered.length === 0) {
+        container.innerHTML = `<p style="padding: 20px; text-align: center; color: #888;">No matching items found.</p>`;
+        return;
+      }
 
       const titleDiv = document.createElement('div');
       titleDiv.className = `section-title ${originType}`;
@@ -615,7 +579,8 @@
 
     function addItemToBillDirect(code) {
       if(currentMode === 'entry') return; 
-      let item = sheetItems.find(i => i.Code == code) || localItems.find(i => i.Code == code);
+      let activeItems = isOnlineMode ? sheetItems : localItems;
+      let item = activeItems.find(i => i.Code == code);
       if(!item) return;
 
       let selectEl = document.getElementById('billingPriceTier');
@@ -642,7 +607,8 @@
           billOrderKeys = billOrderKeys.filter(k => k != code);
         }
       } else if (change > 0) {
-        let item = sheetItems.find(i => i.Code == code) || localItems.find(i => i.Code == code);
+        let activeItems = isOnlineMode ? sheetItems : localItems;
+        let item = activeItems.find(i => i.Code == code);
         if(item) {
           let selectEl = document.getElementById('billingPriceTier');
           let selectedPricingMode = selectEl ? selectEl.value : 'retail';
@@ -664,7 +630,8 @@
           billOrderKeys = billOrderKeys.filter(k => k != code);
         }
       } else {
-        let item = sheetItems.find(i => i.Code == code) || localItems.find(i => i.Code == code);
+        let activeItems = isOnlineMode ? sheetItems : localItems;
+        let item = activeItems.find(i => i.Code == code);
         if(!currentBill[code] && item) {
           let selectEl = document.getElementById('billingPriceTier');
           let selectedPricingMode = selectEl ? selectEl.value : 'retail';
@@ -680,6 +647,7 @@
 
     function calculateInvoiceSheet() {
       const rowsBox = document.getElementById('invoiceItemsRows');
+      if(!rowsBox) return;
       rowsBox.innerHTML = '';
       let total = 0;
       let serialNo = 1; 
@@ -699,7 +667,8 @@
           serialNo++;
         }
       });
-      document.getElementById('invoiceGrandTotal').innerText = `₹${total.toFixed(2)}`;
+      let totalBox = document.getElementById('invoiceGrandTotal');
+      if(totalBox) totalBox.innerText = `₹${total.toFixed(2)}`;
     }
 
     function scrollBillToBottom() {
@@ -712,7 +681,7 @@
     function saveBillToLocalStorage() {
       let customerName = document.getElementById('custName').value.trim();
       if(!customerName) {
-        alert("Customer Name likhna zaroori hai!");
+        alert("Pehle Customer Name likhna zaroori hai!");
         return;
       }
       
@@ -780,8 +749,11 @@
       document.getElementById('custName').value = '';
       document.getElementById('pNameEn').value = '';
       document.getElementById('pCode').value = '';
-      document.getElementById('activeBillIdDisplay').innerText = "New Bill";
-      document.getElementById('activeBillIdDisplay').style.color = "blue";
+      let displayId = document.getElementById('activeBillIdDisplay');
+      if(displayId) {
+        displayId.innerText = "New Bill";
+        displayId.style.color = "blue";
+      }
       renderList();
     }
 
@@ -802,7 +774,7 @@
       }).then(r => r.json());
 
       if(res.success) {
-        alert("Synced to Cloud Sheet! Invoice No: " + res.invoiceNo);
+        alert("Synced to Cloud! Invoice No: " + res.invoiceNo);
         clearBill();
       }
     }
