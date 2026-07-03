@@ -201,7 +201,7 @@
       loadSavedLocalBills();
       checkExistingAuth();
     }
-
+/*
     // Dynamic Shop Mode Switcher Logic
     function switchDukanMode(mode) {
       if(Object.keys(currentBill).length > 0) {
@@ -227,6 +227,38 @@
       if(isOnlineMode) fetchOnlineItems();
       else renderList();
     }
+*/
+    function switchDukanMode(mode) {
+  if(Object.keys(currentBill).length > 0) {
+    if(!confirm("Dukan badalne se active bill clear ho jayega. Kya aap aage badhna chahte hain?")) return;
+  }
+  activeDukan = mode;
+  clearBill();
+  
+  let btnG = document.getElementById('btnDukanG');
+  let btnH = document.getElementById('btnDukanH');
+  let headerText = document.getElementById('shopHeaderName');
+  
+  if(mode === 'Grocery') {
+    if(btnG) btnG.className = "dukan-btn active-g";
+    if(btnH) btnH.className = "dukan-btn";
+    if(headerText) headerText.innerText = "My Grocery Dukan";
+  } else {
+    if(btnG) btnG.className = "dukan-btn";
+    if(btnH) btnH.className = "dukan-btn active-h";
+    if(headerText) headerText.innerText = "My Hardware Dukan";
+  }
+  
+  // Local storage se nayi dukan ka data load karein taaki offline me crash na ho
+  loadLocalItems();
+  loadSavedLocalBills();
+  
+  if(isOnlineMode && SCRIPT_URL !== "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL" && SCRIPT_URL.trim() !== "") {
+    fetchOnlineItems();
+  } else {
+    renderList();
+  }
+}
 
     function loadLocalItems() {
       let stored = localStorage.getItem('local_items_db_' + activeDukan);
@@ -337,17 +369,32 @@
   document.getElementById('authModal').style.display = 'none';
   document.getElementById('appContent').style.display = 'block';
   
-  // Pehle local items aur bills ko load karein
+  // Pehle sahi dukan ka background aur layout set karein bina load par atke
+  let btnG = document.getElementById('btnDukanG');
+  let btnH = document.getElementById('btnDukanH');
+  if(activeDukan === 'Grocery') {
+    if(btnG) btnG.className = "dukan-btn active-g";
+    if(btnH) btnH.className = "dukan-btn";
+  } else {
+    if(btnG) btnG.className = "dukan-btn";
+    if(btnH) btnH.className = "dukan-btn active-h";
+  }
+
   loadLocalItems();
   loadSavedLocalBills();
   
-  // Agar online mode hai to data fetch karein, nahi to direct render karein
-  if(isOnlineMode && SCRIPT_URL !== "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL") { 
+  // URL validation check taaki blank URL par fetch crash na ho
+  if(isOnlineMode && SCRIPT_URL !== "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL" && SCRIPT_URL.trim() !== "") {
     fetchOnlineItems();
-  } else { 
-    renderList(); 
+  } else {
+    isOnlineMode = false; // Force local mode agar script URL default hai
+    document.getElementById('appModeBadge').innerText = "Offline/Local Mode Only";
+    document.getElementById('appModeBadge').style.background = "#0d6efd";
+    document.getElementById('btnOnlineSave').style.display = "none";
+    renderList();
   }
 }
+
 
     function fetchOnlineItems() {
       fetch(`${SCRIPT_URL}?action=getItems&tab=${activeDukan}`)
