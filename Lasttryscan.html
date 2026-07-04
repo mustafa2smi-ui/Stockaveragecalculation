@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Hybrid Speed Bill (Strict Camera Scan) - V17</title>
+  <script src="https://cdn.jsdelivr.net/npm/uuid@latest/dist/umd/uuidv4.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    :root { 
+      --wa-green: #075E54; 
+      --wa-light-green: #dcf8c6; 
+      --bg-gray: #ece5dd; 
+      --grocery-color: #27ae60;
+      --hardware-color: #d35400;
+      --accent-orange: #ff9800; 
+      --err: #dc3545;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    
+    body { background: var(--bg-gray); padding-bottom: 240px; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    #authModal { position: fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; overflow-y: auto; }
+    .input-field { width:100%; max-width:300px; padding:12px; margin:8px 0; border:1px solid #ccc; border-radius:5px; font-size:16px; }
+    .btn { background: var(--wa-green); color:white; border:none; padding:12px 24px; border-radius:5px; font-size:16px; cursor:pointer; margin: 5px; }
+    .btn-secondary { background: #6c757d; }
+    
+    .dukan-selector-bar { display: flex; background: #2c3e50; padding: 8px; justify-content: center; gap: 15px; }
+    .dukan-btn { padding: 8px 20px; font-weight: bold; border: 2px solid #fff; border-radius: 20px; color: white; background: transparent; cursor: pointer; font-size: 14px; }
+    .dukan-btn.active-g { background: var(--grocery-color); border-color: var(--grocery-color); }
+    .dukan-btn.active-h { background: var(--hardware-color); border-color: var(--hardware-color); }
+
+    header { background: var(--wa-green); color: white; padding: 12px; text-align: center; font-weight: bold; font-size: 1.1rem; }
+    
+    .meta-sec { background: white; padding: 10px; border-bottom: 1px solid #ccc; display: flex; gap: 10px; align-items: center; justify-content: space-between; }
+    .cust-input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+    .current-date-display { font-weight: bold; color: #555; font-size: 13px; white-space: nowrap; }
+    
+    .controls-wrapper { background: white; border-bottom: 2px solid #ccc; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .mode-container { display: flex; justify-content: space-between; background: #f0f0f0; gap: 2px; padding: 4px; }
+    .toggle-btn { flex: 1; padding: 10px; text-align: center; background: #ddd; font-weight: bold; border: none; cursor: pointer; font-size: 14px; }
+    .toggle-btn.active { background: var(--wa-green); color: white; }
+    
+    /* 🔴 STRICT SCANNER CONTAINER STYLE OBJECTS */
+    .scanner-section { background: #000; padding: 8px; display: none; flex-direction: column; align-items: center; }
+    #reader { width: 100%; max-width: 420px; background: #000; border-radius: 8px; overflow: hidden; }
+    .scanner-controls-bar { width: 100%; max-width: 420px; display: flex; justify-content: space-between; padding: 6px 0; gap: 10px; }
+    .scan-action-btn { flex: 1; padding: 10px; border: none; border-radius: 4px; color: white; font-weight: bold; font-size: 13px; cursor: pointer; }
+    .btn-stop-cam { background: #dc3545; }
+    .btn-resume-cam { background: #28a745; }
+
+    .add-item-panel { padding: 10px; background: #f9f9f9; border-bottom: 1px solid #ddd; }
+    .add-item-grid { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .add-item-grid input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; }
+    
+    .pricing-control { background: #fff; padding: 6px 12px; border-bottom: 1px solid #ddd; display: flex; align-items: center; justify-content: space-between; }
+    .pricing-select { padding: 6px; font-weight: bold; border-radius: 4px; border: 1px solid var(--wa-green); color: var(--wa-green); font-size: 13px; outline: none; }
+
+    .workspace-split { padding: 8px; width: 100%; min-height: 200px; }
+    .scrollable-items-pane { width: 100%; }
+    
+    .scrollable-bill-pane { position: fixed; bottom: 58px; left: 0; width: 100%; height: 150px; background: #fff; border-top: 3px solid var(--wa-green); padding: 8px 12px; box-shadow: 0 -4px 10px rgba(0,0,0,0.12); z-index: 998; overflow-y: auto; }
+
+    .section-title { background: #ddd; padding: 6px 10px; font-size: 13px; font-weight: bold; color: #333; margin: 12px 0 6px 0; border-radius: 4px; }
+    .section-title.local { background: #cfe2ff; color: #084298; }
+    .section-title.saved-logs { background: #fff3cd; color: #664d03; }
+    
+    .category-group-title { background: #e2e3e5; color: #383d41; padding: 4px 8px; font-size: 12px; font-weight: bold; margin: 8px 0 4px 0; border-radius: 4px; display: inline-block; }
+
+    .chat-bubble { background: white; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+    .chat-bubble.in-bill { background: var(--wa-light-green); border-left: 5px solid var(--wa-green); }
+    .item-info { flex: 2; }
+    .item-info.clickable { cursor: pointer; } 
+    .item-name { font-weight: bold; font-size: 15px; color: #111; }
+    .item-sub { font-size: 12px; color: #666; margin-top: 2px; }
+    .bold-price { font-weight: bold; color: #000; }
+    
+    .item-actions { flex: 1; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+    .qty-btn { background: var(--wa-green); color: white; border: none; width: 28px; height: 28px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .qty-btn:disabled { background: #ccc; cursor: not-allowed; }
+    .edit-input { width: 45px; text-align: center; padding: 4px 2px; font-size: 13px; border: 1px solid #ccc; border-radius: 4px; }
+    .edit-input:disabled { background: #f0f0f0; color: #aaa; }
+    .del-btn { background: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 12px; cursor: pointer; margin-left: 2px; }
+
+    .bill-invoice-sheet { width: 100%; }
+    .invoice-header { font-weight: bold; font-size: 13px; border-bottom: 1px dashed #bbb; padding-bottom: 4px; margin-bottom: 6px; color: #222; display: flex; justify-content: space-between; }
+    .invoice-row { display: flex; justify-content: space-between; font-size: 13px; padding: 3px 0; border-bottom: 1px dashed #eee; gap: 8px; }
+    .invoice-item-desc { flex: 1; text-align: left; }
+    .invoice-total { display: flex; justify-content: space-between; font-weight: bold; font-size: 15px; color: #d9534f; margin-top: 6px; padding-top: 4px; border-top: 1px dashed #222; position: sticky; bottom: 0; background: white; }
+
+    .footer-bar { position: fixed; bottom: 0; left: 0; width: 100%; height: 52px; background: white; padding: 6px; box-shadow: 0 -3px 12px rgba(0,0,0,0.15); display: flex; flex-wrap: wrap; justify-content: space-around; gap: 4px; z-index: 999; }
+    .footer-bar button { flex: 1; padding: 8px 2px; border: none; border-radius: 4px; color: white; font-weight: bold; font-size: 12px; cursor: pointer; min-width: 50px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .bg-print { background: #007bff; } .bg-csv { background: #28a745; } .bg-share { background: #25D366; } 
+    .bg-clear { background: #dc3545; } .bg-save { background: #28a745; color: white !important; }
+    .bg-local-save { background: #17a2b8; }
+    .bg-home { background: var(--accent-orange); }
+  </style>
+</head>
+<body>
+
+  <div id="authModal">
+    <h2 style="color:var(--wa-green); margin-bottom:15px;">Billing App Access (V17-Strict Stop)</h2>
+    <div id="emailSection" style="text-align: center; width: 100%;">
+      <input type="email" id="authEmail" class="input-field" placeholder="Enter Registered Email"><br>
+      <button class="btn" onclick="requestOTP()">Send OTP (Online Mode)</button>
+      <hr style="width: 80%; margin: 20px auto; border-color: #eee;">
+      <button class="btn btn-secondary" onclick="startAsGuest()">Start Without Email (Local Mode)</button>
+    </div>
+    <div id="otpSection" style="display:none;">
+      <p style="font-size:14px; margin-bottom:5px; color:#555;">Enter OTP sent to your email:</p>
+      <input type="number" id="authOTP" class="input-field" placeholder="6-Digit OTP">
+      <button class="btn" onclick="verifyOTP()">Verify & Lock Device</button>
+    </div>
+  </div>
+
+  <div id="appContent" style="display:none;">
+    <div class="dukan-selector-bar">
+      <button class="dukan-btn active-g" id="btnDukanG" onclick="switchDukanMode('Grocery')">G (Grocery)</button>
+      <button class="dukan-btn" id="btnDukanH" onclick="switchDukanMode('Hardware')">H (Hardware)</button>
+    </div>
+
+    <header id="shopHeaderName">My Grocery Dukan</header>
+    
+    <div class="meta-sec">
+      <input type="text" id="custName" placeholder="Customer Name" class="cust-input">
+      <div id="dateDisplay" class="current-date-display">Date: --/--/----</div>
+    </div>
+
+    <div class="controls-wrapper">
+      <div class="mode-container">
+        <button class="toggle-btn active" id="btnEntry" onclick="setMode('entry')">⚙️ Master Entry Mode</button>
+        <button class="toggle-btn" id="btnBill" onclick="setMode('bill')">🛒 Fast Bill Mode (<span id="countBadge">0</span>)</button>
+      </div>
+
+      <div class="scanner-section" id="scannerWrapperZone">
+        <div id="reader"></div>
+        <div class="scanner-controls-bar">
+          <button class="scan-action-btn btn-stop-cam" onclick="stopHardwareCamera()">❌ Stop Camera</button>
+          <button class="scan-action-btn btn-resume-cam" id="btnResumeCamUI" onclick="resumeHardwareScanning()" style="display:none; background:#ff9800;">🔄 Scan Next Item</button>
+        </div>
+      </div>
+
+      <div class="add-item-panel" id="quickAddSection">
+        <div class="add-item-grid">
+          <input type="text" id="pCode" placeholder="Code / Barcode 🎯" style="flex:1; min-width: 100px;">
+          <button id="btnCamToggle" onclick="toggleCameraUI()" style="background:#3498db; color:white; padding:6px 10px; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">📷 Cam</button>
+          <input type="text" id="pNameEn" placeholder="Item Name / Search 🔎" style="flex:2; min-width: 120px;" oninput="renderList()">
+          <input type="text" id="pNameHi" placeholder="नाम (Hi)" style="flex:1; min-width: 60px;">
+          <input type="text" id="pCategory" placeholder="Category" style="flex:1; min-width: 70px;">
+          <input type="text" id="pUnit" placeholder="Unit" style="width:40px;" value="Kg">
+          <input type="number" id="pRetail" placeholder="Retail" style="width:50px;">
+          <input type="number" id="pWholesale" placeholder="W'sale" style="width:50px;">
+          <button onclick="addNewMasterItem()" style="background:var(--wa-green); color:white; padding:6px 12px; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">💾 Save</button>
+        </div>
+      </div>
+
+      <div class="pricing-control" id="pricingModeBar" style="display: none;">
+        <span style="font-weight: bold; font-size: 13px; color: #555;">Select Rates Applied:</span>
+        <select id="billingPriceTier" class="pricing-select" onchange="renderList()">
+          <option value="retail" selected>🛒 Retail Pricing Rates</option>
+          <option value="wholesale">📦 Wholesale Pricing Rates</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="workspace-split">
+      <div class="scrollable-items-pane" id="masterList"></div>
+
+      <div class="scrollable-bill-pane" id="billInvoiceSection">
+        <div class="bill-invoice-sheet">
+          <div class="invoice-header">
+            <span>📄 Invoice Details</span>
+            <span id="activeBillIdDisplay" style="color: blue; font-size:11px;">New Bill</span>
+          </div>
+          <div id="invoiceItemsRows"></div>
+          <div class="invoice-total">
+            <span>Grand Total Amount:</span>
+            <span id="invoiceGrandTotal">₹0.00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-bar">
+      <button class="bg-home" onclick="goToStartPage()">🔄 Shuru Page</button>
+      <button class="bg-print" onclick="window.print()">Print</button>
+      <button class="bg-csv" onclick="exportCSV()">CSV</button>
+      <button class="bg-share" onclick="shareWhatsApp()">WhatsApp</button>
+      <button class="bg-local-save" onclick="saveBillToLocalStorage()">💾 Local Save</button>
+      <button class="bg-save" id="btnOnlineSave" onclick="saveToGoogleSheet()">Cloud Sync</button>
+      <button class="bg-clear" onclick="clearBill()">Clear</button>
+    </div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL"; 
+    
+    let activeDukan = "Grocery"; 
+    let sheetItems = []; 
+    let localItems = []; 
+    let currentBill = {};
+    let billOrderKeys = []; 
+    let savedLocalBills = []; 
+    let currentMode = 'entry'; 
+    let isOnlineMode = false;
+    let editingBillId = null; 
+
+    // 🔴 Scanner Control Global Variables
+    let html5QrCode = null;
+    let isScannerRunning = false;
+    let lastScannedCode = "";
+    let isProcessingScan = false;
+
+    window.onload = function() {
+      const today = new Date();
+      const dd = String(today.getDate()).padStart(2, '0');
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const yyyy = today.getFullYear();
+      document.getElementById('dateDisplay').innerText = `Date: ${dd}/${mm}/${yyyy}`;
+
+      loadLocalItems();
+      loadSavedLocalBills();
+      checkExistingAuth();
+    }
+
+    // ================= 🔴 STRICT CAMERA SCANNER LOGIC (FIXED BUGS) =================
+    function toggleCameraUI() {
+      const pane = document.getElementById('scannerWrapperZone');
+      if (pane.style.display === 'flex' || isScannerRunning) {
+        stopHardwareCamera();
+      } else {
+        pane.style.display = 'flex';
+        startHardwareCamera();
+      }
+    }
+
+    function startHardwareCamera() {
+      if(isScannerRunning) return;
+      
+      document.getElementById('btnResumeCamUI').style.display = "none";
+      isProcessingScan = false;
+      lastScannedCode = "";
+
+      html5QrCode = new Html5Qrcode("reader");
+      
+      // Strict Camera Configurations (Bug 2 & Bug 3 Fix)
+      const config = { 
+        fps: 20, // High FPS for fast settle focus
+        qrbox: { width: 250, height: 150 }, // Balanced size for standard barcodes
+        aspectRatio: 1.0 
+      };
+
+      html5QrCode.start(
+        { facingMode: "environment" }, 
+        config, 
+        onScanSuccessCallback,
+        onScanErrorCallback
+      )
+      .then(() => { isScannerRunning = true; })
+      .catch(err => {
+        console.error("Camera access failed", err);
+        alert("Camera start karne me dikkat hui. Permission check karein!");
+        document.getElementById('scannerWrapperZone').style.display = 'none';
+      });
+    }
+
+    // STRICT SCAN MATCH ENTRY POINT
+    function onScanSuccessCallback(decodedText) {
+      // Duplicate prevention lock
+      if (isProcessingScan) return; 
+      
+      let normalizedCode = decodedText.toString().trim(); // Strict Normalization (Bug 6 Fix)
+      if (!normalizedCode) return;
+
+      isProcessingScan = true; 
+      
+      if (navigator.vibrate) navigator.vibrate(100); // Single Clean Vibrate (Bug 5 Fix)
+
+      // 🛑 STAGE 1: STOP CAMERA IMMEDIATELY (Bug 1 & Main Culprit Fix)
+      if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+          isScannerRunning = false;
+          html5QrCode = null;
+          
+          // STAGE 2: PROCESS THE CODE OFFLINE/ONLINE (Bug 4 Fix)
+          executeScannedCodeMatch(normalizedCode);
+        }).catch(err => {
+          console.error("Stop failed", err);
+          executeScannedCodeMatch(normalizedCode); // Fallback execution
+        });
+      } else {
+        executeScannedCodeMatch(normalizedCode);
+      }
+    }
+
+    function executeScannedCodeMatch(code) {
+      document.getElementById('pCode').value = code;
+      
+      // Instant cache matching logic
+      let activeItems = isOnlineMode ? sheetItems : localItems;
+      let match = activeItems.find(i => i.Code.toString().trim() === code);
+
+      if (match) {
+        addItemToBillDirect(match.Code);
+        
+        // Show Resume Button so user can position camera over next item comfortably
+        document.getElementById('btnResumeCamUI').style.display = "block";
+        document.getElementById('btnResumeCamUI').focus();
+      } else {
+        if (confirm(`Barcode '${code}' database me nahi mila!\n\nKya aap ise Naye Product ki tarah save karna chahte hain?`)) {
+          setMode('entry');
+          document.getElementById('pNameEn').focus();
+        } else {
+          document.getElementById('pCode').value = '';
+          resumeHardwareScanning();
+        }
+      }
+    }
+
+    function resumeHardwareScanning() {
+      document.getElementById('btnResumeCamUI').style.display = "none";
+      const pane = document.getElementById('scannerWrapperZone');
+      pane.style.display = 'flex';
+      startHardwareCamera();
+    }
+
+    function stopHardwareCamera() {
+      if (html5QrCode && isScannerRunning) {
+        html5QrCode.stop().then(() => {
+          isScannerRunning = false;
+          html5QrCode = null;
+          document.getElementById('scannerWrapperZone').style.display = 'none';
+        }).catch(err => console.log(err));
+      } else {
+        isScannerRunning = false;
+        document.getElementById('scannerWrapperZone').style.display = 'none';
+      }
+      isProcessingScan = false;
+    }
+
+    function onScanErrorCallback(err) {
+      // Quiet fail to keep canvas rendering clean
+    }
+
+    // =========================================================================
+
+    function switchDukanMode(mode) {
+      if(Object.keys(currentBill).length > 0) {
+        if(!confirm("Dukan badalne se active bill clear ho jayega. Kya aap aage badhna chahte hain?")) return;
+      }
+      activeDukan = mode;
+      clearBill();
+      stopHardwareCamera();
+      
+      let btnG = document.getElementById('btnDukanG');
+      let btnH = document.getElementById('btnDukanH');
+      let headerText = document.getElementById('shopHeaderName');
+      
+      if(mode === 'Grocery') {
+        btnG.className = "dukan-btn active-g";
+        btnH.className = "dukan-btn";
+        headerText.innerText = "My Grocery Dukan";
+      } else {
+        btnG.className = "dukan-btn";
+        btnH.className = "dukan-btn active-h";
+        headerText.innerText = "My Hardware Dukan";
+      }
+      
+      loadLocalItems();
+      loadSavedLocalBills();
+      
+      if(isOnlineMode && SCRIPT_URL !== "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL" && SCRIPT_URL.trim() !== "") {
+        fetchOnlineItems();
+      } else {
+        renderList();
+      }
+    }
+
+    function loadLocalItems() {
+      let stored = localStorage.getItem('local_items_db_' + activeDukan);
+      localItems = stored ? JSON.parse(stored) : [];
+    }
+
+    function saveLocalItemsToStorage() {
+      localStorage.setItem('local_items_db_' + activeDukan, JSON.stringify(localItems));
+    }
+
+    function loadSavedLocalBills() {
+      let stored = localStorage.getItem('local_saved_bills_log_' + activeDukan);
+      savedLocalBills = stored ? JSON.parse(stored) : [];
+    }
+
+    function saveLocalBillsLogToStorage() {
+      localStorage.setItem('local_saved_bills_log_' + activeDukan, JSON.stringify(savedLocalBills));
+    }
+
+    function startAsGuest() {
+      isOnlineMode = false;
+      launchApp();
+    }
+
+    function goToStartPage() {
+      if(!confirm("Start Screen par wapas jana chahte hain?")) return;
+      stopHardwareCamera();
+      localStorage.removeItem('auth_email'); 
+      document.getElementById('appContent').style.display = 'none';
+      document.getElementById('otpSection').style.display = 'none';
+      document.getElementById('emailSection').style.display = 'block';
+      document.getElementById('authEmail').value = '';
+      document.getElementById('authModal').style.display = 'flex';
+    }
+
+    function getDeviceToken() {
+      let token = localStorage.getItem('device_token');
+      if (!token) { token = uuidv4(); localStorage.setItem('device_token', token); }
+      return token;
+    }
+
+    async function checkExistingAuth() {
+      let email = localStorage.getItem('auth_email');
+      let token = getDeviceToken();
+      if(email && token && SCRIPT_URL !== "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL" && SCRIPT_URL.trim() !== "") {
+        try {
+          let res = await fetch(`${SCRIPT_URL}`, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'checkAuth', email: email, token: token })
+          }).then(r => r.json());
+          
+          if(res.authorized) {
+            isOnlineMode = true;
+            launchApp();
+            return;
+          }
+        } catch(e) { console.log("Offline bypass enabled."); }
+      }
+    }
+
+    async function requestOTP() {
+      if(SCRIPT_URL === "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL") {
+        return alert("Pehle aapko Google Apps Script ka URL setup karna hoga!");
+      }
+      let email = document.getElementById('authEmail').value;
+      if(!email) return alert('Email enter karein');
+      let res = await fetch(`${SCRIPT_URL}`, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'requestOTP', email: email })
+      }).then(r => r.json());
+      
+      if(res.success) {
+        document.getElementById('emailSection').style.display = 'none';
+        document.getElementById('otpSection').style.display = 'block';
+        localStorage.setItem('auth_email', email);
+      } else { alert(res.message); }
+    }
+
+    async function verifyOTP() {
+      let email = localStorage.getItem('auth_email');
+      let otp = document.getElementById('authOTP').value;
+      let token = getDeviceToken();
+      
+      let res = await fetch(`${SCRIPT_URL}`, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'verifyOTP', email: email, otp: otp, token: token })
+      }).then(r => r.json());
+
+      if(res.success) {
+        isOnlineMode = true;
+        location.reload();
+      } else { alert(res.message); }
+    }
+
+    function launchApp() {
+      document.getElementById('authModal').style.display = 'none';
+      document.getElementById('appContent').style.display = 'block';
+      
+      let btnG = document.getElementById('btnDukanG');
+      let btnH = document.getElementById('btnDukanH');
+      let headerText = document.getElementById('shopHeaderName');
+      
+      if(activeDukan === 'Grocery') {
+        if(btnG) btnG.className = "dukan-btn active-g";
+        if(btnH) btnH.className = "dukan-btn";
+        headerText.innerText = "My Grocery Dukan";
+      } else {
+        if(btnG) btnG.className = "dukan-btn";
+        if(btnH) btnH.className = "dukan-btn active-h";
+        headerText.innerText = "My Hardware Dukan";
+      }
+
+      loadLocalItems();
+      loadSavedLocalBills();
+      
+      if(isOnlineMode && SCRIPT_URL !== "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL" && SCRIPT_URL.trim() !== "") {
+        fetchOnlineItems();
+      } else {
+        renderList();
+      }
+    }
+
+    function fetchOnlineItems() {
+      fetch(`${SCRIPT_URL}?action=getItems&tab=${activeDukan}`)
+        .then(r => r.json())
+        .then(data => { sheetItems = data; renderList(); })
+        .catch(err => { console.log("Cloud unreachable."); renderList(); });
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('btnEntry').classList.toggle('active', mode === 'entry');
+      document.getElementById('btnBill').classList.toggle('active', mode === 'bill');
+      
+      if(mode === 'bill') {
+        document.getElementById('pricingModeBar').style.display = 'flex'; 
+      } else {
+        document.getElementById('pricingModeBar').style.display = 'none'; 
+      }
+      renderList();
+    }
+
+    async function addNewMasterItem() {
+      let code = document.getElementById('pCode').value.toString().trim();
+      let nameEn = document.getElementById('pNameEn').value;
+      let nameHi = document.getElementById('pNameHi').value;
+      let cat = document.getElementById('pCategory').value.trim() || 'General';
+      let unit = document.getElementById('pUnit').value || 'Kg';
+      let retail = parseFloat(document.getElementById('pRetail').value || 0);
+      let wholesale = parseFloat(document.getElementById('pWholesale').value || 0);
+
+      if(!code || !nameEn) return alert("Code aur Item Name daalna zaroori hai!");
+
+      let newItem = { Code: code, ItemNameEn: nameEn, ItemNameHi: nameHi, Category: cat, Unit: unit, Retail: retail, Wholesale: wholesale };
+
+      if(isOnlineMode) {
+        let res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'addOrUpdateItem', tab: activeDukan, item: newItem })
+        }).then(r => r.json());
+        if(res.success) { fetchOnlineItems(); }
+      } else {
+        let idx = localItems.findIndex(i => i.Code.toString().trim() === code);
+        if(idx > -1) localItems[idx] = newItem; 
+        else localItems.push(newItem);
+        saveLocalItemsToStorage();
+      }
+
+      let selectedPricingMode = document.getElementById('billingPriceTier') ? document.getElementById('billingPriceTier').value : 'retail';
+      let targetRate = (selectedPricingMode === 'wholesale') ? wholesale : retail;
+      
+      if(!currentBill[code]) {
+        currentBill[code] = { ...newItem, qty: 1, rate: targetRate };
+        billOrderKeys.push(code);
+      } else {
+        currentBill[code].qty += 1;
+        currentBill[code].rate = targetRate;
+      }
+      scrollBillToBottom();
+
+      document.getElementById('pCode').value = '';
+      document.getElementById('pNameEn').value = '';
+      document.getElementById('pNameHi').value = '';
+      document.getElementById('pCategory').value = ''; 
+      document.getElementById('pRetail').value = '';
+      document.getElementById('pWholesale').value = '';
+
+      renderList();
+      calculateInvoiceSheet();
+    }
+
+    async function deleteMasterItem(code, origin) {
+      if(!confirm("Master database se delete karein?")) return;
+
+      if(origin === 'online' && isOnlineMode) {
+        let res = await fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'deleteItem', tab: activeDukan, code: code })
+        }).then(r => r.json());
+        if(res.success) fetchOnlineItems();
+      } else {
+        localItems = localItems.filter(i => i.Code.toString().trim() !== code.toString().trim());
+        saveLocalItemsToStorage();
+        renderList();
+      }
+      if(currentBill[code]) {
+        delete currentBill[code];
+        billOrderKeys = billOrderKeys.filter(k => k != code);
+      }
+      calculateInvoiceSheet();
+    }
+
+    function editMasterItem(code, origin) {
+      let item = origin === 'online' ? sheetItems.find(i => i.Code == code) : localItems.find(i => i.Code == code);
+      if(item) {
+        document.getElementById('pCode').value = item.Code;
+        document.getElementById('pNameEn').value = item.ItemNameEn;
+        document.getElementById('pNameHi').value = item.ItemNameHi;
+        document.getElementById('pCategory').value = item.Category || 'General';
+        document.getElementById('pUnit').value = item.Unit;
+        document.getElementById('pRetail').value = item.Retail;
+        document.getElementById('pWholesale').value = item.Wholesale;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    function renderList() {
+      const container = document.getElementById('masterList');
+      container.innerHTML = '';
+      
+      if(currentMode === 'entry' && savedLocalBills.length > 0) {
+        renderSavedBillsLogBucket(container);
+      }
+
+      let activeItems = isOnlineMode ? sheetItems : localItems;
+
+      if(!activeItems || activeItems.length === 0) {
+        container.innerHTML = `<p style="padding: 20px; text-align: center; color: #888; font-weight: bold;">No Items Found. Add items in Master Entry Mode! 🛒</p>`;
+        calculateInvoiceSheet();
+        return;
+      }
+
+      renderSectionBucket(container, activeItems, `${isOnlineMode ? 'Cloud' : 'Local'} Stock Items [${activeDukan}]`, isOnlineMode ? 'online' : 'local');
+    }
+
+    function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
+      const nameInp = document.getElementById('pNameEn');
+      const codeInp = document.getElementById('pCode');
+      const query = nameInp ? nameInp.value.toLowerCase() : '';
+      const codeQuery = codeInp ? codeInp.value.toLowerCase() : '';
+      
+      let filtered = itemsList.filter(item => {
+        let matchName = !query || (item.ItemNameEn && item.ItemNameEn.toLowerCase().includes(query)) || (item.ItemNameHi && item.ItemNameHi.includes(query));
+        let matchCode = !codeQuery || (item.Code && item.Code.toString().trim().toLowerCase().includes(codeQuery));
+        return matchName && matchCode;
+      });
+
+      if(filtered.length === 0) {
+        container.innerHTML = `<p style="padding: 20px; text-align: center; color: #888;">No matching items found.</p>`;
+        return;
+      }
+
+      const titleDiv = document.createElement('div');
+      titleDiv.className = `section-title ${originType}`;
+      titleDiv.innerText = `${titleText} (${filtered.length})`;
+      container.appendChild(titleDiv);
+
+      let categories = {};
+      filtered.forEach(item => {
+        let cat = item.Category || 'General';
+        if(!categories[cat]) categories[cat] = [];
+        categories[cat].push(item);
+      });
+
+      for (let catName in categories) {
+        const catHeader = document.createElement('div');
+        catHeader.className = 'category-group-title';
+        catHeader.innerText = `📁 ${catName.toUpperCase()}`;
+        container.appendChild(catHeader);
+
+        categories[catName].forEach(item => {
+          const inBill = currentBill[item.Code];
+          const qty = inBill ? inBill.qty : 0;
+          const activeRate = inBill ? inBill.rate : 0;
+
+          const bubble = document.createElement('div');
+          bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
+          
+          let clickHandler = `onclick="addItemToBillDirect('${item.Code}')"`;
+          let isControlDisabled = currentMode === 'entry' ? 'disabled' : '';
+
+          bubble.innerHTML = `
+            <div class="item-info clickable" ${clickHandler}>
+              <div class="item-name">${item.ItemNameEn} (${item.ItemNameHi || ''})</div>
+              <div class="item-sub">
+                Code: ${item.Code} | Unit: ${item.Unit} | 
+                Retail: <span class="bold-price">₹${item.Retail}</span> | 
+                Wholesale: <span class="bold-price">₹${item.Wholesale}</span>
+                ${qty > 0 ? `<br><span style='color:green; font-weight:bold;'>Cart: ${qty} ${item.Unit} @ ₹${activeRate}</span>` : ''}
+              </div>
+            </div>
+            <div class="item-actions" onclick="event.stopPropagation();">
+              <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', -1)">-</button>
+              <input type="number" class="edit-input" ${isControlDisabled} value="${qty}" onchange="directQty('${item.Code}', this.value)">
+              <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', 1)">+</button>
+              ${currentMode === 'entry' ? `
+                <button onclick="editMasterItem('${item.Code}', '${originType}')" style="background:none; border:none; color:blue; font-size:15px; margin-left:4px; cursor:pointer;">✏️</button>
+                <button class="del-btn" onclick="deleteMasterItem('${item.Code}', '${originType}')">X</button>
+              ` : ''}
+            </div>
+          `;
+          container.appendChild(bubble);
+        });
+      }
+    }
+
+    function renderSavedBillsLogBucket(container) {
+      const titleDiv = document.createElement('div');
+      titleDiv.className = `section-title saved-logs`;
+      titleDiv.innerText = `📂 Saved Invoices Log [${activeDukan}]`;
+      container.appendChild(titleDiv);
+
+      savedLocalBills.forEach(b => {
+        const bubble = document.createElement('div');
+        bubble.className = `chat-bubble`;
+        bubble.style.borderLeft = "5px solid var(--accent-orange)";
+        bubble.style.background = "#fffdf5";
+        
+        bubble.innerHTML = `
+          <div class="item-info">
+            <div class="item-name" style="color: #664d03;">👤 Cust: ${b.customerName}</div>
+            <div class="item-sub">ID: ${b.billId} | Items: ${Object.keys(b.billData).length} | Total: <span class="bold-price" style="color:red;">₹${b.grandTotal.toFixed(2)}</span></div>
+          </div>
+          <div class="item-actions">
+            <button onclick="loadBillForEditing('${b.billId}')" style="background:var(--accent-orange); color:white; border:none; padding:6px 10px; border-radius:4px; font-weight:bold; font-size:12px; cursor:pointer;">✏️ Edit</button>
+            <button onclick="deleteSavedLocalBill('${b.billId}')" style="background:#dc3545; color:white; border:none; padding:6px 10px; border-radius:4px; font-size:12px; margin-left:4px; cursor:pointer;">X</button>
+          </div>
+        `;
+        container.appendChild(bubble);
+      });
+    }
+
+    function addItemToBillDirect(code) {
+      let activeItems = isOnlineMode ? sheetItems : localItems;
+      let item = activeItems.find(i => i.Code.toString().trim() === code.toString().trim());
+      if(!item) return;
+
+      let selectEl = document.getElementById('billingPriceTier');
+      let selectedPricingMode = selectEl ? selectEl.value : 'retail';
+      let targetRate = (selectedPricingMode === 'wholesale') ? item.Wholesale : item.Retail;
+
+      if(!currentBill[item.Code]) {
+        currentBill[item.Code] = { ...item, qty: 1, rate: targetRate };
+        billOrderKeys.push(item.Code); 
+      } else {
+        currentBill[item.Code].qty += 1;
+        currentBill[item.Code].rate = targetRate;
+      }
+      
+      // Update badge count
+      document.getElementById('countBadge').innerText = billOrderKeys.length;
+
+      renderList();
+      calculateInvoiceSheet();
+      scrollBillToBottom();
+    }
+
+    function updateQty(code, change) {
+      if(currentMode === 'entry') return; 
+      if(currentBill[code]) {
+        currentBill[code].qty += change;
+        if(currentBill[code].qty <= 0) {
+          delete currentBill[code];
+          billOrderKeys = billOrderKeys.filter(k => k.toString().trim() !== code.toString().trim());
+        }
+      } else if (change > 0) {
+        let activeItems = isOnlineMode ? sheetItems : localItems;
+        let item = activeItems.find(i => i.Code.toString().trim() === code.toString().trim());
+        if(item) {
+          let selectEl = document.getElementById('billingPriceTier');
+          let selectedPricingMode = selectEl ? selectEl.value : 'retail';
+          let targetRate = (selectedPricingMode === 'wholesale') ? item.Wholesale : item.Retail;
+          currentBill[code] = { ...item, qty: 1, rate: targetRate };
+          billOrderKeys.push(code);
+        }
+      }
+      document.getElementById('countBadge').innerText = billOrderKeys.length;
+      renderList();
+      calculateInvoiceSheet();
+      scrollBillToBottom();
+    }
+
+    function directQty(code, val) {
+      if(currentMode === 'entry') return; 
+      let parseFloatVal = parseFloat(val);
+      if(isNaN(parseFloatVal) || parseFloatVal <= 0) {
+        if(currentBill[code]) {
+          delete currentBill[code];
+          billOrderKeys = billOrderKeys.filter(k => k.toString().trim() !== code.toString().trim());
+        }
+      } else {
+        let activeItems = isOnlineMode ? sheetItems : localItems;
+        let item = activeItems.find(i => i.Code.toString().trim() === code.toString().trim());
+        if(!currentBill[code] && item) {
+          let selectEl = document.getElementById('billingPriceTier');
+          let selectedPricingMode = selectEl ? selectEl.value : 'retail';
+          let targetRate = (selectedPricingMode === 'wholesale') ? item.Wholesale : item.Retail;
+          currentBill[code] = { ...item, qty: parseFloatVal, rate: targetRate };
+          billOrderKeys.push(code);
+        } else if(currentBill[code]) {
+          currentBill[code].qty = parseFloatVal;
+        }
+      }
+      document.getElementById('countBadge').innerText = billOrderKeys.length;
+      renderList();
+      calculateInvoiceSheet();
+    }
+
+    function calculateInvoiceSheet() {
+      const rowsBox = document.getElementById('invoiceItemsRows');
+      if(!rowsBox) return;
+      rowsBox.innerHTML = '';
+      let total = 0;
+      let serialNo = 1; 
+      
+      billOrderKeys.forEach(code => {
+        let i = currentBill[code];
+        if(i) {
+          let sub = i.qty * i.rate;
+          total += sub;
+          rowsBox.innerHTML += `
+            <div class="invoice-row">
+              <span><strong>${serialNo}.</strong></span>
+              <span class="invoice-item-desc">${i.ItemNameEn} (${i.qty} ${i.Unit} @ ₹${i.rate})</span>
+              <strong>₹${sub.toFixed(2)}</strong>
+            </div>
+          `;
+          serialNo++;
+        }
+      });
+      let totalBox = document.getElementById('invoiceGrandTotal');
+      if(totalBox) totalBox.innerText = `₹${total.toFixed(2)}`;
+    }
+
+    function scrollBillToBottom() {
+      setTimeout(() => {
+        const pane = document.getElementById('billInvoiceSection');
+        if(pane) { pane.scrollTop = pane.scrollHeight; }
+      }, 50);
+    }
+
+    function saveBillToLocalStorage() {
+      let customerName = document.getElementById('custName').value.trim();
+      if(!customerName) {
+        alert("Pehle Customer Name likhna zaroori hai!");
+        return;
+      }
+      
+      let itemsArray = [];
+      billOrderKeys.forEach(code => { if(currentBill[code]) itemsArray.push(currentBill[code]); });
+
+      if(itemsArray.length === 0) return alert("Current bill khali hai!");
+
+      let grandTotal = itemsArray.reduce((acc, i) => acc + (i.qty * i.rate), 0);
+
+      if(editingBillId) {
+        let idx = savedLocalBills.findIndex(b => b.billId === editingBillId);
+        if(idx > -1) {
+          savedLocalBills[idx].customerName = customerName;
+          savedLocalBills[idx].billData = { ...currentBill };
+          savedLocalBills[idx].billOrderKeys = [...billOrderKeys];
+          savedLocalBills[idx].grandTotal = grandTotal;
+          alert("Bill local me update ho gaya!");
+        }
+      } else {
+        let uniqueBillId = "BILL-" + Math.floor(1000 + Math.random() * 9000);
+        let newBillRecord = {
+          billId: uniqueBillId,
+          customerName: customerName,
+          billData: { ...currentBill },
+          billOrderKeys: [...billOrderKeys],
+          grandTotal: grandTotal,
+          timestamp: Date.now()
+        };
+        savedLocalBills.unshift(newBillRecord);
+        alert(`Bill Successfully Save Ho Gaya! ID: ${uniqueBillId}`);
+      }
+
+      saveLocalBillsLogToStorage();
+      clearBill();
+    }
+
+    function loadBillForEditing(billId) {
+      let billRecord = savedLocalBills.find(b => b.billId === billId);
+      if(!billRecord) return alert("Bill record nahi mila!");
+
+      currentBill = JSON.parse(JSON.stringify(billRecord.billData));
+      billOrderKeys = billRecord.billOrderKeys ? [...billRecord.billOrderKeys] : Object.keys(currentBill);
+      
+      editingBillId = billRecord.billId;
+      document.getElementById('custName').value = billRecord.customerName;
+      document.getElementById('activeBillIdDisplay').innerText = `Editing: ${billRecord.billId}`;
+      document.getElementById('activeBillIdDisplay').style.color = "red";
+      document.getElementById('countBadge').innerText = billOrderKeys.length;
+
+      setMode('bill'); 
+      document.getElementById('billInvoiceSection').scrollTop = 0;
+    }
+
+    function deleteSavedLocalBill(billId) {
+      if(!confirm("Invoice delete karein?")) return;
+      savedLocalBills = savedLocalBills.filter(b => b.billId !== billId);
+      saveLocalBillsLogToStorage();
+      renderList();
+    }
+
+    function clearBill() {
+      currentBill = {}; 
+      billOrderKeys = []; 
+      editingBillId = null;
+      document.getElementById('custName').value = '';
+      document.getElementById('pNameEn').value = '';
+      document.getElementById('pCode').value = '';
+      document.getElementById('countBadge').innerText = "0";
+      let displayId = document.getElementById('activeBillIdDisplay');
+      if(displayId) {
+        displayId.innerText = "New Bill";
+        displayId.style.color = "blue";
+      }
+      renderList();
+    }
+
+    async function saveToGoogleSheet() {
+      if(!isOnlineMode) return alert("Offline mode me cloud sync kaam nahi karega.");
+      let customer = document.getElementById('custName').value;
+      let date = new Date().toLocaleDateString();
+      
+      let itemsArray = [];
+      billOrderKeys.forEach(code => { if(currentBill[code]) itemsArray.push(currentBill[code]); });
+      
+      if(itemsArray.length === 0) return alert("Bill empty!");
+      let total = itemsArray.reduce((acc, i) => acc + (i.qty * i.rate), 0);
+
+      let res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: "saveBill", tab: activeDukan, date: date, customer: customer || "Cash Counter", items: itemsArray, total: total })
+      }).then(r => r.json());
+
+      if(res.success) {
+        alert("Synced to Cloud! Invoice No: " + res.invoiceNo);
+        clearBill();
+      }
+    }
+
+    function shareWhatsApp() {
+      let txt = `*${activeDukan} Receipt*\nCustomer: ${document.getElementById('custName').value || 'Cash'}\n-------------------------\n`;
+      let total = 0;
+      let serialNo = 1;
+      
+      billOrderKeys.forEach(code => {
+        let i = currentBill[code];
+        if(i) {
+          let sub = i.qty * i.rate; total += sub;
+          txt += `${serialNo}. ${i.ItemNameEn} - ${i.qty} ${i.Unit} x ₹${i.rate} = ₹${sub}\n`;
+          serialNo++;
+        }
+      });
+      txt += `-------------------------\n*Total Bill Amount: ₹${total.toFixed(2)}*`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`);
+    }
+
+    function exportCSV() {
+      let rows = [["S.No.", "Item Description", "Quantity Ordered", "Final Rate Applied", "Subtotal Cost"]];
+      let serialNo = 1;
+      billOrderKeys.forEach(code => {
+        let i = currentBill[code];
+        if(i) {
+          rows.push([serialNo, i.ItemNameEn, i.qty, i.rate, (i.qty * i.rate).toFixed(2)]);
+          serialNo++;
+        }
+      });
+      let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+      let link = document.createElement("a");
+      link.setAttribute("href", encodeURI(csvContent));
+      link.setAttribute("download", `${activeDukan}_Bill_${Date.now()}.csv`);
+      document.body.appendChild(link); link.click();
+    }
+  </script>
+</body>
+</html>
