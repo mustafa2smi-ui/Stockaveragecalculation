@@ -197,7 +197,7 @@
       document.getElementById('dateDisplay').innerText = `Date: ${dd}/${mm}/${yyyy}`;
       loadLocalItems(); loadSavedLocalBills(); checkExistingAuth();
     }
-
+/*
     // ================= 🖨️ INTEGRATED SAFE BLUETOOTH THERMAL PRINT METHOD =================
     async function printBill() {
         if (billOrderKeys.length === 0) return alert("Pehle Bill mein items add karein!");
@@ -286,6 +286,82 @@
         }
     }
     // =======================================================================================
+*/
+        // ================= 🖨️ INTEGRATED SAFE BLUETOOTH THERMAL PRINT METHOD =================
+    async function printBill() {
+        if (billOrderKeys.length === 0) return alert("Pehle Bill mein items add karein!");
+        try {
+            if (!printerDevice) {
+                printerDevice = await navigator.bluetooth.requestDevice({
+                    filters: [{ namePrefix: 'Bluetooth' }, { namePrefix: 'SRS' }, { namePrefix: 'MPT' }, { namePrefix: 'MTP' }],
+                    optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
+                });
+            }
+            const server = await printerDevice.gatt.connect();
+            const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+            const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
+
+            const cName = document.getElementById('custName')?.value || "Cash Customer";
+            
+            let totalAmount = 0;
+            billOrderKeys.forEach(k => { if(currentBill[k]) totalAmount += currentBill[k].qty * currentBill[k].rate; });
+
+            // 1. ESC/POS Header layout definitions (32 Char width aligned)
+            let esc = '\x1B\x40\x1B\x61\x01\x1B\x45\x01MY DIGITAL SHOP\n\x1B\x45\x00' + activeDukan.toUpperCase() + ' BILL\n';
+            esc += "--------------------------------\n";
+            esc += '\x1B\x61\x00Date: ' + new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + '\n';
+            esc += "Cust: " + cName.substring(0, 22) + "\n--------------------------------\n";
+            esc += "S.No Item      Rate Qty  Amount\n--------------------------------\n";
+
+            let serialNo = 1;
+            for (let i = 0; i < billOrderKeys.length; i++) {
+                let key = billOrderKeys[i];
+                let item = currentBill[key];
+                if (!item) continue;
+
+                let r = item.rate || 0;
+                let q = item.qty || 0;
+                let s = (r * q).toFixed(1);
+
+                let rawName = item.ItemNameEn || "Item";
+                if (!rawName || rawName.trim() === "") {
+                    rawName = await autoTranslateText(item.ItemNameHi || "Item");
+                }
+
+                let cleanName = rawName.replace(/[^\x00-\x7F]/g, "").trim();
+                if (cleanName === "") { cleanName = "New Item"; }
+
+                let sNoStr = serialNo.toString().padEnd(3, ' ');       
+                let nStr = cleanName.substring(0, 9).padEnd(10, ' ');  
+                let rStr = r.toString().padEnd(5, ' ');                
+                let qStr = q.toString().padEnd(4, ' ');                
+                let sStr = s.toString().padStart(10, ' ');             
+
+                esc += sNoStr + nStr + rStr + qStr + sStr + "\n";
+                serialNo++;
+            }
+            
+            esc += "--------------------------------\n";
+            // ✂️ Pichla Baqi aur Aaj Jama yahan se poori tarah remove kar diya gaya hai
+            esc += '\x1B\x61\x02\x1B\x45\x01NET BAL: Rs. ' + totalAmount.toFixed(2) + '\n\x1B\x45\x00';
+            esc += '\x1B\x61\x01\nSHUKRIYA! VISIT AGAIN\n\n\n\n';
+
+            // 2. CHUNKING DATA DISPATCH
+            const encoder = new TextEncoder();
+            const data = encoder.encode(esc);
+            const chunkSize = 100;
+
+            for (let i = 0; i < data.length; i += chunkSize) {
+                const chunk = data.slice(i, i + chunkSize);
+                await characteristic.writeValue(chunk);
+                await new Promise(resolve => setTimeout(resolve, 50)); 
+            }
+            alert("Print successfully completed! 🎉");
+        } catch (error) {
+            alert("Print Error: " + error.message);
+            printerDevice = null;
+        }
+    }
 
     function toggleCameraUI() { const pane = document.getElementById('scannerWrapperZone'); if (pane.style.display === 'flex' || isScannerRunning) { stopHardwareCamera(); } else { pane.style.display = 'flex'; startHardwareCamera(); } }
     function startHardwareCamera() { if(isScannerRunning) return; document.getElementById('btnResumeCamUI').style.display = "none"; isProcessingScan = false; lastScannedCode = ""; html5QrCode = new Html5Qrcode("reader"); const config = { fps: 20, qrbox: { width: 250, height: 150 }, aspectRatio: 1.0 }; html5QrCode.start({ facingMode: "environment" }, config, onScanSuccessCallback, onScanErrorCallback).then(() => { isScannerRunning = true; }).catch(err => { document.getElementById('scannerWrapperZone').style.display = 'none'; }); }
