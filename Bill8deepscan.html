@@ -179,8 +179,8 @@
           <input type="text" id="pNameEn" placeholder="Item Name / Search 🔎" style="flex:2; min-width: 120px;" oninput="renderList()">
           
           <!-- SCANNER BUTTON - UNCHANGED UI -->
-          <button class="scan-trigger-btn" onclick="startScanner()">📷</button>
-
+        <!--  <button class="scan-trigger-btn" onclick="startScanner()">📷</button>-->
+<button onclick="startScanner()" style="width:40px; height:30px; background:#3498db; color:white; border:var(--border); border-radius:6px; flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer; border: none;">📷</button>
           <input type="text" id="pNameHi" placeholder="नाम (Hi)" style="flex:1; min-width: 70px;">
           <input type="text" id="pCategory" placeholder="Category (e.g. Rice)" style="flex:1; min-width: 90px;">
           <input type="text" id="pUnit" placeholder="Unit" style="width:45px;" value="Kg">
@@ -189,13 +189,17 @@
           <button onclick="addNewMasterItem()" style="background:var(--wa-green); color:white; padding:6px 12px; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">💾 Save</button>
         </div>
       </div>
-
-      <!-- SCANNER CONTAINER - STYLES FROM FIRST PROJECT -->
+<!--
+      <!-- SCANNER CONTAINER - STYLES FROM FIRST PROJECT --
       <div id="reader" style="width: 250px !important; height: 250px !important; margin: 10px auto; border-radius: 15px; overflow: hidden; border: 3px solid var(--wa-green) !important; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: none;"></div>
       
-      <!-- STOP BUTTON - UNCHANGED UI -->
+      <!-- STOP BUTTON - UNCHANGED UI --
       <button id="stopScanBtn" class="scan-stop-btn" onclick="stopScanner()">STOP</button>
-
+-->
+      <!-- SCANNER CONTAINER - EXACTLY LIKE FIRST PROJECT -->
+<div id="reader" style="width: 250px !important; height: 250px !important; margin: 10px auto; border-radius: 15px; overflow: hidden; border: 3px solid var(--wa-green) !important; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: none;"></div>
+<button id="stopScanBtn" onclick="stopScanner()" style="display:none; padding: 8px 12px; background: var(--err); color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 13px; cursor: pointer; margin: 10px auto; text-align: center; width: 100px;">STOP</button>
+      
       <div class="pricing-control" id="pricingModeBar" style="display: none;">
         <span style="font-weight: bold; font-size: 13px; color: #555;">Select Rates Applied:</span>
         <select id="billingPriceTier" class="pricing-select" onchange="renderList()">
@@ -250,7 +254,8 @@
     // SCANNER VARIABLES - From First Project
     let html5QrCode;
     let isScanning = false; 
-
+let lastScannedCode = '';
+let lastScanTime = 0;
     window.onload = function() {
       const today = new Date();
       const dd = String(today.getDate()).padStart(2, '0');
@@ -262,7 +267,7 @@
       loadSavedLocalBills();
       checkExistingAuth();
     }
-
+/*
     // ============================================
     // INTEGRATED BARCODE SCANNER - From First Project
     // ============================================
@@ -337,7 +342,152 @@
     // ============================================
     // END OF INTEGRATED BARCODE SCANNER
     // ============================================
+*/
+    // ============================================
+// FAST BARCODE SCANNER - From First Project (OPTIMIZED)
+// ============================================
 
+
+
+function startScanner() {
+    // Clear any previous scanner instance
+    if (html5QrCode) {
+        stopScanner();
+    }
+    
+    document.getElementById('reader').style.display = 'block';
+    document.getElementById('stopScanBtn').style.display = 'block';
+    
+    html5QrCode = new Html5Qrcode("reader");
+    
+    // FAST CONFIG - Same as first project
+    const config = { 
+        fps: 10, 
+        qrbox: { width: 200, height: 150 }, 
+        aspectRatio: 1.0
+    };
+
+    html5QrCode.start(
+        { facingMode: "environment" },
+        config,
+        (decodedText) => {
+            // IMMEDIATE PROCESSING - No delay
+            handleBarcodeResult(decodedText);
+            if (navigator.vibrate) navigator.vibrate(100);
+        },
+        (errorMessage) => {
+            // SILENT - Same as first project
+        }
+    ).catch((err) => {
+        alert("Camera permission dijiye ya refresh karein.");
+    });
+}
+
+function handleBarcodeResult(code) {
+    // PREVENT DUPLICATE SCANS - Same as first project
+    if (isScanning) return;
+    
+    // Extra protection: prevent same code within 500ms
+    const now = Date.now();
+    if (code === lastScannedCode && (now - lastScanTime) < 500) {
+        return;
+    }
+    
+    isScanning = true;
+    lastScannedCode = code;
+    lastScanTime = now;
+    
+    // FAST MATCHING - Direct comparison without excessive conversions
+    const normalizedCode = code.trim();
+    
+    // Get active items
+    let activeItems = isOnlineMode ? sheetItems : localItems;
+    
+    // FAST SEARCH - Use direct comparison
+    let item = null;
+    for (let i = 0; i < activeItems.length; i++) {
+        const currentItem = activeItems[i];
+        // Smart comparison: handle both string and number
+        if (currentItem.Code == normalizedCode || 
+            currentItem.Code.toString().trim() === normalizedCode) {
+            item = currentItem;
+            break;
+        }
+    }
+    
+    if (item) {
+        // DIRECT ADD TO CART - Same as first project
+        addToCartFast(item);
+        if (navigator.vibrate) navigator.vibrate(100);
+    } else {
+        // FAST ALERT - Same as first project
+        alert("Item nahi mila! Code: " + code);
+        // Don't stop scanner - keep scanning like first project
+    }
+
+    // UNLOCK AFTER SHORT DELAY - Same as first project
+    setTimeout(() => {
+        isScanning = false;
+    }, 1000); // Reduced from 1500ms to 1000ms for faster response
+}
+
+// NEW FAST ADD FUNCTION - Direct cart addition without extra logic
+function addToCartFast(item) {
+    const code = item.Code;
+    
+    // Check if item already in cart
+    if (currentBill[code]) {
+        // Increment quantity
+        currentBill[code].qty += 1;
+    } else {
+        // Add new item with default quantity 1
+        const selectEl = document.getElementById('billingPriceTier');
+        const selectedPricingMode = selectEl ? selectEl.value : 'retail';
+        const targetRate = (selectedPricingMode === 'wholesale') ? item.Wholesale : item.Retail;
+        
+        currentBill[code] = { 
+            ...item, 
+            qty: 1, 
+            rate: targetRate 
+        };
+        
+        // Add to order keys if not already present
+        if (!billOrderKeys.includes(code)) {
+            billOrderKeys.push(code);
+        }
+    }
+    
+    // IMMEDIATE UI UPDATE - Same as first project
+    renderList();
+    calculateInvoiceSheet();
+    scrollBillToBottom();
+    
+    // Update badge count
+    const badge = document.getElementById('countBadge');
+    if (badge) {
+        const totalItems = Object.keys(currentBill).length;
+        badge.innerText = totalItems;
+    }
+}
+
+function stopScanner() {
+    if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+            document.getElementById('reader').style.display = 'none';
+            document.getElementById('stopScanBtn').style.display = 'none';
+            html5QrCode = null;
+            isScanning = false;
+        }).catch(err => console.log(err));
+    } else {
+        document.getElementById('reader').style.display = 'none';
+        document.getElementById('stopScanBtn').style.display = 'none';
+        isScanning = false;
+    }
+}
+
+// ============================================
+// END OF FAST SCANNER IMPLEMENTATION
+// ============================================
     function switchDukanMode(mode) {
       if(Object.keys(currentBill).length > 0) {
         if(!confirm("Dukan badalne se active bill clear ho jayega. Kya aap aage badhna chahte hain?")) return;
