@@ -421,7 +421,7 @@
       document.getElementById('pricingModeBar').style.display = (mode === 'bill') ? 'flex' : 'none'; 
       renderList();
     }
-
+/*
     async function addNewMasterItem() {
       let code = document.getElementById('pCode').value.toString().trim();
       let nameEn = document.getElementById('pNameEn').value.trim();
@@ -451,6 +451,53 @@
       document.getElementById('pCategory').value = ''; document.getElementById('pRetail').value = ''; document.getElementById('pWholesale').value = '';
       renderList(); calculateInvoiceSheet();
     }
+*/
+    async function addNewMasterItem() {
+  let code = document.getElementById('pCode').value.toString().trim();
+  let nameEn = document.getElementById('pNameEn').value.trim();
+  let nameHi = document.getElementById('pNameHi').value.trim();
+  let cat = document.getElementById('pCategory').value.trim() || 'General';
+  let unit = document.getElementById('pUnit').value.trim() || 'Kg';
+  let retail = parseFloat(document.getElementById('pRetail').value || 0);
+  let wholesale = parseFloat(document.getElementById('pWholesale').value || 0);
+
+  if(!code || !nameEn) return alert("Code aur Item Name zaroori hai!");
+  let newItem = { Code: code, ItemNameEn: nameEn, ItemNameHi: nameHi, Category: cat, Unit: unit, Retail: retail, Wholesale: wholesale };
+
+  if(isOnlineMode) {
+    let res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'addOrUpdateItem', tab: activeDukan, item: newItem }) }).then(r => r.json());
+    if(res.success) fetchOnlineItems();
+  } else {
+    let idx = localItems.findIndex(i => i.Code.toString().trim() === code.toString().trim());
+    if(idx > -1) { localItems[idx] = newItem; } else { localItems.push(newItem); }
+    saveLocalItemsToStorage();
+  }
+
+  let selectedPricingMode = document.getElementById('billingPriceTier') ? document.getElementById('billingPriceTier').value : 'retail';
+  let targetRate = (selectedPricingMode === 'wholesale') ? wholesale : retail;
+  if(currentBill[code]) { currentBill[code] = { ...newItem, qty: currentBill[code].qty, rate: targetRate }; }
+
+  // --- 🔥 MAGIC FIX LINE START ---
+  // Agar user 'Fast Bill Mode' me hai aur naya item add kar raha hai, toh use turant bill (invoice) me daal do
+  if (currentMode === 'bill') {
+    // Thoda sa delay de rahe hain taaki data arrays me properly update ho jaye
+    setTimeout(() => {
+        addItemToBillDirect(code);
+    }, 100);
+  }
+  // --- 🔥 MAGIC FIX LINE END ---
+
+  // Input fields ko khali karna
+  document.getElementById('pCode').value = ''; 
+  document.getElementById('pNameEn').value = ''; 
+  document.getElementById('pNameHi').value = '';
+  document.getElementById('pCategory').value = ''; 
+  document.getElementById('pRetail').value = ''; 
+  document.getElementById('pWholesale').value = '';
+  
+  renderList(); 
+  calculateInvoiceSheet();
+}
 
     function deleteMasterItem(code, origin) {
       if(!confirm("Master database se delete karein?")) return;
@@ -514,7 +561,7 @@
         });
       }
     }
-
+    
     function renderSavedBillsLogBucket(container) {
       const titleDiv = document.createElement('div'); titleDiv.className = `section-title saved-logs`; titleDiv.innerText = `📂 Saved Invoices Log`; container.appendChild(titleDiv);
       savedLocalBills.forEach(b => {
