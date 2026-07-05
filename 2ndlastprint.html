@@ -188,7 +188,7 @@
     let billOrderKeys = []; let savedLocalBills = []; let currentMode = 'entry'; let isOnlineMode = false; let editingBillId = null; 
     let html5QrCode = null; let isScannerRunning = false; let lastScannedCode = ""; let isProcessingScan = false;
     let printerDevice = null;
-
+/*
     window.onload = function() {
       const today = new Date();
       const dd = String(today.getDate()).padStart(2, '0');
@@ -197,6 +197,21 @@
       document.getElementById('dateDisplay').innerText = `Date: ${dd}/${mm}/${yyyy}`;
       loadLocalItems(); loadSavedLocalBills(); checkExistingAuth();
     }
+*/
+    window.onload = function() {
+  const today = new Date();
+  const dd = String(today.getDate()).padStart(2, '0');
+  const mm = String(today.getMonth() + 1).padStart(2, '0');
+  const yyyy = today.getFullYear();
+  document.getElementById('dateDisplay').innerText = `Date: ${dd}/${mm}/${yyyy}`;
+  loadLocalItems(); 
+  loadSavedLocalBills(); 
+  checkExistingAuth();
+
+  // 🔥 BY DEFAULT WHOLESALE & BILL MODE SET HERE
+  document.getElementById('billingPriceTier').value = 'wholesale'; // Dropdown me wholesale select hoga
+  setMode('bill'); // App khulte hi direct Fast Bill Mode open hoga
+}
 
         // ================= 🖨️ INTEGRATED SAFE BLUETOOTH THERMAL PRINT METHOD =================
     async function printBill() {
@@ -324,7 +339,7 @@
 
     function launchApp() { document.getElementById('authModal').style.display = 'none'; document.getElementById('appContent').style.display = 'block'; switchDukanMode(activeDukan); }
     function fetchOnlineItems() { fetch(`${SCRIPT_URL}?action=getItems&tab=${activeDukan}`).then(r => r.json()).then(data => { sheetItems = data; renderList(); }).catch(() => renderList()); }
-
+/*
     function setMode(mode) {
       currentMode = mode;
       document.getElementById('btnEntry').classList.toggle('active', mode === 'entry');
@@ -332,6 +347,21 @@
       document.getElementById('pricingModeBar').style.display = (mode === 'bill') ? 'flex' : 'none'; 
       renderList();
     }
+    */
+    function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('btnEntry').classList.toggle('active', mode === 'entry');
+  document.getElementById('btnBill').classList.toggle('active', mode === 'bill');
+  document.getElementById('pricingModeBar').style.display = (mode === 'bill') ? 'flex' : 'none'; 
+  
+  // 🔥 AGAR MODE 'BILL' HAI TO DROPDOWN ME WHOLESALE DEFAULT RAKHO
+  if (mode === 'bill') {
+    document.getElementById('billingPriceTier').value = 'wholesale';
+  }
+
+  renderList();
+}
+
 /*
     async function addNewMasterItem() {
       let code = document.getElementById('pCode').value.toString().trim();
