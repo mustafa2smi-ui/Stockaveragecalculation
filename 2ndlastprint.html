@@ -92,6 +92,9 @@
     <div id="emailSection" style="text-align: center; width: 100%;">
       <input type="email" id="authEmail" class="input-field" placeholder="Enter Registered Email"><br>
       <button class="btn" onclick="requestOTP()">Send OTP (Online Mode)</button>
+       <!-- 🔥 NAYA BUTTON: BINA OTP LOCK VERIFY KARNE KE LIYE -->
+      <button class="btn" id="btnCheckLock" onclick="checkDeviceLockInstant()" style="background:#2c3e50; font-size:14px; padding:10px 15px;">🔗 Already Verified? Check Device Lock</button>
+      
       <hr style="width: 80%; margin: 20px auto; border-color: #eee;">
       <button class="btn btn-secondary" onclick="startAsGuest()">Start Offline Mode</button>
     </div>
@@ -330,6 +333,35 @@
       let res = await fetch(`${SCRIPT_URL}`, { method: 'POST', body: JSON.stringify({ action: 'requestOTP', email: email }) }).then(r => r.json());
       if(res.success) { document.getElementById('emailSection').style.display = 'none'; document.getElementById('otpSection').style.display = 'block'; localStorage.setItem('auth_email', email); } else { alert(res.message); }
     }
+async function checkDeviceLockInstant() {
+  let email = document.getElementById('authEmail').value.trim();
+  if(!email) return alert('Pehle registered Email enter karein!');
+  
+  let token = getDeviceToken();
+  document.getElementById('btnCheckLock').innerText = "Checking Device Security... 🔄";
+  
+  try {
+    // Direct Google Sheet se baat karke token match karwayenge
+    let res = await fetch(`${SCRIPT_URL}`, { 
+      method: 'POST', 
+      body: JSON.stringify({ action: 'checkAuth', email: email, token: token }) 
+    }).then(r => r.json());
+    
+    if(res.authorized) {
+      isOnlineMode = true;
+      localStorage.setItem('auth_email', email);
+      localStorage.setItem('is_auth_verified', 'YES'); // Lock permanent active
+      alert("Device identity matched! 🎉 Opening homepage...");
+      launchApp();
+    } else {
+      alert("Security Alert: Yeh device ya browser verified nahi hai! Kripya pehle 'Send OTP' karke verification karein.");
+      document.getElementById('btnCheckLock').innerText = "🔗 Already Verified? Check Device Lock";
+    }
+  } catch(e) {
+    alert("Internet error! Device verify karne ke liye net hona zaroori hai. Tab tak aap 'Offline Mode' me chala sakte hain.");
+    document.getElementById('btnCheckLock').innerText = "🔗 Already Verified? Check Device Lock";
+  }
+}
 
     async function verifyOTP() {
       let email = localStorage.getItem('auth_email'); let otp = document.getElementById('authOTP').value; let token = getDeviceToken();
