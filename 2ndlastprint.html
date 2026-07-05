@@ -635,7 +635,7 @@
       }
       saveLocalBillsLogToStorage(); clearBill();
     }
-
+/*
     function loadBillForEditing(billId) {
       let billRecord = savedLocalBills.find(b => b.billId === billId); if(!billRecord) return;
       currentBill = JSON.parse(JSON.stringify(billRecord.billData)); billOrderKeys = [...billRecord.billOrderKeys];
@@ -643,7 +643,30 @@
       document.getElementById('activeBillIdDisplay').innerText = `Editing: ${billRecord.billId}`; document.getElementById('countBadge').innerText = billOrderKeys.length;
       setMode('bill');
     }
+*/
+    function loadBillForEditing(billId) {
+      let billRecord = savedLocalBills.find(b => b.billId === billId);
+      if(!billRecord) return alert("Bill record nahi mila!");
 
+      currentBill = JSON.parse(JSON.stringify(billRecord.billData));
+      // Load keys to retain past formatting sequence
+      billOrderKeys = billRecord.billOrderKeys ? [...billRecord.billOrderKeys] : Object.keys(currentBill);
+      
+      editingBillId = billRecord.billId;
+      document.getElementById('custName').value = billRecord.customerName;
+      document.getElementById('activeBillIdDisplay').innerText = `Editing: ${billRecord.billId}`;
+      document.getElementById('activeBillIdDisplay').style.color = "red";
+
+      setMode('bill'); 
+      document.getElementById('billInvoiceSection').scrollTop = 0;
+    }
+
+    function deleteSavedLocalBill(billId) {
+      if(!confirm("Invoice delete karein?")) return;
+      savedLocalBills = savedLocalBills.filter(b => b.billId !== billId);
+      saveLocalBillsLogToStorage();
+      renderList();
+    }
     function deleteSavedLocalBill(billId) { if(!confirm("Delete karein?")) return; savedLocalBills = savedLocalBills.filter(b => b.billId !== billId); saveLocalBillsLogToStorage(); renderList(); }
     function clearBill() { currentBill = {}; billOrderKeys = []; editingBillId = null; document.getElementById('custName').value = ''; document.getElementById('prevBal').value = '0'; document.getElementById('paidAmt').value = '0'; document.getElementById('countBadge').innerText = "0"; document.getElementById('activeBillIdDisplay').innerText = "New Bill"; renderList(); }
 
