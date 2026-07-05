@@ -644,6 +644,7 @@
       setMode('bill');
     }
 */
+    /*
     function loadBillForEditing(billId) {
       let billRecord = savedLocalBills.find(b => b.billId === billId);
       if(!billRecord) return alert("Bill record nahi mila!");
@@ -667,6 +668,40 @@
       saveLocalBillsLogToStorage();
       renderList();
     }
+    */
+    function loadBillForEditing(billId) {
+  let billRecord = savedLocalBills.find(b => b.billId === billId); 
+  if(!billRecord) return alert("Saved bill data nahi mila!");
+
+  // 1. Purane bill ka data active bill memory me copy karein
+  currentBill = JSON.parse(JSON.stringify(billRecord.billData)); 
+  billOrderKeys = [...billRecord.billOrderKeys];
+  
+  // 2. Active editing state set karein aur ID indicator update karein
+  editingBillId = billRecord.billId; 
+  document.getElementById('custName').value = billRecord.customerName;
+  document.getElementById('activeBillIdDisplay').innerText = `Editing: ${billRecord.billId}`; 
+  document.getElementById('activeBillIdDisplay').style.color = "red";
+  document.getElementById('countBadge').innerText = billOrderKeys.length;
+
+  // 3. 🔥 CRITICAL FIX: Direct mode changes bypass synchronization
+  // Mode ko 'bill' set karein par bina list render ko crash kiye background variables ko trigger karein
+  currentMode = 'bill';
+  document.getElementById('btnEntry').classList.remove('active');
+  document.getElementById('btnBill').classList.add('active');
+  document.getElementById('pricingModeBar').style.display = 'flex'; 
+
+  // 4. Sirf invoice sheet ko re-calculate aur render karein bina master list dhoondhe
+  calculateInvoiceSheet();
+  
+  // 5. Scroll karke direct invoice details pane par le jayein
+  setTimeout(() => {
+    const pane = document.getElementById('billInvoiceSection');
+    if(pane) { pane.scrollTop = 0; }
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  }, 100);
+}
+
     function deleteSavedLocalBill(billId) { if(!confirm("Delete karein?")) return; savedLocalBills = savedLocalBills.filter(b => b.billId !== billId); saveLocalBillsLogToStorage(); renderList(); }
     function clearBill() { currentBill = {}; billOrderKeys = []; editingBillId = null; document.getElementById('custName').value = ''; document.getElementById('prevBal').value = '0'; document.getElementById('paidAmt').value = '0'; document.getElementById('countBadge').innerText = "0"; document.getElementById('activeBillIdDisplay').innerText = "New Bill"; renderList(); }
 
