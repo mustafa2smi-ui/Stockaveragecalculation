@@ -197,96 +197,7 @@
       document.getElementById('dateDisplay').innerText = `Date: ${dd}/${mm}/${yyyy}`;
       loadLocalItems(); loadSavedLocalBills(); checkExistingAuth();
     }
-/*
-    // ================= 🖨️ INTEGRATED SAFE BLUETOOTH THERMAL PRINT METHOD =================
-    async function printBill() {
-        if (billOrderKeys.length === 0) return alert("Pehle Bill mein items add karein!");
-        try {
-            if (!printerDevice) {
-                printerDevice = await navigator.bluetooth.requestDevice({
-                    filters: [{ namePrefix: 'Bluetooth' }, { namePrefix: 'SRS' }, { namePrefix: 'MPT' }, { namePrefix: 'MTP' }],
-                    optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb']
-                });
-            }
-            const server = await printerDevice.gatt.connect();
-            const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-            const characteristic = await service.getCharacteristic('00002af1-0000-1000-8000-00805f9b34fb');
 
-            const cName = document.getElementById('custName')?.value || "Cash Customer";
-            
-            // Total balances extraction sync
-            let totalAmount = 0;
-            billOrderKeys.forEach(k => { if(currentBill[k]) totalAmount += currentBill[k].qty * currentBill[k].rate; });
-            const prev = parseFloat(document.getElementById('prevBal').value) || 0;
-            const paid = parseFloat(document.getElementById('paidAmt').value) || 0;
-            const netBalance = (prev + totalAmount) - paid;
-
-            // 1. ESC/POS Header layout definitions (32 Char width aligned)
-            let esc = '\x1B\x40\x1B\x61\x01\x1B\x45\x01MY DIGITAL SHOP\n\x1B\x45\x00' + activeDukan.toUpperCase() + ' BILL\n';
-            esc += "--------------------------------\n";
-            esc += '\x1B\x61\x00Date: ' + new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + '\n';
-            esc += "Cust: " + cName.substring(0, 22) + "\n--------------------------------\n";
-            esc += "S.No Item      Rate Qty  Amount\n--------------------------------\n";
-
-            let serialNo = 1;
-            // Ordered dynamic translation layout sequence rendering loops
-            for (let i = 0; i < billOrderKeys.length; i++) {
-                let key = billOrderKeys[i];
-                let item = currentBill[key];
-                if (!item) continue;
-
-                let r = item.rate || 0;
-                let q = item.qty || 0;
-                let s = (r * q).toFixed(1);
-
-                // --- 🔴 DYNAMIC TRANSLATION & FILTER HARDWARE BLOCK ---
-                let rawName = item.ItemNameEn || "Item";
-                // If English name is missing, run auto translate instantly
-                if (!rawName || rawName.trim() === "") {
-                    rawName = await autoTranslateText(item.ItemNameHi || "Item");
-                }
-
-                // Strict alphanumeric regex to protect saste thermal print maps
-                let cleanName = rawName.replace(/[^\x00-\x7F]/g, "").trim();
-                if (cleanName === "") { cleanName = "New Item"; }
-
-                // Fixed column formatting arrays mapping logic (Total width 32 columns max)
-                let sNoStr = serialNo.toString().padEnd(3, ' ');       // 3 char
-                let nStr = cleanName.substring(0, 9).padEnd(10, ' ');  // 10 char
-                let rStr = r.toString().padEnd(5, ' ');                // 5 char
-                let qStr = q.toString().padEnd(4, ' ');                // 4 char
-                let sStr = s.toString().padStart(10, ' ');             // 10 char
-
-                esc += sNoStr + nStr + rStr + qStr + sStr + "\n";
-                serialNo++;
-            }
-            
-            esc += "--------------------------------\n";
-            esc += "Bill Total:    Rs. " + totalAmount.toFixed(2).padStart(10) + "\n";
-            esc += "Prev. Balance: Rs. " + prev.toFixed(2).padStart(10) + "\n";
-            esc += "Aaj Jama:      Rs. " + paid.toFixed(2).padStart(10) + "\n";
-            esc += "--------------------------------\n";
-            esc += '\x1B\x61\x02\x1B\x45\x01NET BAL: Rs. ' + netBalance.toFixed(2) + '\n\x1B\x45\x00';
-            esc += '\x1B\x61\x01\nSHUKRIYA! VISIT AGAIN\n\n\n\n';
-
-            // 2. CHUNKING DATA DISPATCH
-            const encoder = new TextEncoder();
-            const data = encoder.encode(esc);
-            const chunkSize = 100;
-
-            for (let i = 0; i < data.length; i += chunkSize) {
-                const chunk = data.slice(i, i + chunkSize);
-                await characteristic.writeValue(chunk);
-                await new Promise(resolve => setTimeout(resolve, 50)); 
-            }
-            alert("Print successfully completed! 🎉");
-        } catch (error) {
-            alert("Print Error: " + error.message);
-            printerDevice = null;
-        }
-    }
-    // =======================================================================================
-*/
         // ================= 🖨️ INTEGRATED SAFE BLUETOOTH THERMAL PRINT METHOD =================
     async function printBill() {
         if (billOrderKeys.length === 0) return alert("Pehle Bill mein items add karein!");
@@ -604,6 +515,7 @@ if (currentMode === 'bill') {
       }
     }
     */
+    /*
     function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
       const query = document.getElementById('pNameEn').value.toLowerCase();
       const codeQuery = document.getElementById('pCode').value.toLowerCase();
@@ -669,6 +581,86 @@ if (currentMode === 'bill') {
         });
       }
     }
+    */
+    function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
+  const nameInp = document.getElementById('pNameEn');
+  const codeInp = document.getElementById('pCode');
+  const query = nameInp ? nameInp.value.toLowerCase() : '';
+  const codeQuery = codeInp ? codeInp.value.toLowerCase() : '';
+  
+  // 1. FILTERING
+  let filtered = itemsList.filter(item => {
+    let matchName = !query || (item.ItemNameEn && item.ItemNameEn.toLowerCase().includes(query)) || (item.ItemNameHi && item.ItemNameHi.includes(query));
+    let matchCode = !codeQuery || (item.Code && item.Code.toString().trim().toLowerCase().includes(codeQuery));
+    return matchName && matchCode;
+  });
+
+  // 2. ALPHABETICAL SORTING (A-Z by English Name)
+  filtered.sort((a, b) => a.ItemNameEn.localeCompare(b.ItemNameEn));
+
+  if(filtered.length === 0) {
+    container.innerHTML = `<p style="padding: 20px; text-align: center; color: #888;">No items found.</p>`;
+    return;
+  }
+
+  const titleDiv = document.createElement('div');
+  titleDiv.className = `section-title ${originType}`;
+  titleDiv.innerText = `${titleText} (${filtered.length})`;
+  container.appendChild(titleDiv);
+
+  // Group by category (ab ye category bhi alphabetically sort hogi)
+  let categories = {};
+  filtered.forEach(item => {
+    let cat = item.Category || 'General';
+    if(!categories[cat]) categories[cat] = [];
+    categories[cat].push(item);
+  });
+
+  // Category list sort karein
+  Object.keys(categories).sort().forEach(catName => {
+    const catHeader = document.createElement('div');
+    catHeader.className = 'category-group-title';
+    catHeader.innerText = `📁 ${catName.toUpperCase()}`;
+    container.appendChild(catHeader);
+
+    categories[catName].forEach(item => {
+          const inBill = currentBill[item.Code];
+          const qty = inBill ? inBill.qty : 0;
+          const activeRate = inBill ? inBill.rate : 0;
+
+          const bubble = document.createElement('div');
+          bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
+          
+          let clickHandler = currentMode === 'bill' ? `onclick="addItemToBillDirect('${item.Code}')"` : '';
+          let isControlDisabled = currentMode === 'entry' ? 'disabled' : '';
+
+          bubble.innerHTML = `
+            <div class="item-info ${currentMode === 'bill' ? 'clickable' : ''}" ${clickHandler}>
+              <div class="item-name">${item.ItemNameEn} (${item.ItemNameHi || ''})</div>
+              <div class="item-sub">
+                Code: ${item.Code} | Unit: ${item.Unit} | 
+                Retail: <span class="bold-price">₹${item.Retail}</span> | 
+                Wholesale: <span class="bold-price">₹${item.Wholesale}</span>
+                ${qty > 0 ? `<br><span style='color:green; font-weight:bold;'>Cart: ${qty} ${item.Unit} @ ₹${activeRate}</span>` : ''}
+              </div>
+            </div>
+            <div class="item-actions" onclick="event.stopPropagation();">
+              <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', -1)">-</button>
+              <input type="number" class="edit-input" ${isControlDisabled} value="${qty}" onchange="directQty('${item.Code}', this.value)">
+              <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', 1)">+</button>
+              ${currentMode === 'entry' ? `
+                <button onclick="editMasterItem('${item.Code}', '${originType}')" style="background:none; border:none; color:blue; font-size:15px; margin-left:4px; cursor:pointer;">✏️</button>
+                <button class="del-btn" onclick="deleteMasterItem('${item.Code}', '${originType}')">X</button>
+              ` : ''}
+            </div>
+          `;
+          container.appendChild(bubble);
+      // ... baki ka bubble logic waisa hi rahega (copy from your existing code)
+      // (Is function ke end tak wahi purana bubble loop use karein)
+    });
+  });
+}
+
     function renderSavedBillsLogBucket(container) {
       const titleDiv = document.createElement('div'); titleDiv.className = `section-title saved-logs`; titleDiv.innerText = `📂 Saved Invoices Log`; container.appendChild(titleDiv);
       savedLocalBills.forEach(b => {
