@@ -333,7 +333,7 @@
     function resumeHardwareScanning() { document.getElementById('btnResumeCamUI').style.display = "none"; document.getElementById('scannerWrapperZone').style.display = 'flex'; startHardwareCamera(); }
     function stopHardwareCamera() { if (html5QrCode && isScannerRunning) { html5QrCode.stop().then(() => { isScannerRunning = false; html5QrCode = null; document.getElementById('scannerWrapperZone').style.display = 'none'; }); } else { isScannerRunning = false; document.getElementById('scannerWrapperZone').style.display = 'none'; } isProcessingScan = false; }
     function onScanErrorCallback(err) {}
-/*
+
     function switchDukanMode(mode) {
       if(Object.keys(currentBill).length > 0) { if(!confirm("Dukan badalne se active bill clear ho jayega?")) return; }
       activeDukan = mode; clearBill(); stopHardwareCamera();
@@ -343,7 +343,8 @@
       loadLocalItems(); loadSavedLocalBills();
       if(isOnlineMode && SCRIPT_URL !== "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL") { fetchOnlineItems(); } else { renderList(); }
     }
-    */
+    
+    /*
 function switchDukanMode(mode) {
   if(Object.keys(currentBill).length > 0) { 
     if(!confirm("Dukan badalne se active bill clear ho jayega?")) return; 
@@ -375,7 +376,7 @@ function switchDukanMode(mode) {
     renderList(); 
   }
 }
-
+*/
     function loadLocalItems() { let stored = localStorage.getItem('local_items_db_' + activeDukan); localItems = stored ? JSON.parse(stored) : []; }
     function saveLocalItemsToStorage() { localStorage.setItem('local_items_db_' + activeDukan, JSON.stringify(localItems)); }
     function loadSavedLocalBills() { let stored = localStorage.getItem('local_saved_bills_log_' + activeDukan); savedLocalBills = stored ? JSON.parse(stored) : []; }
