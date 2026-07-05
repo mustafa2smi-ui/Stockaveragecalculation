@@ -225,16 +225,7 @@
     let billOrderKeys = []; let savedLocalBills = []; let currentMode = 'entry'; let isOnlineMode = false; let editingBillId = null; 
     let html5QrCode = null; let isScannerRunning = false; let lastScannedCode = ""; let isProcessingScan = false;
     let printerDevice = null;
-/*
-    window.onload = function() {
-      const today = new Date();
-      const dd = String(today.getDate()).padStart(2, '0');
-      const mm = String(today.getMonth() + 1).padStart(2, '0');
-      const yyyy = today.getFullYear();
-      document.getElementById('dateDisplay').innerText = `Date: ${dd}/${mm}/${yyyy}`;
-      loadLocalItems(); loadSavedLocalBills(); checkExistingAuth();
-    }
-*/
+    
     window.onload = function() {
   const today = new Date();
   const dd = String(today.getDate()).padStart(2, '0');
@@ -333,7 +324,7 @@
     function resumeHardwareScanning() { document.getElementById('btnResumeCamUI').style.display = "none"; document.getElementById('scannerWrapperZone').style.display = 'flex'; startHardwareCamera(); }
     function stopHardwareCamera() { if (html5QrCode && isScannerRunning) { html5QrCode.stop().then(() => { isScannerRunning = false; html5QrCode = null; document.getElementById('scannerWrapperZone').style.display = 'none'; }); } else { isScannerRunning = false; document.getElementById('scannerWrapperZone').style.display = 'none'; } isProcessingScan = false; }
     function onScanErrorCallback(err) {}
-
+/*
     function switchDukanMode(mode) {
       if(Object.keys(currentBill).length > 0) { if(!confirm("Dukan badalne se active bill clear ho jayega?")) return; }
       activeDukan = mode; clearBill(); stopHardwareCamera();
@@ -343,8 +334,8 @@
       loadLocalItems(); loadSavedLocalBills();
       if(isOnlineMode && SCRIPT_URL !== "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL") { fetchOnlineItems(); } else { renderList(); }
     }
+    */
     
-    /*
 function switchDukanMode(mode) {
   if(Object.keys(currentBill).length > 0) { 
     if(!confirm("Dukan badalne se active bill clear ho jayega?")) return; 
@@ -376,7 +367,7 @@ function switchDukanMode(mode) {
     renderList(); 
   }
 }
-*/
+
     function loadLocalItems() { let stored = localStorage.getItem('local_items_db_' + activeDukan); localItems = stored ? JSON.parse(stored) : []; }
     function saveLocalItemsToStorage() { localStorage.setItem('local_items_db_' + activeDukan, JSON.stringify(localItems)); }
     function loadSavedLocalBills() { let stored = localStorage.getItem('local_saved_bills_log_' + activeDukan); savedLocalBills = stored ? JSON.parse(stored) : []; }
@@ -461,37 +452,6 @@ async function checkDeviceLockInstant() {
   renderList();
 }
 
-/*
-    async function addNewMasterItem() {
-      let code = document.getElementById('pCode').value.toString().trim();
-      let nameEn = document.getElementById('pNameEn').value.trim();
-      let nameHi = document.getElementById('pNameHi').value.trim();
-      let cat = document.getElementById('pCategory').value.trim() || 'General';
-      let unit = document.getElementById('pUnit').value.trim() || 'Kg';
-      let retail = parseFloat(document.getElementById('pRetail').value || 0);
-      let wholesale = parseFloat(document.getElementById('pWholesale').value || 0);
-
-      if(!code || !nameEn) return alert("Code aur Item Name zaroori hai!");
-      let newItem = { Code: code, ItemNameEn: nameEn, ItemNameHi: nameHi, Category: cat, Unit: unit, Retail: retail, Wholesale: wholesale };
-
-      if(isOnlineMode) {
-        let res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'addOrUpdateItem', tab: activeDukan, item: newItem }) }).then(r => r.json());
-        if(res.success) fetchOnlineItems();
-      } else {
-        let idx = localItems.findIndex(i => i.Code.toString().trim() === code);
-        if(idx > -1) { localItems[idx] = newItem; } else { localItems.push(newItem); }
-        saveLocalItemsToStorage();
-      }
-
-      let selectedPricingMode = document.getElementById('billingPriceTier') ? document.getElementById('billingPriceTier').value : 'retail';
-      let targetRate = (selectedPricingMode === 'wholesale') ? wholesale : retail;
-      if(currentBill[code]) { currentBill[code] = { ...newItem, qty: currentBill[code].qty, rate: targetRate }; }
-
-      document.getElementById('pCode').value = ''; document.getElementById('pNameEn').value = ''; document.getElementById('pNameHi').value = '';
-      document.getElementById('pCategory').value = ''; document.getElementById('pRetail').value = ''; document.getElementById('pWholesale').value = '';
-      renderList(); calculateInvoiceSheet();
-    }
-*/
     async function addNewMasterItem() {
   let code = document.getElementById('pCode').value.toString().trim();
   let nameEn = document.getElementById('pNameEn').value.trim();
@@ -567,150 +527,7 @@ async function checkDeviceLockInstant() {
       if(!activeItems || activeItems.length === 0) { container.innerHTML = `<p style="padding: 20px; text-align: center; color: #888; font-weight: bold;">No Items Found.</p>`; calculateInvoiceSheet(); return; }
       renderSectionBucket(container, activeItems, `${isOnlineMode ? 'Cloud' : 'Local'} Stock`, isOnlineMode ? 'online' : 'local');
     }
-/*
-    function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
-      const nameInp = document.getElementById('pNameEn'); const codeInp = document.getElementById('pCode');
-      const query = nameInp ? nameInp.value.toLowerCase() : ''; const codeQuery = codeInp ? codeInp.value.toLowerCase() : '';
-      let filtered = itemsList.filter(item => {
-        let matchName = !query || (item.ItemNameEn && item.ItemNameEn.toLowerCase().includes(query)) || (item.ItemNameHi && item.ItemNameHi.includes(query));
-        let matchCode = !codeQuery || (item.Code && item.Code.toString().trim().toLowerCase().includes(codeQuery));
-        return matchName && matchCode;
-      });
-      if(filtered.length === 0) return;
-      const titleDiv = document.createElement('div'); titleDiv.className = `section-title ${originType}`; titleDiv.innerText = `${titleText} (${filtered.length})`; container.appendChild(titleDiv);
-      let categories = {}; filtered.forEach(item => { let cat = item.Category || 'General'; if(!categories[cat]) categories[cat] = []; categories[cat].push(item); });
-      for (let catName in categories) {
-        const catHeader = document.createElement('div'); catHeader.className = 'category-group-title'; catHeader.innerText = `📁 ${catName.toUpperCase()}`; container.appendChild(catHeader);
-        categories[catName].forEach(item => {
-          const inBill = currentBill[item.Code]; const qty = inBill ? inBill.qty : 0; const activeRate = inBill ? inBill.rate : 0;
-          const bubble = document.createElement('div'); bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
-          let clickHandler = `onclick="addItemToBillDirect('${item.Code}')"`; let isControlDisabled = currentMode === 'entry' ? 'disabled' : '';
-          bubble.innerHTML = `
-            <div class="item-info clickable" ${clickHandler}>
-              <div class="item-name">${item.ItemNameEn} (${item.ItemNameHi || ''})</div>
-              <div class="item-sub">Code: ${item.Code} | Unit: ${item.Unit} | Retail: <span class="bold-price">₹${item.Retail}</span>${qty > 0 ? `<br><span style='color:green; font-weight:bold;'>Cart: ${qty} ${item.Unit} @ ₹${activeRate}</span>` : ''}</div>
-            </div>
-            <div class="item-actions" onclick="event.stopPropagation();">
-              <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', -1)">-</button>
-              <input type="number" class="edit-input" ${isControlDisabled} value="${qty}" onchange="directQty('${item.Code}', this.value)">
-              <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', 1)">+</button>
-              ${currentMode === 'entry' ? `<button onclick="editMasterItem('${item.Code}', '${originType}')" style="background:none; border:none; color:blue; margin-left:4px;">✏️</button><button class="del-btn" onclick="deleteMasterItem('${item.Code}', '${originType}')">X</button>` : ''}
-            </div>
-          `;
-          container.appendChild(bubble);
-        });
-      }
-    }
-    */
-    /*
-    function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
-      const nameInp = document.getElementById('pNameEn'); const codeInp = document.getElementById('pCode');
-      const query = nameInp ? nameInp.value.toLowerCase() : ''; const codeQuery = codeInp ? codeInp.value.toLowerCase() : '';
-      let filtered = itemsList.filter(item => {
-        let matchName = !query || (item.ItemNameEn && item.ItemNameEn.toLowerCase().includes(query)) || (item.ItemNameHi && item.ItemNameHi.includes(query));
-        let matchCode = !codeQuery || (item.Code && item.Code.toString().trim().toLowerCase().includes(codeQuery));
-        return matchName && matchCode;
-      });
-      if(filtered.length === 0) return;
-      const titleDiv = document.createElement('div'); titleDiv.className = `section-title ${originType}`; titleDiv.innerText = `${titleText} (${filtered.length})`; container.appendChild(titleDiv);
-      let categories = {}; filtered.forEach(item => { let cat = item.Category || 'General'; if(!categories[cat]) categories[cat] = []; categories[cat].push(item); });
-      for (let catName in categories) {
-        const catHeader = document.createElement('div'); catHeader.className = 'category-group-title'; catHeader.innerText = `📁 ${catName.toUpperCase()}`; container.appendChild(catHeader);
-        categories[catName].forEach(item => {
-          const inBill = currentBill[item.Code]; const qty = inBill ? inBill.qty : 0; const activeRate = inBill ? inBill.rate : 0;
-          const bubble = document.createElement('div'); bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
-          // Pehle handler ko dynamic banayein mode ke mutabik
-let clickHandler = "";
-if (currentMode === 'bill') {
-    clickHandler = `onclick="addItemToBillDirect('${item.Code}')"`;
-} else {
-    // Master Entry Mode me click karne par product add nahi hoga, sirf editable area border change ya alert de sakte hain
-    clickHandler = `onclick="alert('Edit karne ke liye ✏️ button ka istemal karein')"`;
-}    
-          bubble.innerHTML = `
-            <div class="item-info clickable" ${clickHandler}>
-              <div class="item-name">${item.ItemNameEn} (${item.ItemNameHi || ''})</div>
-              <div class="item-sub">Code: ${item.Code} | Unit: ${item.Unit} | Retail: <span class="bold-price">₹${item.Retail}</span>${qty > 0 ? `<br><span style='color:green; font-weight:bold;'>Cart: ${qty} ${item.Unit} @ ₹${activeRate}</span>` : ''}</div>
-            </div>
-            <div class="item-actions" onclick="event.stopPropagation();">
-              <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', -1)">-</button>
-              <input type="number" class="edit-input" ${isControlDisabled} value="${qty}" onchange="directQty('${item.Code}', this.value)">
-              <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', 1)">+</button>
-              ${currentMode === 'entry' ? `<button onclick="editMasterItem('${item.Code}', '${originType}')" style="background:none; border:none; color:blue; margin-left:4px;">✏️</button><button class="del-btn" onclick="deleteMasterItem('${item.Code}', '${originType}')">X</button>` : ''}
-            </div>
-          `;
-          container.appendChild(bubble);
-        });
-      }
-    }
-    */
-    /*
-    function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
-      const query = document.getElementById('pNameEn').value.toLowerCase();
-      const codeQuery = document.getElementById('pCode').value.toLowerCase();
-      
-      let filtered = itemsList.filter(item => {
-        let matchName = !query || item.ItemNameEn.toLowerCase().includes(query) || (item.ItemNameHi && item.ItemNameHi.includes(query));
-        let matchCode = !codeQuery || item.Code.toString().toLowerCase().includes(codeQuery);
-        return matchName && matchCode;
-      });
 
-      if(filtered.length === 0) return;
-
-      const titleDiv = document.createElement('div');
-      titleDiv.className = `section-title ${originType}`;
-      titleDiv.innerText = `${titleText} (${filtered.length})`;
-      container.appendChild(titleDiv);
-
-      let categories = {};
-      filtered.forEach(item => {
-        let cat = item.Category || 'General';
-        if(!categories[cat]) categories[cat] = [];
-        categories[cat].push(item);
-      });
-
-      for (let catName in categories) {
-        const catHeader = document.createElement('div');
-        catHeader.className = 'category-group-title';
-        catHeader.innerText = `📁 ${catName.toUpperCase()}`;
-        container.appendChild(catHeader);
-
-        categories[catName].forEach(item => {
-          const inBill = currentBill[item.Code];
-          const qty = inBill ? inBill.qty : 0;
-          const activeRate = inBill ? inBill.rate : 0;
-
-          const bubble = document.createElement('div');
-          bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
-          
-          let clickHandler = currentMode === 'bill' ? `onclick="addItemToBillDirect('${item.Code}')"` : '';
-          let isControlDisabled = currentMode === 'entry' ? 'disabled' : '';
-
-          bubble.innerHTML = `
-            <div class="item-info ${currentMode === 'bill' ? 'clickable' : ''}" ${clickHandler}>
-              <div class="item-name">${item.ItemNameEn} (${item.ItemNameHi || ''})</div>
-              <div class="item-sub">
-                Code: ${item.Code} | Unit: ${item.Unit} | 
-                Retail: <span class="bold-price">₹${item.Retail}</span> | 
-                Wholesale: <span class="bold-price">₹${item.Wholesale}</span>
-                ${qty > 0 ? `<br><span style='color:green; font-weight:bold;'>Cart: ${qty} ${item.Unit} @ ₹${activeRate}</span>` : ''}
-              </div>
-            </div>
-            <div class="item-actions" onclick="event.stopPropagation();">
-              <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', -1)">-</button>
-              <input type="number" class="edit-input" ${isControlDisabled} value="${qty}" onchange="directQty('${item.Code}', this.value)">
-              <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', 1)">+</button>
-              ${currentMode === 'entry' ? `
-                <button onclick="editMasterItem('${item.Code}', '${originType}')" style="background:none; border:none; color:blue; font-size:15px; margin-left:4px; cursor:pointer;">✏️</button>
-                <button class="del-btn" onclick="deleteMasterItem('${item.Code}', '${originType}')">X</button>
-              ` : ''}
-            </div>
-          `;
-          container.appendChild(bubble);
-        });
-      }
-    }
-    */
     function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
   const nameInp = document.getElementById('pNameEn');
   const codeInp = document.getElementById('pCode');
