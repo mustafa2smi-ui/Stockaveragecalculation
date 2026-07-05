@@ -106,12 +106,12 @@
 
   <div id="appContent" style="display:none;">
     
-
-    <header id="shopHeaderName">My Grocery Dukan</header>
-    <div class="dukan-selector-bar">
+<div class="dukan-selector-bar">
       <button class="dukan-btn active-g" id="btnDukanG" onclick="switchDukanMode('Grocery')">G (Grocery)</button>
       <button class="dukan-btn" id="btnDukanH" onclick="switchDukanMode('Hardware')">H (Hardware)</button>
     </div>
+    <header id="shopHeaderName">My Grocery Dukan</header>
+    
     <div class="meta-sec">
       <input type="text" id="custName" placeholder="Customer Name" class="cust-input">
       <input type="number" id="prevBal" placeholder="Pichla Baqi" value="0" oninput="calculateInvoiceSheet()" style="width:70px; padding:6px; border:1px solid #ccc; border-radius:4px; text-align:right;">
@@ -144,6 +144,7 @@
           <input type="number" id="pRetail" placeholder="Retail" style="width:50px;">
           <input type="number" id="pWholesale" placeholder="W'sale" style="width:50px;">
           <button onclick="addNewMasterItem()" style="background:var(--wa-green); color:white; padding:6px 12px; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">💾 Save</button>
+        <button class="bg-clear" onclick="clearBill()">Clear</button>
         </div>
       </div>
 
@@ -181,7 +182,6 @@
       <button class="bg-share" onclick="shareWhatsApp()">WhatsApp</button>
       <button class="bg-local-save" onclick="saveBillToLocalStorage()">💾 Local Save</button>
       <button class="bg-save" id="btnOnlineSave" onclick="saveToGoogleSheet()">Cloud Sync</button>
-      <button class="bg-clear" onclick="clearBill()">Clear</button>
     </div>
   </div>
 
