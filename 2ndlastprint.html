@@ -527,7 +527,7 @@
       if(!activeItems || activeItems.length === 0) { container.innerHTML = `<p style="padding: 20px; text-align: center; color: #888; font-weight: bold;">No Items Found.</p>`; calculateInvoiceSheet(); return; }
       renderSectionBucket(container, activeItems, `${isOnlineMode ? 'Cloud' : 'Local'} Stock`, isOnlineMode ? 'online' : 'local');
     }
-
+/*
     function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
       const nameInp = document.getElementById('pNameEn'); const codeInp = document.getElementById('pCode');
       const query = nameInp ? nameInp.value.toLowerCase() : ''; const codeQuery = codeInp ? codeInp.value.toLowerCase() : '';
@@ -561,7 +561,47 @@
         });
       }
     }
-    
+    */
+    function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
+      const nameInp = document.getElementById('pNameEn'); const codeInp = document.getElementById('pCode');
+      const query = nameInp ? nameInp.value.toLowerCase() : ''; const codeQuery = codeInp ? codeInp.value.toLowerCase() : '';
+      let filtered = itemsList.filter(item => {
+        let matchName = !query || (item.ItemNameEn && item.ItemNameEn.toLowerCase().includes(query)) || (item.ItemNameHi && item.ItemNameHi.includes(query));
+        let matchCode = !codeQuery || (item.Code && item.Code.toString().trim().toLowerCase().includes(codeQuery));
+        return matchName && matchCode;
+      });
+      if(filtered.length === 0) return;
+      const titleDiv = document.createElement('div'); titleDiv.className = `section-title ${originType}`; titleDiv.innerText = `${titleText} (${filtered.length})`; container.appendChild(titleDiv);
+      let categories = {}; filtered.forEach(item => { let cat = item.Category || 'General'; if(!categories[cat]) categories[cat] = []; categories[cat].push(item); });
+      for (let catName in categories) {
+        const catHeader = document.createElement('div'); catHeader.className = 'category-group-title'; catHeader.innerText = `📁 ${catName.toUpperCase()}`; container.appendChild(catHeader);
+        categories[catName].forEach(item => {
+          const inBill = currentBill[item.Code]; const qty = inBill ? inBill.qty : 0; const activeRate = inBill ? inBill.rate : 0;
+          const bubble = document.createElement('div'); bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
+          // Pehle handler ko dynamic banayein mode ke mutabik
+let clickHandler = "";
+if (currentMode === 'bill') {
+    clickHandler = `onclick="addItemToBillDirect('${item.Code}')"`;
+} else {
+    // Master Entry Mode me click karne par product add nahi hoga, sirf editable area border change ya alert de sakte hain
+    clickHandler = `onclick="alert('Edit karne ke liye ✏️ button ka istemal karein')"`;
+}    
+          bubble.innerHTML = `
+            <div class="item-info clickable" ${clickHandler}>
+              <div class="item-name">${item.ItemNameEn} (${item.ItemNameHi || ''})</div>
+              <div class="item-sub">Code: ${item.Code} | Unit: ${item.Unit} | Retail: <span class="bold-price">₹${item.Retail}</span>${qty > 0 ? `<br><span style='color:green; font-weight:bold;'>Cart: ${qty} ${item.Unit} @ ₹${activeRate}</span>` : ''}</div>
+            </div>
+            <div class="item-actions" onclick="event.stopPropagation();">
+              <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', -1)">-</button>
+              <input type="number" class="edit-input" ${isControlDisabled} value="${qty}" onchange="directQty('${item.Code}', this.value)">
+              <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', 1)">+</button>
+              ${currentMode === 'entry' ? `<button onclick="editMasterItem('${item.Code}', '${originType}')" style="background:none; border:none; color:blue; margin-left:4px;">✏️</button><button class="del-btn" onclick="deleteMasterItem('${item.Code}', '${originType}')">X</button>` : ''}
+            </div>
+          `;
+          container.appendChild(bubble);
+        });
+      }
+    }
     function renderSavedBillsLogBucket(container) {
       const titleDiv = document.createElement('div'); titleDiv.className = `section-title saved-logs`; titleDiv.innerText = `📂 Saved Invoices Log`; container.appendChild(titleDiv);
       savedLocalBills.forEach(b => {
@@ -635,40 +675,7 @@
       }
       saveLocalBillsLogToStorage(); clearBill();
     }
-/*
-    function loadBillForEditing(billId) {
-      let billRecord = savedLocalBills.find(b => b.billId === billId); if(!billRecord) return;
-      currentBill = JSON.parse(JSON.stringify(billRecord.billData)); billOrderKeys = [...billRecord.billOrderKeys];
-      editingBillId = billRecord.billId; document.getElementById('custName').value = billRecord.customerName;
-      document.getElementById('activeBillIdDisplay').innerText = `Editing: ${billRecord.billId}`; document.getElementById('countBadge').innerText = billOrderKeys.length;
-      setMode('bill');
-    }
-*/
-    /*
-    function loadBillForEditing(billId) {
-      let billRecord = savedLocalBills.find(b => b.billId === billId);
-      if(!billRecord) return alert("Bill record nahi mila!");
 
-      currentBill = JSON.parse(JSON.stringify(billRecord.billData));
-      // Load keys to retain past formatting sequence
-      billOrderKeys = billRecord.billOrderKeys ? [...billRecord.billOrderKeys] : Object.keys(currentBill);
-      
-      editingBillId = billRecord.billId;
-      document.getElementById('custName').value = billRecord.customerName;
-      document.getElementById('activeBillIdDisplay').innerText = `Editing: ${billRecord.billId}`;
-      document.getElementById('activeBillIdDisplay').style.color = "red";
-
-      setMode('bill'); 
-      document.getElementById('billInvoiceSection').scrollTop = 0;
-    }
-
-    function deleteSavedLocalBill(billId) {
-      if(!confirm("Invoice delete karein?")) return;
-      savedLocalBills = savedLocalBills.filter(b => b.billId !== billId);
-      saveLocalBillsLogToStorage();
-      renderList();
-    }
-    */
     function loadBillForEditing(billId) {
   let billRecord = savedLocalBills.find(b => b.billId === billId); 
   if(!billRecord) return alert("Saved bill data nahi mila!");
