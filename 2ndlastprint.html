@@ -562,6 +562,7 @@
       }
     }
     */
+    /*
     function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
       const nameInp = document.getElementById('pNameEn'); const codeInp = document.getElementById('pCode');
       const query = nameInp ? nameInp.value.toLowerCase() : ''; const codeQuery = codeInp ? codeInp.value.toLowerCase() : '';
@@ -596,6 +597,72 @@ if (currentMode === 'bill') {
               <input type="number" class="edit-input" ${isControlDisabled} value="${qty}" onchange="directQty('${item.Code}', this.value)">
               <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', 1)">+</button>
               ${currentMode === 'entry' ? `<button onclick="editMasterItem('${item.Code}', '${originType}')" style="background:none; border:none; color:blue; margin-left:4px;">✏️</button><button class="del-btn" onclick="deleteMasterItem('${item.Code}', '${originType}')">X</button>` : ''}
+            </div>
+          `;
+          container.appendChild(bubble);
+        });
+      }
+    }
+    */
+    function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
+      const query = document.getElementById('pNameEn').value.toLowerCase();
+      const codeQuery = document.getElementById('pCode').value.toLowerCase();
+      
+      let filtered = itemsList.filter(item => {
+        let matchName = !query || item.ItemNameEn.toLowerCase().includes(query) || (item.ItemNameHi && item.ItemNameHi.includes(query));
+        let matchCode = !codeQuery || item.Code.toString().toLowerCase().includes(codeQuery);
+        return matchName && matchCode;
+      });
+
+      if(filtered.length === 0) return;
+
+      const titleDiv = document.createElement('div');
+      titleDiv.className = `section-title ${originType}`;
+      titleDiv.innerText = `${titleText} (${filtered.length})`;
+      container.appendChild(titleDiv);
+
+      let categories = {};
+      filtered.forEach(item => {
+        let cat = item.Category || 'General';
+        if(!categories[cat]) categories[cat] = [];
+        categories[cat].push(item);
+      });
+
+      for (let catName in categories) {
+        const catHeader = document.createElement('div');
+        catHeader.className = 'category-group-title';
+        catHeader.innerText = `📁 ${catName.toUpperCase()}`;
+        container.appendChild(catHeader);
+
+        categories[catName].forEach(item => {
+          const inBill = currentBill[item.Code];
+          const qty = inBill ? inBill.qty : 0;
+          const activeRate = inBill ? inBill.rate : 0;
+
+          const bubble = document.createElement('div');
+          bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
+          
+          let clickHandler = currentMode === 'bill' ? `onclick="addItemToBillDirect('${item.Code}')"` : '';
+          let isControlDisabled = currentMode === 'entry' ? 'disabled' : '';
+
+          bubble.innerHTML = `
+            <div class="item-info ${currentMode === 'bill' ? 'clickable' : ''}" ${clickHandler}>
+              <div class="item-name">${item.ItemNameEn} (${item.ItemNameHi || ''})</div>
+              <div class="item-sub">
+                Code: ${item.Code} | Unit: ${item.Unit} | 
+                Retail: <span class="bold-price">₹${item.Retail}</span> | 
+                Wholesale: <span class="bold-price">₹${item.Wholesale}</span>
+                ${qty > 0 ? `<br><span style='color:green; font-weight:bold;'>Cart: ${qty} ${item.Unit} @ ₹${activeRate}</span>` : ''}
+              </div>
+            </div>
+            <div class="item-actions" onclick="event.stopPropagation();">
+              <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', -1)">-</button>
+              <input type="number" class="edit-input" ${isControlDisabled} value="${qty}" onchange="directQty('${item.Code}', this.value)">
+              <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', 1)">+</button>
+              ${currentMode === 'entry' ? `
+                <button onclick="editMasterItem('${item.Code}', '${originType}')" style="background:none; border:none; color:blue; font-size:15px; margin-left:4px; cursor:pointer;">✏️</button>
+                <button class="del-btn" onclick="deleteMasterItem('${item.Code}', '${originType}')">X</button>
+              ` : ''}
             </div>
           `;
           container.appendChild(bubble);
