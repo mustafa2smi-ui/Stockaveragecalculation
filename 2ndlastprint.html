@@ -716,7 +716,7 @@ async function checkDeviceLockInstant() {
     function deleteSavedLocalBill(billId) { if(!confirm("Delete karein?")) return; savedLocalBills = savedLocalBills.filter(b => b.billId !== billId); saveLocalBillsLogToStorage(); renderList(); }
   /*  function clearBill() { currentBill = {}; billOrderKeys = []; editingBillId = null; document.getElementById('custName').value = ''; document.getElementById('prevBal').value = '0'; document.getElementById('paidAmt').value = '0'; document.getElementById('countBadge').innerText = "0"; document.getElementById('activeBillIdDisplay').innerText = "New Bill"; renderList(); }
 */
-    /*
+    
     function clearBill() {
   currentBill = {}; 
   billOrderKeys = []; 
@@ -738,7 +738,7 @@ async function checkDeviceLockInstant() {
   renderList(); 
   calculateInvoiceSheet(); 
 }
-*/
+
     async function saveToGoogleSheet() {
       if(!isOnlineMode) return alert("Offline mode me cloud sync kaam nahi karega.");
       let customer = document.getElementById('custName').value; let date = new Date().toLocaleDateString();
