@@ -1,227 +1,231 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bill Khata Management</title>
+    <title>My Shop Ledger Pro</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 10px; background-color: #f4f6f9; color: #333; }
-        .container { max-width: 600px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin: auto; }
-        h2, h3 { text-align: center; color: #0056b3; margin-top: 5px; }
-        .form-group { margin-bottom: 12px; }
-        label { font-weight: bold; display: block; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
-        .row { display: flex; gap: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        table, th, td { border: 1px solid #ddd; text-align: left; }
-        th, td { padding: 8px; font-size: 14px; }
-        button { background-color: #28a745; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 10px; }
-        button.add-item { background-color: #007bff; width: auto; padding: 5px 10px; font-size: 14px; margin-bottom: 5px; }
-        button.remove-btn { background-color: #dc3545; padding: 3px 8px; font-size: 12px; }
-        .preview-img { max-width: 100%; max-height: 150px; display: none; margin-top: 10px; border-radius: 4px; }
+        :root { --green: #C8E6C9; --pink: #E91E63; --shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f0f2f5; }
+        
+        /* Header Styling */
+        .header { background: var(--green); padding: 20px; text-align: center; border-bottom: 3px solid #a5d6a7; box-shadow: var(--shadow); }
+        .header h1 { color: var(--pink); margin: 0; font-size: 28px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+        
+        /* Navigation Buttons */
+        .nav-container { display: flex; justify-content: center; gap: 20px; margin: 20px 0; }
+        .nav-btn { padding: 12px 35px; border-radius: 50px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; box-shadow: var(--shadow); font-size: 16px; }
+        .btn-entry { background: #ffeb3b; color: #333; }
+        .btn-view { background: #03a9f4; color: white; }
+        .nav-btn:active { transform: scale(0.95); box-shadow: 0 0 10px var(--pink); }
+
+        .container { max-width: 800px; margin: auto; padding: 15px; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: var(--shadow); border: 1px solid #ddd; margin-bottom: 20px; }
+        
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #ccc; box-sizing: border-box; }
+        
+        /* Party List Styling */
+        .party-item { display: flex; justify-content: space-between; padding: 15px; background: white; margin-bottom: 10px; border-radius: 10px; cursor: pointer; border-left: 5px solid var(--pink); transition: 0.2s; }
+        .party-item:hover { background: #fff9fa; }
+        .bal-text { color: red; font-weight: bold; font-size: 18px; }
+
+        /* Detail Sections */
+        .section-title { background: var(--green); color: #2e7d32; padding: 10px; border-radius: 5px; margin-top: 20px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #f8f9fa; }
+
+        .back-btn { background: var(--pink); color: white; padding: 5px 15px; border-radius: 5px; cursor: pointer; float: right; margin-bottom: 10px; }
+        .img-grid { display: flex; gap: 10px; overflow-x: auto; padding: 10px 0; }
+        .img-card { min-width: 120px; text-align: center; }
+        .img-card img { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd; }
+        
+        #viewSection, #detailSection { display: none; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
+<div class="header">
+    <h1>My Shop Ledgers account</h1>
+</div>
+
+<div class="nav-container">
+    <button class="nav-btn btn-entry" onclick="showMode('entry')">Entry</button>
+    <button class="nav-btn btn-view" onclick="showMode('view')">View</button>
+</div>
+
 <div class="container">
-    <h2>Bill Khata Details</h2>
-    <form id="khataForm">
+    <div id="entrySection" class="card">
+        <h3>New Bill Entry</h3>
+        <input type="date" id="date">
+        <input type="text" id="partyName" placeholder="Party Name">
+        <input type="text" id="billNo" placeholder="Bill Number">
+        <div style="display:flex; gap:10px;">
+            <input type="number" id="billAmt" placeholder="Bill Amount" oninput="calc()">
+            <select id="type"><option>Credit</option><option>Cash</option></select>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <input type="number" id="deposit" placeholder="Deposit (Jama)" oninput="calc()">
+            <input type="number" id="balance" placeholder="Balance" readonly>
+        </div>
+        <label>Upload/Camera:</label>
+        <input type="file" id="billImg" accept="image/*" capture="environment">
         
-        <div class="form-group">
-            <label>Date</label>
-            <input type="date" id="billDate" required>
+        <h4 style="border-bottom: 2px solid var(--green)">Items Entry</h4>
+        <div id="itemInputs">
+            <div style="display:flex; gap:5px; margin-bottom:5px;">
+                <input type="text" placeholder="Item" class="i-name">
+                <input type="number" placeholder="Qty" class="i-qty" style="width:70px">
+                <input type="number" placeholder="Rate" class="i-rate" style="width:80px">
+            </div>
         </div>
+        <button onclick="addItemRow()" style="background:#ddd; border:none; padding:5px; cursor:pointer">+ Add Row</button>
+        <button id="saveBtn" onclick="saveData()" style="background:var(--pink); color:white; border:none; padding:15px; width:100%; border-radius:10px; margin-top:20px; font-weight:bold;">SAVE TO CLOUD</button>
+    </div>
+
+    <div id="viewSection">
+        <div id="partyList">Loading parties...</div>
+    </div>
+
+    <div id="detailSection" class="card">
+        <div class="back-btn" onclick="showMode('view')"> > Back </div>
+        <h2 id="detPartyName" style="color:var(--pink)">Party Name</h2>
         
-        <div class="form-group">
-            <label>Party Name</label>
-            <input type="text" id="partyName" placeholder="Enter Party Name" required>
-        </div>
-
-        <div class="row">
-            <div class="form-group" style="flex: 1;">
-                <label>Bill Amount</label>
-                <input type="number" id="billAmount" placeholder="0.00" oninput="calculateBalance()" required>
-            </div>
-            <div class="form-group" style="flex: 1;">
-                <label>Type</label>
-                <select id="paymentType">
-                    <option value="Credit">Credit (Udhaar)</option>
-                    <option value="Cash">Cash (Nagad)</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="form-group" style="flex: 1;">
-                <label>Deposit (Jama)</label>
-                <input type="number" id="deposit" placeholder="0.00" oninput="calculateBalance()" value="0">
-            </div>
-            <div class="form-group" style="flex: 1;">
-                <label>Balance (Baqaya)</label>
-                <input type="number" id="balance" placeholder="0.00" readonly>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Bill Photo (Camera/Upload)</label>
-            <input type="file" id="billImage" accept="image/*" capture="environment" onchange="previewFile()">
-            <img src="" id="imagePreview" class="preview-img">
-        </div>
-
-        <hr>
-
-        <h3>Bill Items (Entry)</h3>
-        <button type="button" class="add-item" onclick="addItemRow()">+ Add Item Row</button>
-        
-        <table id="itemsTable">
-            <thead>
-                <tr>
-                    <th>Item Name</th>
-                    <th style="width: 70px;">Qty</th>
-                    <th style="width: 90px;">Rate</th>
-                    <th style="width: 50px;">Act</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
+        <div class="section-title">Section 1: Ledger Details</div>
+        <table id="ledTable">
+            <thead><tr><th>Date</th><th>Bill No</th><th>Deposit</th><th>Amount</th><th>Type</th><th>Bal</th></tr></thead>
+            <tbody></tbody>
         </table>
 
-        <button type="submit" id="submitBtn">Save Record to Cloud</button>
-    </form>
+        <div class="section-title">Section 2: Bill Images</div>
+        <div class="img-grid" id="imgGrid"></div>
+
+        <div class="section-title">Section 3: Items Matrix</div>
+        <div style="overflow-x:auto">
+            <table id="matrixTable">
+                <thead><tr id="matrixHead"><th>Items</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <script>
-    // Google Apps Script Deploy Web App URL Yahan Dalein
-    const SCRIPT_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL"; 
-    let masterItems = [];
+    const SCRIPT_URL = "YOUR_WEB_APP_URL"; // Apna URL dalein
 
-    // Aaj ki date auto-set karein
-    document.getElementById('billDate').valueAsDate = new Date();
-
-    // Page load hote hi Master Item List fetch karein dropdown ke liye
-    window.onload = function() {
-        addItemRow(); // Default ek row add karein
-        fetch(SCRIPT_URL)
-        .then(res => res.json())
-        .then(data => {
-            masterItems = data;
-            updateDropdowns();
-        }).catch(err => console.log("Master items fetch failed or empty"));
-    };
-
-    function calculateBalance() {
-        let amt = parseFloat(document.getElementById('billAmount').value) || 0;
-        let dep = parseFloat(document.getElementById('deposit').value) || 0;
-        document.getElementById('balance').setValue = (amt - dep);
-        document.getElementById('balance').value = amt - dep;
-    }
-
-    function previewFile() {
-        const preview = document.getElementById('imagePreview');
-        const file = document.getElementById('billImage').files[0];
-        const reader = new FileReader();
-        reader.addEventListener("load", function () {
-            preview.src = reader.result;
-            preview.style.display = "block";
-        }, false);
-        if (file) { reader.readAsDataURL(file); }
+    function showMode(mode) {
+        document.getElementById('entrySection').style.display = mode == 'entry' ? 'block' : 'none';
+        document.getElementById('viewSection').style.display = mode == 'view' ? 'block' : 'none';
+        document.getElementById('detailSection').style.display = 'none';
+        if(mode == 'view') loadParties();
     }
 
     function addItemRow() {
-        const tbody = document.querySelector("#itemsTable tbody");
-        const row = document.createElement("tr");
-
-        let options = masterItems.map(item => `<option value="${item}">${item}</option>`).join('');
-        if(options === "") { options = `<option value="">Type Item Name...</option>`; }
-
-        row.innerHTML = `
-            <td><input type="text" list="masterItemsList" class="row-item-name" placeholder="Item Name" required></td>
-            <td><input type="number" class="row-qty" placeholder="0" required></td>
-            <td><input type="number" class="row-rate" placeholder="0" required></td>
-            <td><button type="button" class="remove-btn" onclick="this.parentElement.parentElement.remove()">X</button></td>
-        `;
-        tbody.appendChild(row);
+        let div = document.createElement('div');
+        div.style = "display:flex; gap:5px; margin-bottom:5px;";
+        div.innerHTML = `<input type="text" placeholder="Item" class="i-name">
+                         <input type="number" placeholder="Qty" class="i-qty" style="width:70px">
+                         <input type="number" placeholder="Rate" class="i-rate" style="width:80px">`;
+        document.getElementById('itemInputs').appendChild(div);
     }
 
-    // Datalist backup to suggest items
-    let datalist = document.createElement('datalist');
-    datalist.id = 'masterItemsList';
-    document.body.appendChild(datalist);
-
-    function updateDropdowns() {
-        datalist.innerHTML = masterItems.map(item => `<option value="${item}">`).join('');
+    function calc() {
+        let a = parseFloat(document.getElementById('billAmt').value) || 0;
+        let d = parseFloat(document.getElementById('deposit').value) || 0;
+        document.getElementById('balance').value = a - d;
     }
 
-    // Submit Data to Google Sheets & Drive
-    document.getElementById('khataForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        let btn = document.getElementById('submitBtn');
-        btn.innerText = "Saving Data... Please Wait...";
-        btn.disabled = true;
+    async function saveData() {
+        const btn = document.getElementById('saveBtn');
+        btn.innerText = "Saving..."; btn.disabled = true;
 
-        let fileInput = document.getElementById('billImage').files[0];
-        
-        if (fileInput) {
-            let reader = new FileReader();
-            reader.readAsDataURL(fileInput);
-            reader.onload = function () {
-                sendData(reader.result, fileInput.name);
-            };
-        } else {
-            sendData("", "");
-        }
-    });
-
-    function sendData(base64Image, fileName) {
-        let itemsData = [];
-        let rows = document.querySelectorAll("#itemsTable tbody tr");
-        
-        rows.forEach(row => {
-            itemsData.push({
-                itemName: row.querySelector(".row-item-name").value,
-                quantity: row.querySelector(".row-qty").value,
-                rate: row.querySelector(".row-rate").value
-            });
+        let items = [];
+        document.querySelectorAll('#itemInputs > div').forEach(row => {
+            if(row.children[0].value) {
+                items.push({name: row.children[0].value, qty: row.children[1].value, rate: row.children[2].value});
+            }
         });
 
+        let file = document.getElementById('billImg').files[0];
+        let base64 = "";
+        if(file) {
+            base64 = await new Promise(r => {let rd = new FileReader(); rd.onload=()=>r(rd.result); rd.readAsDataURL(file);});
+        }
+
         let payload = {
-            date: document.getElementById('billDate').value,
+            date: document.getElementById('date').value,
             partyName: document.getElementById('partyName').value,
-            billAmount: document.getElementById('billAmount').value,
-            paymentType: document.getElementById('paymentType').value,
+            billNo: document.getElementById('billNo').value,
+            billAmt: document.getElementById('billAmt').value,
+            type: document.getElementById('type').value,
             deposit: document.getElementById('deposit').value,
             balance: document.getElementById('balance').value,
-            imageByte: base64Image,
-            imageName: fileName,
-            items: itemsData
+            imageByte: base64,
+            items: items
         };
 
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        })
+        fetch(SCRIPT_URL, {method: 'POST', body: JSON.stringify(payload)})
+        .then(() => { alert("Saved!"); location.reload(); });
+    }
+
+    function loadParties() {
+        fetch(SCRIPT_URL + "?action=getSummary")
         .then(res => res.json())
-        .then(response => {
-            if(response.status === "SUCCESS") {
-                alert("Data Successfully Saved to Google Sheet & Drive!");
-                document.getElementById('khataForm').reset();
-                document.getElementById('imagePreview').style.display = "none";
-                document.querySelector("#itemsTable tbody").innerHTML = "";
-                addItemRow();
-                document.getElementById('billDate').valueAsDate = new Date();
-            } else {
-                alert("Error: " + response.message);
+        .then(data => {
+            let html = "";
+            for(let p in data) {
+                html += `<div class="party-item" onclick="loadDetails('${p}')">
+                            <span>${p}</span>
+                            <span class="bal-text">₹ ${data[p]}</span>
+                         </div>`;
             }
-        })
-        .catch(err => alert("Error saving data: " + err))
-        .finally(() => {
-            let btn = document.getElementById('submitBtn');
-            btn.innerText = "Save Record to Cloud";
-            btn.disabled = false;
+            document.getElementById('partyList').innerHTML = html || "No records found.";
+        });
+    }
+
+    function loadDetails(party) {
+        document.getElementById('viewSection').style.display = 'none';
+        document.getElementById('detailSection').style.display = 'block';
+        document.getElementById('detPartyName').innerText = party;
+
+        fetch(SCRIPT_URL + `?action=getDetails&party=${encodeURIComponent(party)}`)
+        .then(res => res.json())
+        .then(data => {
+            // Ledger
+            let lHtml = "";
+            data.khata.forEach(r => {
+                lHtml += `<tr><td>${r[0]}</td><td>${r[7]}</td><td>${r[4]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[5]}</td></tr>`;
+            });
+            document.querySelector("#ledTable tbody").innerHTML = lHtml;
+
+            // Images
+            let iHtml = "";
+            data.khata.forEach(r => {
+                if(r[6]) iHtml += `<div class="img-card"><img src="${r[6]}"><br><small>${r[0]}</small></div>`;
+            });
+            document.getElementById('imgGrid').innerHTML = iHtml;
+
+            // Matrix
+            let dates = [...new Set(data.items.map(i => i[0]))];
+            let head = "<th>Items</th>" + dates.map(d => `<th>${d}</th>`).join('');
+            document.getElementById('matrixHead').innerHTML = head;
+
+            let itemMap = {};
+            data.items.forEach(i => {
+                if(!itemMap[i[2]]) itemMap[i[2]] = {};
+                itemMap[i[2]][i[0]] = `${i[3]}Q ${i[4]}R`;
+            });
+
+            let mBody = "";
+            for(let it in itemMap) {
+                mBody += `<tr><td>${it}</td>`;
+                dates.forEach(d => { mBody += `<td>${itemMap[it][d] || '-'}</td>`; });
+                mBody += `</tr>`;
+            }
+            document.querySelector("#matrixTable tbody").innerHTML = mBody;
         });
     }
 </script>
-
 </body>
 </html>
