@@ -501,7 +501,28 @@
         container.appendChild(bubble);
       });
     }
+function addItemToBillDirect(code) {
+      let activeItems = isOnlineMode ? sheetItems : localItems;
+      let item = activeItems.find(i => i.Code.toString().trim() === code.toString().trim()); if(!item) return;
+      let selectEl = document.getElementById('billingPriceTier'); let selectedPricingMode = selectEl ? selectEl.value : 'retail';
+      let targetRate = (selectedPricingMode === 'wholesale') ? item.Wholesale : item.Retail;
+      if(!currentBill[item.Code]) { currentBill[item.Code] = { ...item, qty: 1, rate: targetRate }; billOrderKeys.push(item.Code); } 
+      else { currentBill[item.Code].qty += 1; currentBill[item.Code].rate = targetRate; }
+      document.getElementById('countBadge').innerText = billOrderKeys.length; renderList(); calculateInvoiceSheet(); scrollBillToBottom();
+    }
 
+    function updateQty(code, change) {
+      if(currentMode === 'entry') return; 
+      if(currentBill[code]) { currentBill[code].qty += change; if(currentBill[code].qty <= 0) { delete currentBill[code]; billOrderKeys = billOrderKeys.filter(k => k.toString().trim() !== code.toString().trim()); } } 
+      document.getElementById('countBadge').innerText = billOrderKeys.length; renderList(); calculateInvoiceSheet(); scrollBillToBottom();
+    }
+
+    function directQty(code, val) {
+      if(currentMode === 'entry') return; let parseFloatVal = parseFloat(val);
+      if(isNaN(parseFloatVal) || parseFloatVal <= 0) { if(currentBill[code]) { delete currentBill[code]; billOrderKeys = billOrderKeys.filter(k => k.toString().trim() !== code.toString().trim()); } } 
+      else if(currentBill[code]) { currentBill[code].qty = parseFloatVal; }
+      document.getElementById('countBadge').innerText = billOrderKeys.length; renderList(); calculateInvoiceSheet();
+    }
     function loadBillForEditing(billId) {
       let billRecord = savedLocalBills.find(b => b.billId === billId); if(!billRecord) return alert("Saved data nahi mila!");
       currentBill = JSON.parse(JSON.stringify(billRecord.billData)); billOrderKeys = [...billRecord.billOrderKeys];
