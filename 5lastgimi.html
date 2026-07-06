@@ -142,7 +142,10 @@
       <!-- 📦 COMPLETE ULTRA-COMPACT INPUT PANEL (ZERO VERTICAL GAP) -->
       <div class="add-item-panel" id="quickAddSection" style="padding: 4px 10px 2px 10px; background: #f9f9f9; border-bottom: 1px solid #ddd; margin-bottom: 0;">
         <div class="add-item-grid" style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-bottom: 4px;">
-          <input type="text" id="pCode" placeholder="Code / Barcode 🎯" style="flex:1; min-width: 90px; padding: 6px;">
+         <!-- <input type="text" id="pCode" placeholder="Code / Barcode 🎯" style="flex:1; min-width: 90px; padding: 6px;">-->
+          <input type="text" id="pCode" placeholder="Code 🎯" style="flex:1; min-width: 70px; padding: 6px;">
+<button onclick="generateRandomProductCode()" type="button" style="background:#9b59b6; color:white; padding:6px 8px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px; margin-right:2px;">🎲 Auto</button>
+
           <button id="btnCamToggle" onclick="toggleCameraUI()" style="background:#3498db; color:white; padding:6px 8px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;">📷 Cam</button>
           <input type="text" id="pNameEn" placeholder="Item Name / Search 🔎" style="flex:2; min-width: 110px; padding: 6px;" oninput="renderList()">
           <input type="text" id="pNameHi" placeholder="नाम (Hi)" style="flex:1; min-width: 55px; padding: 6px;">
@@ -199,6 +202,7 @@
     let billOrderKeys = []; let savedLocalBills = []; let currentMode = 'entry'; let isOnlineMode = false; let editingBillId = null; 
     let html5QrCode = null; let isScannerRunning = false; let lastScannedCode = ""; let isProcessingScan = false;
     let printerDevice = null;
+    let editingOldCodeIndicator = null; 
     
     window.onload = function() {
       const today = new Date();
@@ -402,7 +406,7 @@
       }
       renderList();
     }
-
+/*
     async function addNewMasterItem() {
       let code = document.getElementById('pCode').value.toString().trim();
       let nameEn = document.getElementById('pNameEn').value.trim();
@@ -436,6 +440,103 @@
       document.getElementById('pCategory').value = ''; document.getElementById('pRetail').value = ''; document.getElementById('pWholesale').value = '';
       renderList(); calculateInvoiceSheet();
     }
+    */
+    // Global memory register script ke sabse upar variables ke sath jod dein
+
+
+async function addNewMasterItem() {
+  let code = document.getElementById('pCode').value.toString().trim();
+  let nameEn = document.getElementById('pNameEn').value.trim();
+  let nameHi = document.getElementById('pNameHi').value.trim();
+  let cat = document.getElementById('pCategory').value.trim() || 'General';
+  let unit = document.getElementById('pUnit').value.trim() || 'Kg';
+  let retail = parseFloat(document.getElementById('pRetail').value || 0);
+  let wholesale = parseFloat(document.getElementById('pWholesale').value || 0);
+
+  if(!code || !nameEn) return alert("Code aur Item Name zaroori hai! Aap '🎲 Auto' button ka use kar sakte hain.");
+  let newItem = { Code: code, ItemNameEn: nameEn, ItemNameHi: nameHi, Category: cat, Unit: unit, Retail: retail, Wholesale: wholesale };
+
+  if(isOnlineMode) {
+    // Online operations me agar code badla hai toh pehle purana code delete hoga back-end se
+    if(editingOldCodeIndicator && editingOldCodeIndicator !== code) {
+      await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'deleteItem', tab: activeDukan, code: editingOldCodeIndicator }) });
+    }
+    let res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'addOrUpdateItem', tab: activeDukan, item: newItem }) }).then(r => r.json());
+    if(res.success) fetchOnlineItems();
+  } else {
+    // Local Storage Layer duplicate check override shield
+    let idx = -1;
+    if (editingOldCodeIndicator) {
+      // Agar hum EDIT kar rahe hain, toh purane code ke index par hi naya data over-write karenge
+      idx = localItems.findIndex(i => i.Code.toString().trim() === editingOldCodeIndicator.toString().trim());
+    } else {
+      idx = localItems.findIndex(i => i.Code.toString().trim() === code.toString().trim());
+    }
+
+    if(idx > -1) { 
+      localItems[idx] = newItem; 
+    } else { 
+      localItems.push(newItem); 
+    }
+    saveLocalItemsToStorage();
+  }
+
+  // Active bill data handling inside cart sync rows
+  let selectedPricingMode = document.getElementById('billingPriceTier') ? document.getElementById('billingPriceTier').value : 'retail';
+  let targetRate = (selectedPricingMode === 'wholesale') ? wholesale : retail;
+  
+  // Purane code ko cart order map se saaf karke naye code par transfer karein
+  if (editingOldCodeIndicator && editingOldCodeIndicator !== code) {
+    if (currentBill[editingOldCodeIndicator]) {
+      currentBill[code] = { ...newItem, qty: currentBill[editingOldCodeIndicator].qty, rate: targetRate };
+      delete currentBill[editingOldCodeIndicator];
+      billOrderKeys = billOrderKeys.map(k => k === editingOldCodeIndicator ? code : k);
+    }
+  } else if(currentBill[code]) { 
+    currentBill[code] = { ...newItem, qty: currentBill[code].qty, rate: targetRate }; 
+  }
+
+  if (currentMode === 'bill' && !editingOldCodeIndicator) {
+    setTimeout(() => { addItemToBillDirect(code); }, 100);
+  }
+
+  // Inputs aur tracker registers ko reset karein
+  editingOldCodeIndicator = null; 
+  document.getElementById('pCode').value = ''; document.getElementById('pNameEn').value = ''; document.getElementById('pNameHi').value = '';
+  document.getElementById('pCategory').value = ''; document.getElementById('pRetail').value = ''; document.getElementById('pWholesale').value = '';
+  renderList(); calculateInvoiceSheet();
+}
+
+function editMasterItem(code, origin) {
+  let item = origin === 'online' ? sheetItems.find(i => i.Code == code) : localItems.find(i => i.Code == code);
+  if(item) {
+    // 🔥 UNQIUE SAFE IDENTITY REGISTER KEY LOCK
+    editingOldCodeIndicator = item.Code.toString().trim(); 
+    
+    document.getElementById('pCode').value = item.Code; 
+    document.getElementById('pNameEn').value = item.ItemNameEn;
+    document.getElementById('pNameHi').value = item.ItemNameHi; 
+    document.getElementById('pCategory').value = item.Category || 'General';
+    document.getElementById('pUnit').value = item.Unit; 
+    document.getElementById('pRetail').value = item.Retail; 
+    document.getElementById('pWholesale').value = item.Wholesale;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+function generateRandomProductCode() {
+  let activeItems = isOnlineMode ? sheetItems : localItems;
+  let uniqueCode = "";
+  let isDuplicate = true;
+
+  // Jab tak ekdam unique code na mile, tab tak random number check karte raho
+  while (isDuplicate) {
+    uniqueCode = Math.floor(100 + Math.random() * 900).toString(); // 3-Digit Random Code (100 se 999)
+    isDuplicate = activeItems.some(item => item.Code.toString().trim() === uniqueCode);
+  }
+
+  document.getElementById('pCode').value = uniqueCode;
+}
 
     function deleteMasterItem(code, origin) {
       if(!confirm("Master database se delete karein?")) return;
@@ -447,7 +548,7 @@
       if(currentBill[code]) { delete currentBill[code]; billOrderKeys = billOrderKeys.filter(k => k != code); }
       calculateInvoiceSheet();
     }
-
+/*
     function editMasterItem(code, origin) {
       let item = origin === 'online' ? sheetItems.find(i => i.Code == code) : localItems.find(i => i.Code == code);
       if(item) {
@@ -457,7 +558,7 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
-
+*/
     function renderList() {
       const container = document.getElementById('masterList'); container.innerHTML = '';
       if(currentMode === 'entry' && savedLocalBills.length > 0) { renderSavedBillsLogBucket(container); }
