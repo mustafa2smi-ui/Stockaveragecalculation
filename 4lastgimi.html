@@ -138,7 +138,7 @@
           <button class="scan-action-btn btn-resume-cam" id="btnResumeCamUI" onclick="resumeHardwareScanning()" style="display:none;">🔄 Scan Next Item</button>
         </div>
       </div>
-
+<!--
       <div class="add-item-panel" id="quickAddSection">
         <div class="add-item-grid">
           <input type="text" id="pCode" placeholder="Code / Barcode 🎯" style="flex:1; min-width: 100px;">
@@ -161,7 +161,40 @@
           <option value="wholesale">📦 Wholesale Pricing Rates</option>
         </select>
       </div>
-    </div>
+      -->
+            <!-- 📦 HIGHLY COMPRESSED INPUT PANEL -->
+      <div class="add-item-panel" id="quickAddSection" style="padding: 6px 10px; background: #f9f9f9; border-bottom: 1px solid #ddd;">
+        <div class="add-item-grid" style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-bottom: 6px;">
+          <input type="text" id="pCode" placeholder="Code / Barcode 🎯" style="flex:1; min-width: 90px; padding: 6px;">
+          <button id="btnCamToggle" onclick="toggleCameraUI()" style="background:#3498db; color:white; padding:6px 8px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;">📷 Cam</button>
+          <input type="text" id="pNameEn" placeholder="Item Name / Search 🔎" style="flex:2; min-width: 110px; padding: 6px;" oninput="renderList()">
+          <input type="text" id="pNameHi" placeholder="नाम (Hi)" style="flex:1; min-width: 55px; padding: 6px;">
+          <input type="text" id="pCategory" placeholder="Category" style="flex:1; min-width: 65px; padding: 6px;">
+          <input type="text" id="pUnit" placeholder="Unit" style="width:35px; padding: 6px;" value="Kg">
+          <input type="number" id="pRetail" placeholder="Retail" style="width:45px; padding: 6px;">
+          <input type="number" id="pWholesale" placeholder="W'sale" style="width:45px; padding: 6px;">
+        </div>
+
+        <!-- 🔄 SIDE-BY-SIDE BUTTONS & PRICING DROPDOWN PANEL (ZERO GAP) -->
+        <div style="display: flex; gap: 8px; align-items: center; justify-content: space-between; background: #fff; border: 1px solid #eee; padding: 4px; border-radius: 4px; margin: 2px 0;">
+          <!-- Left: Stacked Buttons -->
+          <div style="display: flex; flex-direction: column; gap: 3px; min-width: 80px;">
+            <button onclick="addNewMasterItem()" style="background:var(--wa-green); color:white; padding: 4px 10px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px; width: 100%;">💾 Save</button>
+            <button class="bg-clear" onclick="clearBill()" style="border: none; color: white; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size:12px; width: 100%;">🧹 Clear</button>
+          </div>
+          
+          <!-- Right: Compact Pricing Mode Selector -->
+          <div id="pricingModeBar" style="display: none; flex: 1; flex-direction: column; align-items: flex-end; gap: 1px;">
+            <span style="font-weight: bold; font-size: 11px; color: #666; margin-right: 4px;">Select Rates Applied:</span>
+            <select id="billingPriceTier" class="pricing-select" onchange="renderList()" style="padding: 5px; font-weight: bold; border-radius: 4px; border: 1px solid var(--wa-green); color: var(--wa-green); font-size: 12px; width: 95%; max-width: 220px; outline: none;">
+              <option value="retail">🛒 Retail Pricing Rates</option>
+              <option value="wholesale" selected>📦 Wholesale Pricing Rates</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+    <!--</div>-->
 
     <div class="workspace-split">
       <div class="scrollable-items-pane" id="masterList"></div>
