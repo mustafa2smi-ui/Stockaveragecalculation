@@ -576,7 +576,39 @@ function addItemToBillDirect(code) {
       let res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: "saveBill", tab: activeDukan, date: date, customer: customer || "Cash Counter", items: itemsArray, total: total }) }).then(r => r.json());
       if(res.success) { alert("Synced! Invoice No: " + res.invoiceNo); clearBill(); }
     }
+function shareWhatsApp() {
+      let txt = `*${activeDukan} Receipt*\nCustomer: ${document.getElementById('custName').value || 'Cash'}\n-------------------------\n`;
+      let total = 0;
+      let serialNo = 1;
+      
+      billOrderKeys.forEach(code => {
+        let i = currentBill[code];
+        if(i) {
+          let sub = i.qty * i.rate; total += sub;
+          txt += `${serialNo}. ${i.ItemNameEn} - ${i.qty} ${i.Unit} x ₹${i.rate} = ₹${sub}\n`;
+          serialNo++;
+        }
+      });
+      txt += `-------------------------\n*Total Bill Amount: ₹${total.toFixed(2)}*`;
+      window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(txt)}`);
+    }
 
+    function exportCSV() {
+      let rows = [["S.No.", "Item Description", "Quantity Ordered", "Final Rate Applied", "Subtotal Cost"]];
+      let serialNo = 1;
+      billOrderKeys.forEach(code => {
+        let i = currentBill[code];
+        if(i) {
+          rows.push([serialNo, i.ItemNameEn, i.qty, i.rate, (i.qty * i.rate).toFixed(2)]);
+          serialNo++;
+        }
+      });
+      let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
+      let link = document.createElement("a");
+      link.setAttribute("href", encodeURI(csvContent));
+      link.setAttribute("download", `${activeDukan}_Bill_${Date.now()}.csv`);
+      document.body.appendChild(link); link.click();
+    }
     async function autoTranslateText(text) {
         if (/^[a-zA-Z0-9\s]+$/.test(text)) return text;
         const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURI(text)}`;
