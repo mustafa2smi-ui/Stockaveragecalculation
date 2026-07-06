@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bill Khata Management</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 10px; background-color: #f4f6f9; color: #333; }
+        .container { max-width: 600px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin: auto; }
+        h2, h3 { text-align: center; color: #0056b3; margin-top: 5px; }
+        .form-group { margin-bottom: 12px; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+        .row { display: flex; gap: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        table, th, td { border: 1px solid #ddd; text-align: left; }
+        th, td { padding: 8px; font-size: 14px; }
+        button { background-color: #28a745; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 10px; }
+        button.add-item { background-color: #007bff; width: auto; padding: 5px 10px; font-size: 14px; margin-bottom: 5px; }
+        button.remove-btn { background-color: #dc3545; padding: 3px 8px; font-size: 12px; }
+        .preview-img { max-width: 100%; max-height: 150px; display: none; margin-top: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Bill Khata Details</h2>
+    <form id="khataForm">
+        
+        <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="billDate" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Party Name</label>
+            <input type="text" id="partyName" placeholder="Enter Party Name" required>
+        </div>
+
+        <div class="row">
+            <div class="form-group" style="flex: 1;">
+                <label>Bill Amount</label>
+                <input type="number" id="billAmount" placeholder="0.00" oninput="calculateBalance()" required>
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label>Type</label>
+                <select id="paymentType">
+                    <option value="Credit">Credit (Udhaar)</option>
+                    <option value="Cash">Cash (Nagad)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group" style="flex: 1;">
+                <label>Deposit (Jama)</label>
+                <input type="number" id="deposit" placeholder="0.00" oninput="calculateBalance()" value="0">
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label>Balance (Baqaya)</label>
+                <input type="number" id="balance" placeholder="0.00" readonly>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Bill Photo (Camera/Upload)</label>
+            <input type="file" id="billImage" accept="image/*" capture="environment" onchange="previewFile()">
+            <img src="" id="imagePreview" class="preview-img">
+        </div>
+
+        <hr>
+
+        <h3>Bill Items (Entry)</h3>
+        <button type="button" class="add-item" onclick="addItemRow()">+ Add Item Row</button>
+        
+        <table id="itemsTable">
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th style="width: 70px;">Qty</th>
+                    <th style="width: 90px;">Rate</th>
+                    <th style="width: 50px;">Act</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+
+        <button type="submit" id="submitBtn">Save Record to Cloud</button>
+    </form>
+</div>
+
+<script>
+    // Google Apps Script Deploy Web App URL Yahan Dalein
+    const SCRIPT_URL = "YOUR_APPS_SCRIPT_WEB_APP_URL"; 
+    let masterItems = [];
+
+    // Aaj ki date auto-set karein
+    document.getElementById('billDate').valueAsDate = new Date();
+
+    // Page load hote hi Master Item List fetch karein dropdown ke liye
+    window.onload = function() {
+        addItemRow(); // Default ek row add karein
+        fetch(SCRIPT_URL)
+        .then(res => res.json())
+        .then(data => {
+            masterItems = data;
+            updateDropdowns();
+        }).catch(err => console.log("Master items fetch failed or empty"));
+    };
+
+    function calculateBalance() {
+        let amt = parseFloat(document.getElementById('billAmount').value) || 0;
+        let dep = parseFloat(document.getElementById('deposit').value) || 0;
+        document.getElementById('balance').setValue = (amt - dep);
+        document.getElementById('balance').value = amt - dep;
+    }
+
+    function previewFile() {
+        const preview = document.getElementById('imagePreview');
+        const file = document.getElementById('billImage').files[0];
+        const reader = new FileReader();
+        reader.addEventListener("load", function () {
+            preview.src = reader.result;
+            preview.style.display = "block";
+        }, false);
+        if (file) { reader.readAsDataURL(file); }
+    }
+
+    function addItemRow() {
+        const tbody = document.querySelector("#itemsTable tbody");
+        const row = document.createElement("tr");
+
+        let options = masterItems.map(item => `<option value="${item}">${item}</option>`).join('');
+        if(options === "") { options = `<option value="">Type Item Name...</option>`; }
+
+        row.innerHTML = `
+            <td><input type="text" list="masterItemsList" class="row-item-name" placeholder="Item Name" required></td>
+            <td><input type="number" class="row-qty" placeholder="0" required></td>
+            <td><input type="number" class="row-rate" placeholder="0" required></td>
+            <td><button type="button" class="remove-btn" onclick="this.parentElement.parentElement.remove()">X</button></td>
+        `;
+        tbody.appendChild(row);
+    }
+
+    // Datalist backup to suggest items
+    let datalist = document.createElement('datalist');
+    datalist.id = 'masterItemsList';
+    document.body.appendChild(datalist);
+
+    function updateDropdowns() {
+        datalist.innerHTML = masterItems.map(item => `<option value="${item}">`).join('');
+    }
+
+    // Submit Data to Google Sheets & Drive
+    document.getElementById('khataForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        let btn = document.getElementById('submitBtn');
+        btn.innerText = "Saving Data... Please Wait...";
+        btn.disabled = true;
+
+        let fileInput = document.getElementById('billImage').files[0];
+        
+        if (fileInput) {
+            let reader = new FileReader();
+            reader.readAsDataURL(fileInput);
+            reader.onload = function () {
+                sendData(reader.result, fileInput.name);
+            };
+        } else {
+            sendData("", "");
+        }
+    });
+
+    function sendData(base64Image, fileName) {
+        let itemsData = [];
+        let rows = document.querySelectorAll("#itemsTable tbody tr");
+        
+        rows.forEach(row => {
+            itemsData.push({
+                itemName: row.querySelector(".row-item-name").value,
+                quantity: row.querySelector(".row-qty").value,
+                rate: row.querySelector(".row-rate").value
+            });
+        });
+
+        let payload = {
+            date: document.getElementById('billDate').value,
+            partyName: document.getElementById('partyName').value,
+            billAmount: document.getElementById('billAmount').value,
+            paymentType: document.getElementById('paymentType').value,
+            deposit: document.getElementById('deposit').value,
+            balance: document.getElementById('balance').value,
+            imageByte: base64Image,
+            imageName: fileName,
+            items: itemsData
+        };
+
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(response => {
+            if(response.status === "SUCCESS") {
+                alert("Data Successfully Saved to Google Sheet & Drive!");
+                document.getElementById('khataForm').reset();
+                document.getElementById('imagePreview').style.display = "none";
+                document.querySelector("#itemsTable tbody").innerHTML = "";
+                addItemRow();
+                document.getElementById('billDate').valueAsDate = new Date();
+            } else {
+                alert("Error: " + response.message);
+            }
+        })
+        .catch(err => alert("Error saving data: " + err))
+        .finally(() => {
+            let btn = document.getElementById('submitBtn');
+            btn.innerText = "Save Record to Cloud";
+            btn.disabled = false;
+        });
+    }
+</script>
+
+</body>
+</html>
