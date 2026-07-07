@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GaadiBooking Premium - Multi Vehicle Network</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans pb-10">
+
+    <header class="bg-blue-600 text-white px-4 py-3 sticky top-0 z-50 shadow-md flex justify-between items-center">
+        <h1 class="text-xl font-bold tracking-wide"><i class="fa-solid fa-truck-pickup mr-2"></i>GaadiBooking</h1>
+        <button onclick="showPage('login-page')" class="bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold px-3 py-1.5 rounded-lg text-sm shadow transition-all">
+            <i class="fa-solid fa-user-gear mr-1"></i> Register / Dashboard
+        </button>
+    </header>
+
+    <section id="home-page" class="page-section">
+        <div class="bg-gradient-to-b from-blue-600 to-blue-500 text-white px-4 pt-2 pb-6 rounded-b-2xl shadow-inner">
+            <p class="text-xs text-blue-100 mb-2 text-center">Apne Area ki Vehicles aur Drivers ki jankari yahan dekhein</p>
+            <div class="relative max-w-md mx-auto">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-gray-400"></i>
+                <input type="text" id="search-input" placeholder="Search Vehicle, Service, Driver or Landmark..." class="w-full bg-white text-gray-900 pl-10 pr-4 py-3 rounded-xl shadow focus:outline-none text-sm">
+            </div>
+        </div>
+
+        <div class="px-4 my-4">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-map-location-dot text-red-500 mr-1"></i> Active Service Hubs</p>
+            <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+                <button class="bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm">All Areas</button>
+                <button class="bg-white text-gray-700 border px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm">Mailawada</button>
+                <button class="bg-white text-gray-700 border px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm">Bus Stand</button>
+                <button class="bg-white text-gray-700 border px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm">Geedam</button>
+            </div>
+        </div>
+
+        <div class="px-4 grid grid-cols-1 md:grid-cols-2 gap-4" id="homepage-listings">
+            </div>
+    </section>
+
+    <section id="login-page" class="page-section hidden max-w-md mx-auto px-4 mt-6">
+        <div class="bg-white p-6 rounded-2xl shadow-lg border">
+            <h2 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-id-card text-blue-600 mr-2"></i>Step 1: Master Profile Info</h2>
+            <form onsubmit="handleMasterRegister(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Your Name (Malik Ka Naam)</label>
+                    <input type="text" id="master-owner-name" required placeholder="Enter Full Name" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Contact Number (WhatsApp)</label>
+                    <input type="tel" id="master-contact" required placeholder="Enter 10 Digit Mobile No." class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Landmark Hub</label>
+                        <input type="text" id="master-landmark" value="Mailawada" required class="w-full border rounded-xl px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Pincode</label>
+                        <input type="number" value="494441" required class="w-full border rounded-xl px-3 py-2 text-sm">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-xl text-sm shadow">Verify & Go to Workspace</button>
+            </form>
+        </div>
+    </section>
+
+    <section id="choice-page" class="page-section hidden max-w-md mx-auto px-4 mt-6">
+        <div class="bg-white p-5 rounded-2xl shadow border text-center space-y-4">
+            <h3 class="font-bold text-gray-800">Welcome to Fleet Management</h3>
+            <p class="text-xs text-gray-500">Ek hi account se aap apni multiple gaadiyan aur drivers manage kar sakte hain.</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="showPage('entry-page')" class="p-4 border-2 border-blue-500 rounded-xl hover:bg-blue-50 font-bold text-xs"><i class="fa-solid fa-plus text-lg block mb-1 text-blue-600"></i> Add/Edit Gaadi</button>
+                <button onclick="openDashboard()" class="p-4 border-2 border-emerald-500 rounded-xl hover:bg-emerald-50 font-bold text-xs"><i class="fa-solid fa-gauge-high text-lg block mb-1 text-emerald-600"></i> Open Dashboard</button>
+            </div>
+            <button onclick="showPage('home-page')" class="text-xs text-gray-400 block w-full pt-2">Back to Homepage</button>
+        </div>
+    </section>
+
+    <section id="entry-page" class="page-section hidden max-w-md mx-auto px-4 mt-4">
+        <div class="bg-white p-5 rounded-2xl shadow-lg border space-y-4">
+            <div class="flex justify-between items-center border-b pb-2">
+                <h2 class="font-bold text-gray-800"><i class="fa-solid fa-circle-plus text-blue-600 mr-1"></i> Add New Vehicle Detail</h2>
+                <button onclick="showPage('choice-page')" class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Back</button>
+            </div>
+
+            <form onsubmit="saveNewVehicle(event)" class="space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-0.5">Vehicle Name/Model</label>
+                        <input type="text" id="v-name" required placeholder="e.g. Bolero Power+" class="w-full border rounded-lg px-2.5 py-1.5 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-0.5">Service Type</label>
+                        <select id="v-service-select" onchange="toggleCustomService(this.value)" class="w-full border rounded-lg px-2.5 py-1.5 text-sm bg-white">
+                            <option>Wedding Booking</option>
+                            <option>Taxi Booking</option>
+                            <option>Goods Transport</option>
+                            <option value="custom">+ Add Custom Service</option>
+                        </select>
+                        <input type="text" id="v-service-custom" placeholder="Type Custom Service" class="w-full border rounded-lg px-2.5 py-1.5 text-sm mt-1 hidden">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Vehicle Photo</label>
+                    <div class="flex gap-2">
+                        <button type="button" class="flex-1 bg-gray-100 border border-dashed border-gray-300 py-3 rounded-lg text-xs text-gray-600 font-semibold text-center"><i class="fa-solid fa-camera mr-1 text-blue-500"></i> Live Camera Capture</button>
+                        <button type="button" class="flex-1 bg-gray-100 border border-dashed border-gray-300 py-3 rounded-lg text-xs text-gray-600 font-semibold text-center"><i class="fa-solid fa-image mr-1 text-emerald-500"></i> Gallery Upload</button>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 p-3 rounded-xl border border-gray-200">
+                    <div class="flex justify-between items-center mb-1.5">
+                        <p class="text-xs font-bold text-gray-700"><i class="fa-solid fa-calculator text-blue-500 mr-1"></i> Fare Route Management</p>
+                        <button type="button" onclick="addNewRouteRow()" class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm">+ Add More Area/Rates</button>
+                    </div>
+                    <div id="route-rows-container" class="space-y-1.5">
+                        <div class="grid grid-cols-3 gap-1 route-data-row">
+                            <input type="text" placeholder="Mailawada To Dantewada" required class="border text-xs rounded p-1 col-span-2 r-route-title">
+                            <input type="text" placeholder="₹2,000" required class="border text-xs rounded p-1 text-center r-route-price">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50/50 p-3 rounded-xl border border-amber-200 space-y-2">
+                    <p class="text-xs font-bold text-amber-900"><i class="fa-solid fa-steering-wheel mr-1 text-amber-600"></i> Assign Driver Info (Confidential)</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-[10px] font-medium text-gray-600">Driver Name</label>
+                            <input type="text" id="d-name" value="Ramu Yadav" class="w-full border bg-white rounded p-1 text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-medium text-gray-600">Driver Phone (Hidden from Public)</label>
+                            <input type="tel" id="d-phone" value="98271X X X X X" class="w-full border bg-white rounded p-1 text-xs">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 rounded-xl text-xs uppercase shadow"><i class="fa-solid fa-floppy-disk mr-1"></i> Save Vehicle Data into Fleet</button>
+            </form>
+        </div>
+    </section>
+
+    <section id="dashboard-page" class="page-section hidden max-w-md mx-auto px-4 mt-4">
+        <div class="bg-slate-900 text-white p-5 rounded-2xl shadow-xl space-y-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-lg font-bold" id="dash-owner-name-display">Malik Workspace</h2>
+                    <p class="text-xs text-gray-400">Manage your connected multi-vehicles</p>
+                </div>
+                <button onclick="showPage('choice-page')" class="bg-white/10 px-2.5 py-1 rounded text-xs">Back</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 bg-slate-800 p-3 rounded-xl">
+                <div class="text-center">
+                    <p class="text-xl font-bold text-yellow-400" id="dash-fleet-count">0</p>
+                    <p class="text-[10px] text-gray-400">Total Cars Added</p>
+                </div>
+                <div class="text-center border-l border-gray-700">
+                    <p class="text-xl font-bold text-emerald-400" id="dash-fleet-clicks">0</p>
+                    <p class="text-[10px] text-gray-400">Total Public Clicks</p>
+                </div>
+            </div>
+
+            <div class="space-y-2" id="dash-fleet-list">
+                </div>
+
+            <button onclick="shareRandomProfile()" class="w-full bg-emerald-500 font-bold py-2.5 rounded-xl text-xs text-center block shadow-lg"><i class="fa-solid fa-share-nodes mr-1 animate-bounce"></i> Smart Share Random Single Fare Vehicle</button>
+        </div>
+    </section>
+
+    <script>
+        // Master Global Storage Structure
+        let masterProfile = JSON.parse(localStorage.getItem('master_profile')) || null;
+        let fleetStorage = JSON.parse(localStorage.getItem('fleet_data')) || [
+            {
+                id: 101,
+                vName: "Scorpio Classic S11",
+                service: "Wedding Booking",
+                driverName: "Karan Nag",
+                driverPhone: "94060-XXXXX",
+                routes: [
+                    { title: "Mailawada to Dantewada", price: "₹2,500" },
+                    { title: "Mailawada to Jagdalpur", price: "₹6,800" }
+                ],
+                clicks: 18
+            }
+        ];
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        function toggleCustomService(val) {
+            document.getElementById('v-service-custom').classList.toggle('hidden', val !== 'custom');
+        }
+
+        function addNewRouteRow() {
+            const rowHtml = `
+                <div class="grid grid-cols-3 gap-1 route-data-row">
+                    <input type="text" placeholder="Another Area/Destination" required class="border text-xs rounded p-1 col-span-2 r-route-title">
+                    <input type="text" placeholder="₹ Rate" required class="border text-xs rounded p-1 text-center r-route-price">
+                </div>`;
+            document.getElementById('route-rows-container').insertAdjacentHTML('beforeend', rowHtml);
+        }
+
+        function handleMasterRegister(event) {
+            event.preventDefault();
+            masterProfile = {
+                name: document.getElementById('master-owner-name').value,
+                contact: document.getElementById('master-contact').value,
+                landmark: document.getElementById('master-landmark').value
+            };
+            localStorage.setItem('master_profile', JSON.stringify(masterProfile));
+            showPage('choice-page');
+        }
+
+        function saveNewVehicle(event) {
+            event.preventDefault();
+            if(!masterProfile) return alert("Pehle Step 1 complete karein!");
+
+            let serviceType = document.getElementById('v-service-select').value;
+            if(serviceType === 'custom') {
+                serviceType = document.getElementById('v-service-custom').value;
+            }
+
+            // Extract all dynamic route rates filled by user
+            let extractedRoutes = [];
+            document.querySelectorAll('.route-data-row').forEach(row => {
+                let rTitle = row.querySelector('.r-route-title').value;
+                let rPrice = row.querySelector('.r-route-price').value;
+                if(rTitle && rPrice) extractedRoutes.push({ title: rTitle, price: rPrice });
+            });
+
+            let newVehicle = {
+                id: Date.now(),
+                vName: document.getElementById('v-name').value,
+                service: serviceType,
+                driverName: document.getElementById('d-name').value,
+                driverPhone: document.getElementById('d-phone').value,
+                routes: extractedRoutes,
+                clicks: 0
+            };
+
+            fleetStorage.push(newVehicle);
+            localStorage.setItem('fleet_data', JSON.stringify(fleetStorage));
+            alert("Vehicle Data Saved Live inside your Profile Fleet!");
+            openDashboard();
+        }
+
+        function openDashboard() {
+            if(!masterProfile) { showPage('login-page'); return; }
+            document.getElementById('dash-owner-name-display').innerText = masterProfile.name + " (Fleet)";
+            document.getElementById('dash-fleet-count').innerText = fleetStorage.length;
+            
+            let totalClicks = fleetStorage.reduce((acc, current) => acc + (current.clicks || 0), 0);
+            document.getElementById('dash-fleet-clicks').innerText = totalClicks;
+
+            const listContainer = document.getElementById('dash-fleet-list');
+            listContainer.innerHTML = '';
+            
+            fleetStorage.forEach(f => {
+                listContainer.innerHTML += `
+                    <div class="bg-slate-800 p-3 rounded-xl flex justify-between items-center border border-slate-700">
+                        <div>
+                            <p class="font-bold text-sm text-yellow-400">${f.vName}</p>
+                            <p class="text-[11px] text-gray-400">${f.service} • 📍 ${f.routes.length} Saved Routes</p>
+                        </div>
+                        <span class="text-xs text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded font-mono"><i class="fa-solid fa-chart-simple mr-1"></i>${f.clicks} Clicks</span>
+                    </div>`;
+            });
+            showPage('dashboard-page');
+        }
+
+        function renderPublicHome() {
+            const container = document.getElementById('homepage-listings');
+            container.innerHTML = '';
+
+            let defaultOwner = masterProfile ? masterProfile.name : "Suresh Chandrakar";
+            let defaultContact = masterProfile ? masterProfile.contact : "919876543210";
+            let defaultHub = masterProfile ? masterProfile.landmark : "Mailawada";
+
+            fleetStorage.forEach(f => {
+                // Select Randomly One single fare from array list to show on UI card
+                let randomFareObject = f.routes[Math.floor(Math.random() * f.routes.length)] || { title: "Local Booking", price: "Contact Owner" };
+
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="bg-blue-50 text-blue-600 font-extrabold px-2 py-0.5 rounded text-[10px] tracking-wide uppercase">${f.service}</span>
+                            <span class="text-xs text-gray-500"><i class="fa-solid fa-location-dot text-red-500 mr-1"></i>${defaultHub}</span>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <div class="w-20 h-16 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center text-gray-400"><i class="fa-solid fa-car text-2xl"></i></div>
+                            <div>
+                                <h3 class="font-black text-gray-900 text-sm leading-tight">${f.vName}</h3>
+                                <p class="text-xs text-gray-500 mt-0.5">Owner: ${defaultOwner}</p>
+                                <div class="bg-amber-50 text-amber-800 text-[10px] font-bold px-1.5 py-0.5 rounded mt-1 inline-block"><i class="fa-solid fa-user-shield mr-1"></i>Active Driver: ${f.driverName}</div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gray-50 rounded-xl p-2.5 border border-dashed border-gray-200 flex justify-between items-center text-xs">
+                            <span class="text-gray-600 font-medium"><i class="fa-solid fa-route text-blue-500 mr-1"></i>${randomFareObject.title}</span>
+                            <span class="font-extrabold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">${randomFareObject.price}</span>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-1 border-t border-gray-50">
+                            <span class="text-[10px] text-gray-400 font-medium"><i class="fa-solid fa-fire text-orange-500 mr-0.5"></i> ${f.clicks || 0} Inquiries Generated</span>
+                            <div class="flex gap-1">
+                                <a href="tel:${defaultContact}" onclick="incrementClick(${f.id})" class="bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold"><i class="fa-solid fa-phone"></i></a>
+                                <a href="https://wa.me/${defaultContact}" onclick="incrementClick(${f.id})" target="_blank" class="bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold"><i class="fa-brands fa-whatsapp"></i> Book Now</a>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        function incrementClick(id) {
+            let idx = fleetStorage.findIndex(f => f.id === id);
+            if(idx !== -1) {
+                fleetStorage[idx].clicks = (fleetStorage[idx].clicks || 0) + 1;
+                localStorage.setItem('fleet_data', JSON.stringify(fleetStorage));
+                renderPublicHome();
+            }
+        }
+
+        function shareRandomProfile() {
+            if(fleetStorage.length === 0) return alert("Pehle data add kijiye.");
+            let defaultOwner = masterProfile ? masterProfile.name : "Suresh Kumar";
+            
+            // Randomly selection
+            let randomCar = fleetStorage[Math.floor(Math.random() * fleetStorage.length)];
+            let randomFare = randomCar.routes[Math.floor(Math.random() * randomCar.routes.length)] || { title: "Local Area", price: "Best Price" };
+
+            let text = `🚗 *GaadiBooking – Fleet Networks*\n\nHi, I am *${defaultOwner}*.\nBook my *${randomCar.vName}* for *${randomCar.service}*.\n\n📍 Random Route Deal:\n👉 ${randomFare.title} -> Rate: *${randomFare.price}*\n⚡ Driver Status: ${randomCar.driverName} Assigned.\n\n🌐 Open profile to check other vehicle rates!`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        // Boot
+        renderPublicHome();
+    </script>
+</body>
+</html>
