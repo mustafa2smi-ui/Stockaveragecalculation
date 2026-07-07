@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GaadiBooking Premium - Advanced Marketplace</title>
+    <title>GaadiBooking Premium - Final Furnished Network</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -225,8 +225,7 @@
                     <input type="text" id="owner-new-offer-text" placeholder="Type new special offer text..." class="flex-1 text-xs p-2 bg-slate-900 rounded border border-gray-700 text-gray-200 outline-none">
                     <button onclick="addNewOfferToCycle()" class="bg-orange-500 text-white font-bold text-[11px] px-3 rounded shadow uppercase">Add</button>
                 </div>
-                <div id="dashboard-offers-list" class="space-y-1 pt-1.5 text-[11px]">
-                    </div>
+                <div id="dashboard-offers-list" class="space-y-1 pt-1.5 text-[11px]"></div>
             </div>
 
             <div class="grid grid-cols-2 gap-2 bg-slate-800 p-3 rounded-xl text-center">
@@ -242,7 +241,7 @@
 
             <div class="space-y-2" id="dash-fleet-list"></div>
 
-            <button onclick="shareOwnerWorkspaceProfile()" class="w-full bg-gradient-to-r from-green-600 to-emerald-600 font-extrabold py-3 rounded-xl text-xs text-center block shadow-lg uppercase"><i class="fa-solid fa-share-nodes mr-1 text-sm"></i> Smart Share My Workspace Profile</button>
+            <button onclick="shareOwnerWorkspaceProfile()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 font-extrabold py-3 rounded-xl text-xs text-center block shadow-lg uppercase"><i class="fa-solid fa-share-nodes mr-1 text-sm"></i> Smart Share My Workspace Profile</button>
         </div>
     </section>
 
@@ -250,16 +249,19 @@
         let currentOwnerPhone = localStorage.getItem('current_owner_phone') || null;
         
         let profilesDirectory = JSON.parse(localStorage.getItem('profiles_directory')) || {
-            "919876543210": { name: "Suresh Chandrakar", state: "Chhattisgarh", district: "Dantewada", landmark: "Mailawada", colony: "Kalar Para", offers: ["Marriage season special flat 500rs discount!", "Aj ki booking par nasta free!"] },
-            "918888888888": { name: "Mahendra Bastar", state: "Chhattisgarh", district: "Dantewada", landmark: "Geedam", colony: "Talla Para", offers: ["Bastar tour guide free today!"] }
+            "919876543210": { name: "Suresh Chandrakar", state: "Chhattisgarh", district: "Dantewada", landmark: "Mailawada", colony: "Kalar Para", offers: ["Marriage flat 500rs off!", "Aj ki booking par nasta free!"] },
+            "918888888888": { name: "Mahendra Bastar", state: "Chhattisgarh", district: "Dantewada", landmark: "Geedam", colony: "Talla Para", offers: ["Bastar tour guide free!"] },
+            "917777777777": { name: "Kishore Kumar", state: "Madhya Pradesh", district: "Bhopal", landmark: "Bairagarh", colony: "Sant Nagar", offers: ["Inaugural 10% discount!"] }
         };
 
         let fleetStorage = JSON.parse(localStorage.getItem('fleet_data')) || [
             { id: 101, ownerPhone: "919876543210", classType: "Vehicle", area: "Kalar Para", vName: "Scorpio Classic S11", service: "Wedding Booking", matrix: "Per Hour", rTitle: "Local Hours Limit", rPrice: "₹800 (Per Hour Rate)", dName: "Karan Nag", clicks: 14 },
             { id: 102, ownerPhone: "919876543210", classType: "Vehicle", area: "Kalar Para", vName: "Tata Tipper Truck", service: "Goods Transport", matrix: "Per KM", rTitle: "Bastar Region Load", rPrice: "₹18 (Per KM Rate)", dName: "Sanjay Jha", clicks: 5 },
-            { id: 103, ownerPhone: "918888888888", classType: "Tour", area: "Talla Para", tName: "Tirth Yatra Group Tour", service: "Tour Package", tVtype: "Traveler Bus", tSeat: "14", tFromTo: "Geedam to Puri Temple", tDays: "5 Days", tCost: "₹18500", dName: "Ramu Gond", clicks: 8 }
+            { id: 103, ownerPhone: "918888888888", classType: "Tour", area: "Talla Para", tName: "Tirth Yatra Group Tour", service: "Tour Package", tVtype: "Traveler Bus", tSeat: "14", tFromTo: "Geedam to Puri Temple", tDays: "5 Days", tCost: "₹18500", dName: "Ramu Gond", clicks: 8 },
+            { id: 104, ownerPhone: "917777777777", classType: "Vehicle", area: "Sant Nagar", vName: "Maruti Ertiga 7-Seater", service: "Taxi Booking", matrix: "Per KM", rTitle: "Bhopal to Indore", rPrice: "₹13 (Per KM Rate)", dName: "Rajesh Sahu", clicks: 3 }
         ];
 
+        // Point 3 Fix: Setup default filters to 'All' globally on boot
         let stateFilter = 'All', districtFilter = 'All', villageFilter = 'All';
 
         function showPage(pageId) {
@@ -279,18 +281,14 @@
                     </button>`;
             } else {
                 node.innerHTML = `
-                    <button onclick="showPage('login-page')" class="bg-yellow-400 text-blue-900 font-bold px-3 py-1.5 rounded-lg text-xs shadow">
+                    <button onclick="showPage('login-page')" class="bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold px-3 py-1.5 rounded-lg text-sm shadow">
                         <i class="fa-solid fa-user-gear mr-1"></i> Register / Login
                     </button>`;
             }
         }
 
-        function toggleDropdownMenu() {
-            document.getElementById('profile-dropdown-menu').classList.toggle('hidden');
-        }
-        function closeDropdown() {
-            document.getElementById('profile-dropdown-menu').classList.add('hidden');
-        }
+        function toggleDropdownMenu() { document.getElementById('profile-dropdown-menu').classList.toggle('hidden'); }
+        function closeDropdown() { document.getElementById('profile-dropdown-menu').classList.add('hidden'); }
 
         function handleSessionLogout() {
             if(confirm("Confirm logging out session?")) {
@@ -301,16 +299,27 @@
             }
         }
 
-        // Point 5 Feature Implementation: Hierarchical Multi-Level Location Matrix Tabs (No Colony level tab)
+        // Point 1 Fix: Intelligent Dependent Hierarchical Tab Rendering Hub
         function renderHierarchicalLocationTabs() {
             let states = ['All'], districts = ['All'], villages = ['All'];
 
+            // Step A: Collect global unique locations
             Object.keys(profilesDirectory).forEach(phone => {
                 let p = profilesDirectory[phone];
                 if(p.state && !states.includes(p.state)) states.push(p.state);
-                if(p.district && !districts.includes(p.district)) districts.push(p.district);
-                if(p.landmark && !villages.includes(p.landmark)) villages.push(p.landmark);
+                
+                // Step B: Dependent condition matching to show districts/villages
+                if(stateFilter === 'All' || p.state === stateFilter) {
+                    if(p.district && !districts.includes(p.district)) districts.push(p.district);
+                }
+                if((stateFilter === 'All' || p.state === stateFilter) && (districtFilter === 'All' || p.district === districtFilter)) {
+                    if(p.landmark && !villages.includes(p.landmark)) villages.push(p.landmark);
+                }
             });
+
+            // Step C: If filter breaks out due to hide system, auto reset down chain values
+            if(!districts.includes(districtFilter)) districtFilter = 'All';
+            if(!villages.includes(villageFilter)) villageFilter = 'All';
 
             const stBox = document.getElementById('tab-state-box');
             stBox.innerHTML = states.map(s => `<button onclick="setStateFilter('${s}', this)" class="st-btn px-3 py-1 text-xs font-semibold rounded-full shadow-sm ${s===stateFilter?'bg-blue-600 text-white':'bg-white text-gray-700 border'}">${s}</button>`).join('');
@@ -323,19 +332,16 @@
         }
 
         function setStateFilter(val, el) {
-            document.querySelectorAll('.st-btn').forEach(b => { b.className = "st-btn px-3 py-1 text-xs font-semibold rounded-full shadow-sm bg-white text-gray-700 border"; });
-            el.className = "st-btn px-3 py-1 text-xs font-semibold rounded-full shadow-sm bg-blue-600 text-white";
-            stateFilter = val; renderPublicHome();
+            stateFilter = val; districtFilter = 'All'; villageFilter = 'All';
+            renderHierarchicalLocationTabs(); renderPublicHome();
         }
         function setDistrictFilter(val, el) {
-            document.querySelectorAll('.ds-btn').forEach(b => { b.className = "ds-btn px-3 py-1 text-xs font-semibold rounded-full shadow-sm bg-white text-gray-700 border"; });
-            el.className = "ds-btn px-3 py-1 text-xs font-semibold rounded-full shadow-sm bg-blue-600 text-white";
-            districtFilter = val; renderPublicHome();
+            districtFilter = val; villageFilter = 'All';
+            renderHierarchicalLocationTabs(); renderPublicHome();
         }
         function setVillageFilter(val, el) {
-            document.querySelectorAll('.vl-btn').forEach(b => { b.className = "vl-btn px-3 py-1 text-xs font-semibold rounded-full shadow-sm bg-white text-gray-700 border"; });
-            el.className = "vl-btn px-3 py-1 text-xs font-semibold rounded-full shadow-sm bg-blue-600 text-white";
-            villageFilter = val; renderPublicHome();
+            villageFilter = val;
+            renderHierarchicalLocationTabs(); renderPublicHome();
         }
 
         function handleMasterRegister(event) {
@@ -354,7 +360,9 @@
                 offers: profilesDirectory[phone]?.offers || []
             };
             localStorage.setItem('profiles_directory', JSON.stringify(profilesDirectory));
-            refreshHeaderAuthNode(); showPage('choice-page');
+            refreshHeaderAuthNode(); 
+            renderHierarchicalLocationTabs();
+            showPage('choice-page');
         }
 
         function openEntryForm(type) {
@@ -362,9 +370,7 @@
             document.getElementById('entry-class-type').value = type;
             document.getElementById('vehicle-fields-box').classList.toggle('hidden', type !== 'Vehicle');
             document.getElementById('tour-fields-box').classList.toggle('hidden', type !== 'Tour');
-            
             let prof = profilesDirectory[currentOwnerPhone];
-            // Point 6 Implementation: Autofill colony locked path text value
             document.getElementById('v-hub-area').value = prof ? prof.colony : "Kalar Para";
             showPage('entry-page');
         }
@@ -391,7 +397,7 @@
                 dataObject.matrix = selM;
                 dataObject.rTitle = document.getElementById('v-route').value;
                 let rawF = document.getElementById('v-fare').value.trim();
-                dataObject.rPrice = rawF ? `₹${rawF.replace('₹','')} (${selM} Rate)` : ''; // Point 3 Feature Text Matrix Appended Here
+                dataObject.rPrice = rawF ? `₹${rawF.replace('₹','')} (${selM} Rate)` : '';
             } else {
                 dataObject.tName = document.getElementById('t-name').value;
                 dataObject.service = "Tour Package";
@@ -408,19 +414,15 @@
             renderHierarchicalLocationTabs(); renderPublicHome(); openDashboard();
         }
 
-        // Point 1 Feature Logic Engine: 2 Max Offers Dual-Cycle Controller Hub
         function addNewOfferToCycle() {
             let owner = profilesDirectory[currentOwnerPhone];
             if(!owner.offers) owner.offers = [];
-            
             if(owner.offers.length >= 2) {
-                alert("Choti Basti Cycle Limit! Aap ek sath sirf 2 offers active rakh sakte hain. Purana offer delete kijiye.");
+                alert("Slots Full! Aap ek sath sirf 2 offers active rakh sakte hain. Naya chalane ke liye purana delete kijiye.");
                 return;
             }
-
             let txt = document.getElementById('owner-new-offer-text').value.trim();
             if(!txt) return alert("Offer text required!");
-            
             owner.offers.push(txt);
             profilesDirectory[currentOwnerPhone] = owner;
             localStorage.setItem('profiles_directory', JSON.stringify(profilesDirectory));
@@ -485,7 +487,7 @@
 
         function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
 
-        // Point 2 & 3 Features Implemented: Coffee Border Cards + Rounded Circle Offer Badges + Permanent Driver Blocks
+        // Point 2 Fix: Support Multi Badge Stacking inside Card Render Block
         function renderPublicHome() {
             const container = document.getElementById('homepage-listings');
             container.innerHTML = '';
@@ -498,7 +500,7 @@
                 let owner = profilesDirectory[ownerPhone];
                 if(!owner) return;
 
-                // Hierarchical Tab filtration checks
+                // Hierarchical filtering dynamic checks
                 if(stateFilter !== 'All' && owner.state !== stateFilter) return;
                 if(districtFilter !== 'All' && owner.district !== districtFilter) return;
                 if(villageFilter !== 'All' && owner.landmark !== villageFilter) return;
@@ -506,15 +508,21 @@
                 renderedOwners.push(ownerPhone);
                 let totalVehicles = fleetStorage.filter(v => v.ownerPhone === ownerPhone).length;
                 
-                // Point 1 Hook: Pull first active slot if available for round shape view integration
-                let roundBadgeHtml = '';
+                // Point 2 Implementation: Dynamic stacked badges render loop for multiple offers
+                let badgesCombinedHtml = '';
                 if(owner.offers && owner.offers.length > 0) {
-                    roundBadgeHtml = `<div class="absolute -top-3 -right-2 bg-orange-500 text-white text-[9px] font-black px-2.5 py-1 rounded-full shadow-md uppercase border border-orange-300 animate-bounce">🔥 Deal: ${owner.offers[0].slice(0,25)}...</div>`;
+                    badgesCombinedHtml = `<div class="absolute -top-3.5 right-2 flex flex-col gap-1 items-end z-10 max-w-[70%]">`;
+                    owner.offers.forEach((off, i) => {
+                        badgesCombinedHtml += `<div class="bg-orange-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow border border-orange-300 truncate w-full text-right">🔥 Deal ${i+1}: ${off}</div>`;
+                    });
+                    badgesCombinedHtml += `</div>`;
                 }
 
+                let activeOfferText = (owner.offers && owner.offers.length > 0) ? `🔥 Active Offers: ${owner.offers.join(' | ')}` : "💡 Direct contact karke rate kam karwayein!";
+
                 container.innerHTML += `
-                    <div class="bg-white rounded-2xl shadow-md p-4 flex flex-col justify-between space-y-3 coffee-border relative mt-2">
-                        ${roundBadgeHtml}
+                    <div class="bg-white rounded-2xl shadow-md p-4 flex flex-col justify-between space-y-3 coffee-border relative mt-4">
+                        ${badgesCombinedHtml}
                         <div>
                             <div class="flex justify-between items-center border-b pb-2 border-dashed border-amber-800/20">
                                 <div>
@@ -531,6 +539,10 @@
                                     <p class="font-bold text-gray-900 text-xs">${f.dName || 'Team Driver Verified'}</p>
                                 </div>
                             </div>
+                            
+                            <div onclick="openOwnerProfileModal('${ownerPhone}')" class="bg-orange-50 hover:bg-orange-100 text-orange-950 p-2 rounded-xl text-[10px] font-bold border border-dashed border-orange-200 text-center cursor-pointer truncate">
+                                ${activeOfferText}
+                            </div>
                         </div>
 
                         <div class="pt-1.5 border-t flex gap-1.5 justify-between items-center">
@@ -542,14 +554,13 @@
             });
 
             if(renderedOwners.length === 0) {
-                container.innerHTML = `<p class="text-center text-gray-400 py-10 text-xs col-span-full">No active providers listed inside this chosen selection criteria.</p>`;
+                container.innerHTML = `<p class="text-center text-gray-400 py-10 text-xs col-span-full">No active providers listed inside this criteria.</p>`;
             }
         }
 
         function openDashboard() {
             if(!currentOwnerPhone) { showPage('login-page'); return; }
             let prof = profilesDirectory[currentOwnerPhone];
-            
             document.getElementById('dash-personalized-welcome').innerText = `Hi, ${prof.name}!`;
             renderDashboardOffersBox();
 
@@ -579,17 +590,15 @@
             }
         }
 
-        // Point 3 Feature: Universal Website Share Engine Link Mapping
         function globalWebsiteShare() {
-            let text = `🚗 *GaadiBooking - Local Transport Fleet Network!* ⚡\n\nHi! Apne village, colony ya para se kisi bhi shadi gaadi, truck, tractor ya tour package ki details aur direct malik ka number check karne ke liye live portal check karein:\n\n🌐 *Open Link:* https://GaadiBooking.com\n\n(Direct contact karke aap booking fare ko kam ya discount kara sakte hain!)`;
+            let text = `🚗 *GaadiBooking - Local Transport Fleet Network!* ⚡\n\nHi! Apne village ya para se kisi bhi shadi gaadi, truck, ya tour package ki details aur direct malik ka number check karein:\n🌐 *Open Link:* https://GaadiBooking.com`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         }
 
-        // Point 4 Feature: Workspace Owner Profile Multi-Fleet Sharing Structure Link Restored
         function shareOwnerWorkspaceProfile() {
             let prof = profilesDirectory[currentOwnerPhone];
             if(!prof) return;
-            let text = `🚗 *GaadiBooking Premium Network Asset Profile* ⚡\n\nHi, I am *${prof.name}* from *${prof.colony}, ${prof.landmark}*.\nBook vehicles or tour packages from my direct fleet at unbeatable local discount rates!\n\n🌐 *Check My Full Rate Card Fleet:* https://GaadiBooking.com/live-vendor-profile`;
+            let text = `🚗 *GaadiBooking Asset Profile*\n\nHi, I am *${prof.name}* from *${prof.colony}, ${prof.landmark}*.\nCheck my full direct fleet rate list at link:\n🌐 https://GaadiBooking.com/live-profile`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         }
 
@@ -602,11 +611,10 @@
             }
         }
 
-        // Runtime Init Boot Hooks
+        // Point 3 Fix: Execute proper pipeline order directly on first load boot
         refreshHeaderAuthNode();
-        compileGlobalOffersMarquee();
-        renderHierarchicalLocationTabs();
-        renderPublicHome();
+        renderHierarchicalLocationTabs(); // Compiles tabs properly
+        renderPublicHome();              // Instantly displays standard listings without any action required
     </script>
 </body>
 </html>
