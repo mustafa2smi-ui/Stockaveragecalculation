@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GaadiBooking - Premium Local Fleet & Ride Sharing</title>
+    <!-- Tailwind CSS & FontAwesome for Premium UI -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans pb-10">
+
+    <!-- --- HEADER BAR (With Offer System) --- -->
+    <header class="bg-blue-600 text-white px-4 py-3 sticky top-0 z-50 shadow-md flex justify-between items-center flex-wrap gap-2">
+        <h1 onclick="showPage('home-page')" class="text-xl font-black tracking-wide cursor-pointer"><i class="fa-solid fa-car-side mr-2"></i>GaadiBooking</h1>
+        <div class="flex items-center gap-2">
+            <button onclick="triggerOfferAlert()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold px-2.5 py-1.5 rounded-lg text-xs animate-pulse shadow">
+                <i class="fa-solid fa-bullhorn mr-1"></i> Offer Announced
+            </button>
+            <button onclick="showPage('login-page')" class="bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold px-3 py-1.5 rounded-lg text-sm shadow">
+                <i class="fa-solid fa-user-lock"></i> Panel
+            </button>
+        </div>
+    </header>
+
+    <!-- --- DISCOUNT NOTIFICATION STRIP --- -->
+    <div class="bg-yellow-100 border-b border-yellow-200 text-yellow-950 text-center py-2 px-4 text-xs font-bold leading-snug">
+        💡 Direct contact karke aap booking fare ko kam ya discount kara sakte hain!
+    </div>
+
+
+    <!-- ================= HOMEPAGE SECTION ================= -->
+    <section id="home-page" class="page-section">
+        <!-- Hero Search Area -->
+        <div class="bg-blue-600 text-white px-4 pb-6 rounded-b-2xl shadow-inner pt-2">
+            <div class="relative max-w-md mx-auto">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-gray-400"></i>
+                <input type="text" id="search-input" onkeyup="searchFunction()" placeholder="Search Village, Tour, Fare Type, Driver..." class="w-full bg-white text-gray-900 pl-10 pr-4 py-3 rounded-xl shadow focus:outline-none text-sm">
+            </div>
+        </div>
+
+        <!-- Available Hub Filters -->
+        <div class="px-4 my-4">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-location-dot text-red-500 mr-1"></i> Service Available Area (Dantewada Hub)</p>
+            <div class="flex gap-2 overflow-x-auto no-scrollbar py-1">
+                <button onclick="filterType('All')" class="bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm">All Services</button>
+                <button onclick="filterType('Tour Package')" class="bg-white text-gray-700 border border-gray-200 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm">🎯 Tour Packages</button>
+                <button onclick="filterType('Mailawada')" class="bg-white text-gray-700 border border-gray-200 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm">Mailawada</button>
+                <button onclick="filterType('Bus Stand')" class="bg-white text-gray-700 border border-gray-200 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm">Bus Stand</button>
+            </div>
+        </div>
+
+        <!-- Dynamic Output Container -->
+        <div class="px-4 grid grid-cols-1 md:grid-cols-2 gap-4" id="listings-render-box">
+            <!-- Output Cards Inject Here -->
+        </div>
+    </section>
+
+
+    <!-- ================= STEP 1: LOGIN / MASTER PROFILE ================= -->
+    <section id="login-page" class="page-section hidden max-w-md mx-auto px-4 mt-6">
+        <div class="bg-white p-6 rounded-2xl shadow-lg border">
+            <h2 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-id-card text-blue-600 mr-2"></i>Step 1: Master Profile Info</h2>
+            <form onsubmit="handleMasterLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Your Name (Malik Ka Naam)</label>
+                    <input type="text" id="m-owner-name" required placeholder="Enter Full Name" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Contact Number (WhatsApp No.)</label>
+                    <input type="tel" id="m-owner-phone" required placeholder="Enter 10 Digit Mobile No" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Village/Hub</label>
+                        <input type="text" id="m-owner-village" value="Mailawada" class="w-full border rounded-xl px-3 py-2 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Pincode</label>
+                        <input type="number" value="494441" class="w-full border rounded-xl px-3 py-2 text-sm">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-xl text-sm shadow">Verify & Go to Workspace</button>
+            </form>
+        </div>
+    </section>
+
+
+    <!-- ================= CONTROL ROUTER OPTION HUB ================= -->
+    <section id="choice-page" class="page-section hidden max-w-md mx-auto px-4 mt-6">
+        <div class="bg-white p-5 rounded-2xl shadow border text-center space-y-4">
+            <h3 class="font-bold text-gray-800"><i class="fa-solid fa-folder-open text-blue-600 mr-1"></i> Fleet Setup Workspace</h3>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="showPage('vehicle-entry-page')" class="p-4 border-2 border-blue-500 rounded-xl hover:bg-blue-50 font-bold text-xs"><i class="fa-solid fa-car text-xl block mb-1 text-blue-600"></i> Add/Edit Gaadi</button>
+                <button onclick="showPage('tour-entry-page')" class="p-4 border-2 border-emerald-500 rounded-xl hover:bg-emerald-50 font-bold text-xs"><i class="fa-solid fa-map-location-dot text-xl block mb-1 text-emerald-600"></i> Add Tour Package</button>
+                <button onclick="showPage('driver-entry-page')" class="p-4 border-2 border-amber-500 rounded-xl hover:bg-amber-50 font-bold text-xs col-span-2"><i class="fa-solid fa-users-gear text-xl block mb-1 text-amber-600"></i> Manage Multiple Drivers List</button>
+            </div>
+            <div class="border-t pt-3 flex gap-2">
+                <button onclick="openDashboardView()" class="flex-1 bg-emerald-600 text-white py-2 rounded-xl text-xs font-bold shadow">Open Dashboard</button>
+                <button onclick="showPage('home-page')" class="flex-1 bg-gray-200 text-gray-700 py-2 rounded-xl text-xs font-bold">Back to Home</button>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ================= FORM: VEHICLE ENTRY ================= -->
+    <section id="vehicle-entry-page" class="page-section hidden max-w-md mx-auto px-4 mt-4">
+        <div class="bg-white p-5 rounded-2xl shadow-lg border">
+            <h3 class="font-bold text-gray-800 border-b pb-2 mb-3">🚗 Register Vehicle Detail</h3>
+            <form onsubmit="saveVehicleFleet(event)" class="space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-medium text-gray-600">Vehicle Name</label>
+                        <input type="text" id="f-vname" required placeholder="e.g Bolero, Scorpio" class="w-full border rounded-lg p-2 text-xs bg-white">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-gray-600">Service Type</label>
+                        <input type="text" id="f-vservice" required placeholder="e.g Wedding, Taxi" class="w-full border rounded-lg p-2 text-xs bg-white">
+                    </div>
+                </div>
+
+                <!-- Fare Model Configuration Row -->
+                <div class="bg-gray-50 p-2.5 rounded-xl border border-dashed">
+                    <label class="block text-[11px] font-bold text-blue-900 mb-1">Fare Pricing Model</label>
+                    <div class="grid grid-cols-3 gap-1 mb-2">
+                        <select id="f-vfaretype" class="border text-xs rounded p-1.5 bg-white col-span-1">
+                            <option value="Fixed">Fixed Route</option>
+                            <option value="Per KM">Per KM Rate</option>
+                            <option value="Per Hour">Per Hour</option>
+                            <option value="Per Day">Per Day</option>
+                        </select>
+                        <input type="text" id="f-vroute" placeholder="Route / Description" required class="border text-xs rounded p-1.5 col-span-1 bg-white">
+                        <input type="text" id="f-vprice" placeholder="Price (₹)" required class="border text-xs rounded p-1.5 col-span-1 bg-white text-center font-bold">
+                    </div>
+                </div>
+
+                <!-- Camera / Media Layout Hooks -->
+                <div>
+                    <label class="block text-[11px] font-medium text-gray-600 mb-1">Capture Vehicle Photo</label>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="alert('Camera System Initialized (Mock Event)')" class="flex-1 bg-gray-100 border border-dashed py-2.5 rounded-lg text-xs text-gray-700 font-medium"><i class="fa-solid fa-camera text-blue-600 mr-1"></i> Use Live Camera</button>
+                        <button type="button" class="flex-1 bg-gray-100 border border-dashed py-2.5 rounded-lg text-xs text-gray-700 font-medium"><i class="fa-solid fa-image text-emerald-600 mr-1"></i> Upload Gallery</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2 rounded-xl text-xs uppercase shadow"><i class="fa-solid fa-floppy-disk mr-1"></i> Save Vehicle Entry</button>
+            </form>
+            <button onclick="showPage('choice-page')" class="text-xs text-gray-400 block mx-auto text-center mt-3">Back to Hub Workspace</button>
+        </div>
+    </section>
+
+
+    <!-- ================= FORM: TOUR PACKAGE ENTRY ================= -->
+    <section id="tour-entry-page" class="page-section hidden max-w-md mx-auto px-4 mt-4">
+        <div class="bg-white p-5 rounded-2xl shadow-lg border">
+            <h3 class="font-bold text-gray-800 border-b pb-2 mb-3">🗺️ Publish Tour Package</h3>
+            <form onsubmit="saveTourPackage(event)" class="space-y-3">
+                <div>
+                    <label class="block text-[11px] font-medium text-gray-600">Tour Package Name</label>
+                    <input type="text" id="f-tname" required placeholder="e.g Tirathgarh Full Day Tour, Puri Yatra" class="w-full border rounded-lg p-2 text-xs">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-medium text-gray-600">Vehicle Category</label>
+                        <input type="text" id="f-tvtype" required placeholder="e.g Bus, Cruiser, Trax" class="w-full border rounded-lg p-2 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-gray-600">Total Seating Space</label>
+                        <input type="number" id="f-tseat" required placeholder="e.g 7, 12, 40" class="w-full border rounded-lg p-2 text-xs">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-[11px] font-medium text-gray-600">From ➔ To Destination</label>
+                        <input type="text" id="f-tfromto" required placeholder="e.g Geedam to Raipur" class="w-full border rounded-lg p-2 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-medium text-gray-600">Duration (Days/Nights)</label>
+                        <input type="text" id="f-tdays" required placeholder="e.g 3 Days / 2 Nights" class="w-full border rounded-lg p-2 text-xs">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-medium text-gray-600">Package Flat Cost (₹)</label>
+                    <input type="text" id="f-tcost" required placeholder="e.g ₹14,500" class="w-full border rounded-lg p-2 text-sm font-bold text-blue-600">
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-xl text-xs uppercase shadow">Publish Live Tour Package</button>
+            </form>
+            <button onclick="showPage('choice-page')" class="text-xs text-gray-400 block mx-auto text-center mt-3">Back to Hub Workspace</button>
+        </div>
+    </section>
+
+
+    <!-- ================= FORM: MULTI-DRIVER LIST REGISTER ================= -->
+    <section id="driver-entry-page" class="page-section hidden max-w-md mx-auto px-4 mt-4">
+        <div class="bg-white p-5 rounded-2xl shadow-lg border space-y-3">
+            <h3 class="font-bold text-gray-800 border-b pb-1">👨‍✈️ Manage Fleet Driver Directory</h3>
+            <form onsubmit="addDriverToList(event)" class="space-y-2.5">
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="text" id="f-dname" placeholder="Driver Full Name" required class="border rounded p-2 text-xs w-full bg-white">
+                    <input type="tel" id="f-dphone" placeholder="Driver Contact No" required class="border rounded p-2 text-xs w-full bg-white">
+                </div>
+                <button type="submit" class="w-full bg-amber-600 text-white font-bold py-1.5 rounded-lg text-xs shadow">+ Register Driver into System</button>
+            </form>
+            <div class="border-t pt-2 mt-2">
+                <p class="text-xs font-bold text-gray-700 mb-1">Your Currently Active Drivers:</p>
+                <div id="driver-render-box" class="space-y-1 max-h-32 overflow-y-auto text-xs">
+                    <!-- Dynamic drivers go here -->
+                </div>
+            </div>
+            <button onclick="showPage('choice-page')" class="text-xs text-gray-400 block mx-auto text-center pt-2">Back to Workspace</button>
+        </div>
+    </section>
+
+
+    <!-- ================= OWNER PREMIUM LIVE DASHBOARD ================= -->
+    <section id="dashboard-page" class="page-section hidden max-w-md mx-auto px-4 mt-4">
+        <div class="bg-slate-900 text-white p-5 rounded-2xl shadow-xl space-y-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <span class="bg-emerald-500 text-white font-bold px-2 py-0.5 rounded text-[9px] uppercase tracking-wide">Workspace Hub</span>
+                    <h2 class="text-lg font-bold mt-0.5" id="d-owner-display-name">Owner Profile Workspace</h2>
+                </div>
+                <button onclick="showPage('choice-page')" class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded text-xs">Menu</button>
+            </div>
+
+            <!-- Global Counters -->
+            <div class="grid grid-cols-2 gap-3 bg-slate-800 p-3 rounded-xl border border-slate-700/50">
+                <div class="text-center">
+                    <p class="text-2xl font-black text-yellow-400" id="d-total-fleet-count">0</p>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-wide">Total Items Listed</p>
+                </div>
+                <div class="text-center border-l border-gray-700">
+                    <p class="text-2xl font-black text-emerald-400" id="d-total-fleet-clicks">0</p>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-wide">Inquiries Triggered</p>
+                </div>
+            </div>
+
+            <!-- List Summary Injection Container inside dashboard -->
+            <div class="space-y-2" id="d-dashboard-fleet-list">
+                <!-- Fleet items rows loop -->
+            </div>
+
+            <!-- Master Smart Floating Style Share -->
+            <button onclick="masterSmartShare()" class="w-full bg-gradient-to-r from-green-500 to-emerald-600 font-extrabold py-3 rounded-xl text-xs uppercase text-center block shadow-lg animate-pulse"><i class="fa-solid fa-share-nodes mr-1 text-sm"></i> Smart Dashboard Fleet Share</button>
+        </div>
+    </section>
+
+
+    <!-- --- JAVASCRIPT LOGIC MOTOR --- -->
+    <script>
+        // Core Storage Arrays
+        let masterProfile = JSON.parse(localStorage.getItem('g_master')) || null;
+        let vehicleFleet = JSON.parse(localStorage.getItem('g_fleet')) || [
+            { id: 1, type: "Vehicle", name: "Mahindra Scorpio Classic", service: "Wedding Booking", fareType: "Fixed", route: "Mailawada to Dantewada", rate: "₹2,200", clicks: 12 },
+            { id: 2, type: "Tour", name: "Bastar Waterfalls Special Tour", service: "Tour Package", fareType: "Per Day", route: "7 Seats • 2 Days / 1 Night • Geedam to Jagdalpur", rate: "₹8,500", clicks: 5 }
+        ];
+        let driverDirectory = JSON.parse(localStorage.getItem('g_drivers')) || [];
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(p => p.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        function triggerOfferAlert() {
+            alert("📢 LIVE OFFER ANNOUNCEMENT:\n\nShadi season ke liye special discounts chal rahe hain! Kisi bhi gaadi ke booking fare ko kam karwane ke liye malik se direct contact karke discount fix karein.");
+        }
+
+        function handleMasterLogin(event) {
+            event.preventDefault();
+            masterProfile = {
+                name: document.getElementById('m-owner-name').value,
+                phone: document.getElementById('m-owner-phone').value,
+                village: document.getElementById('m-owner-village').value
+            };
+            localStorage.setItem('g_master', JSON.stringify(masterProfile));
+            showPage('choice-page');
+        }
+
+        function saveVehicleFleet(event) {
+            event.preventDefault();
+            let newVehicle = {
+                id: Date.now(),
+                type: "Vehicle",
+                name: document.getElementById('f-vname').value,
+                service: document.getElementById('f-vservice').value,
+                fareType: document.getElementById('f-vfaretype').value,
+                route: document.getElementById('f-vroute').value,
+                rate: "₹" + document.getElementById('f-vprice').value.replace('₹', ''),
+                clicks: 0
+            };
+            vehicleFleet.push(newVehicle);
+            localStorage.setItem('g_fleet', JSON.stringify(vehicleFleet));
+            alert("Vehicle registered successfully inside fleet system!");
+            renderPublicEngine();
+            showPage('choice-page');
+        }
+
+        function saveTourPackage(event) {
+            event.preventDefault();
+            let newTour = {
+                id: Date.now(),
+                type: "Tour",
+                name: document.getElementById('f-tname').value,
+                service: "Tour Package",
+                fareType: "Package Cost",
+                route: `${document.getElementById('f-tseat').value} Seats • ${document.getElementById('f-tdays').value} • ${document.getElementById('f-tfromto').value}`,
+                rate: "₹" + document.getElementById('f-tcost').value.replace('₹', ''),
+                clicks: 0
+            };
+            vehicleFleet.push(newTour);
+            localStorage.setItem('g_fleet', JSON.stringify(vehicleFleet));
+            alert("Tour package published live on homepage!");
+            renderPublicEngine();
+            showPage('choice-page');
+        }
+
+        function addDriverToList(event) {
+            event.preventDefault();
+            driverDirectory.push({
+                name: document.getElementById('f-dname').value,
+                phone: document.getElementById('f-dphone').value
+            });
+            localStorage.setItem('g_drivers', JSON.stringify(driverDirectory));
+            document.getElementById('f-dname').value = '';
+            document.getElementById('f-dphone').value = '';
+            renderDriversView();
+        }
+
+        function renderDriversView() {
+            const container = document.getElementById('driver-render-box');
+            container.innerHTML = driverDirectory.length === 0 ? '<p class="text-gray-400 italic text-[11px]">No drivers listed yet.</p>' : '';
+            driverDirectory.forEach(d => {
+                container.innerHTML += `<div class="bg-gray-100 p-2 rounded flex justify-between items-center border"><span>👨‍✈️ Name: <b>${d.name}</b></span> <span class="text-gray-400 font-mono">(${d.phone.replace(/.(?=.{4})/g, "X")})</span></div>`;
+            });
+        }
+
+        function publicTriggerDriverAlert() {
+            if(driverDirectory.length === 0) {
+                alert("Verified Local Drivers: Fleet owner has experienced local drivers available. Direct verification at time of journey scheduling.");
+                return;
+            }
+            let roster = driverDirectory.map(d => `• Driver: ${d.name} (Verified Team)`).join("\n");
+            alert("👨‍✈️ OWNER FLEET DRIVERS:\n\n" + roster + "\n\n(Note: Driver numbers are confidential for business security. Direct handling via primary owner number.)");
+        }
+
+        function openDashboardView() {
+            let oName = masterProfile ? masterProfile.name : "Demo Owner Workspace";
+            document.getElementById('d-owner-display-name').innerText = oName;
+            document.getElementById('d-total-fleet-count').innerText = vehicleFleet.length;
+            
+            let accumulatedClicks = vehicleFleet.reduce((total, obj) => total + (obj.clicks || 0), 0);
+            document.getElementById('d-total-fleet-clicks').innerText = accumulatedClicks;
+
+            const listWrapper = document.getElementById('d-dashboard-fleet-list');
+            listWrapper.innerHTML = '';
+
+            vehicleFleet.forEach(item => {
+                listWrapper.innerHTML += `
+                    <div class="bg-slate-800 p-3 rounded-xl border border-slate-700/60 flex justify-between items-center text-xs">
+                        <div>
+                            <p class="font-bold text-yellow-400">${item.name}</p>
+                            <p class="text-[10px] text-gray-400">${item.service} | ${item.fareType} model</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded font-mono text-[11px]">${item.clicks} clicks</span>
+                            <button onclick="deleteFleetItem(${item.id})" class="text-red-400 text-sm px-1"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </div>`;
+            });
+            showPage('dashboard-page');
+        }
+
+        function deleteFleetItem(id) {
+            if(confirm("Kya aap sach me is listings ko delete karna chahte hain?")) {
+                vehicleFleet = vehicleFleet.filter(item => item.id !== id);
+                localStorage.setItem('g_fleet', JSON.stringify(vehicleFleet));
+                openDashboardView();
+                renderPublicEngine();
+            }
+        }
+
+        function registerClickTrack(id) {
+            let idx = vehicleFleet.findIndex(item => item.id === id);
+            if(idx !== -1) {
+                vehicleFleet[idx].clicks = (vehicleFleet[idx].clicks || 0) + 1;
+                localStorage.setItem('g_fleet', JSON.stringify(vehicleFleet));
+                renderPublicEngine();
+            }
+        }
+
+        // ================= POOL & SHARE CUSTOMER SYSTEM ENGINE =================
+        function triggerCustomerShare(id) {
+            let item = vehicleFleet.find(v => v.id === id);
+            if(!item) return;
+
+            let shareMessageText = "";
+            if(item.type === "Tour") {
+                shareMessageText = `🚗 *GaadiBooking - Ride/Tour Sharing Request!* 🗺️\n\nHi! Mai GaadiBooking platform par ek exciting Tour Package book karna chahta hoon par isme aur members ki jarurat hai:\n\n🎯 *Package:* ${item.name}\n🚌 *Details:* ${item.route}\n💰 *Total Cost:* ${item.rate}\n\nKya aapme se koi mere sath is trip par chalne me interested hai? Hissa lene ya details ke liye mujhse turant baat karein!`;
+            } else {
+                shareMessageText = `🚗 *GaadiBooking - Cost Sharing Partner Needed!* ⚡\n\nHi! Maine abhi apni journey ke liye GaadiBooking se ek vehicle select kiya hai:\n\n🚘 *Vehicle Name:* ${item.name}\n🛣️ *Route:* ${item.route}\n💵 *Estimated Fare:* ${item.rate} (${item.fareType})\n\nAgar aapme se kisi ko bhi is route par chalna hai, toh aao sath chalte hain aur *gaadi ka kharcha share (pooling)* kar lete hain! Baat karne ke liye reply karein.`;
+            }
+
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareMessageText)}`, '_blank');
+        }
+
+        function masterSmartShare() {
+            let defaultName = masterProfile ? masterProfile.name : "Suresh Kumar";
+            let defaultVillage = masterProfile ? masterProfile.village : "Mailawada";
+            let text = `🚗 *GaadiBooking - Local Fleet Networks*\n\nHi, I am *${defaultName}* from *${defaultVillage}*.\nI provide professional transport services at highly competitive rates:\n\n✔ Multi-route Booking Available\n✔ Experienced Local Drivers\n✔ Direct Contact & Discount Option\n\n🌐 Click on link to check my live full fare lists now!`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function filterType(filterParam) {
+            renderPublicEngine(filterParam);
+        }
+
+        function searchFunction() {
+            let query = document.getElementById('search-input').value.toLowerCase();
+            renderPublicEngine('All', query);
+        }
+
+        // RENDER HOMEPAGE CARDS ENGINE
+        function renderPublicEngine(categoryFilter = 'All', searchQuery = '') {
+            const container = document.getElementById('listings-render-box');
+            container.innerHTML = '';
+
+            let targetOwnerName = masterProfile ? masterProfile.name : "Suresh Chandrakar";
+            let targetPhone = masterProfile ? masterProfile.phone : "919876543210";
+            let targetHub = masterProfile ? masterProfile.village : "Mailawada";
+
+            let filteredList = vehicleFleet;
+
+            if(categoryFilter === 'Tour Package') {
+                filteredList = vehicleFleet.filter(i => i.type === 'Tour');
+            } else if (categoryFilter !== 'All') {
+                filteredList = vehicleFleet.filter(i => targetHub.toLowerCase() === categoryFilter.toLowerCase());
+            }
+
+            if(searchQuery !== '') {
+                filteredList = filteredList.filter(i => i.name.toLowerCase().includes(searchQuery) || i.service.toLowerCase().includes(searchQuery) || i.route.toLowerCase().includes(searchQuery));
+            }
+
+            if(filteredList.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-400 py-10 text-sm col-span-full">No active records match the criteria.</p>`;
+                return;
+            }
+
+            filteredList.forEach(item => {
+                let isTour = item.type === "Tour";
+                let badgeBg = isTour ? "bg-emerald-50 text-emerald-600 font-extrabold border border-emerald-200" : "bg-blue-50 text-blue-600 font-bold";
+                let cardBorder = isTour ? "border-emerald-100 bg-gradient-to-br from-emerald-50/20 to-white" : "border-gray-100";
+
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl shadow-sm border ${cardBorder} p-4 flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="flex justify-between items-center">
+                                <span class="${badgeBg} px-2.5 py-0.5 rounded text-[10px] uppercase tracking-wide">${item.service}</span>
+                                <span class="text-xs text-gray-500 font-medium"><i class="fa-solid fa-location-dot text-red-500 mr-1"></i>${targetHub}</span>
+                            </div>
+
+                            <div class="flex gap-3 my-2.5">
+                                <div class="w-16 h-14 bg-gray-100 rounded-xl flex items-center justify-center text-gray-400"><i class="fa-solid ${isTour ? 'fa-map-marked-alt text-emerald-600' : 'fa-car text-blue-600'} text-xl"></i></div>
+                                <div>
+                                    <h4 class="font-black text-gray-900 text-sm leading-snug">${item.name}</h4>
+                                    <p class="text-xs text-gray-500">Contact Person: ${targetOwnerName}</p>
+                                    <div class="text-[10px] text-gray-400 mt-0.5 font-medium"><i class="fa-solid fa-calculator text-slate-400"></i> Model: <span class="text-blue-600 font-bold">${item.fareType} Matrix</span></div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 rounded-xl p-2.5 border border-dashed border-gray-200 flex justify-between items-center text-xs">
+                                <span class="text-gray-600 font-medium truncate pr-2"><i class="fa-solid fa-route text-blue-500 mr-1"></i>${item.route}</span>
+                                <span class="font-extrabold text-blue-600 bg-blue-50 px-2 py-0.5 rounded whitespace-nowrap">${item.rate}</span>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-gray-100 pt-2.5 flex justify-between items-center flex-wrap gap-2">
+                            <div class="text-[10px] text-gray-500">
+                                <div class="font-bold text-yellow-500 mb-0.5">⭐ 4.6 <span class="text-gray-400 font-normal">(Verified)</span></div>
+                                <div><i class="fa-solid fa-fire text-orange-500 mr-0.5"></i> Yet <b>${item.clicks || 0}</b> times interested</div>
+                            </div>
+                            
+                            <div class="flex items-center gap-1">
+                                <button onclick="publicTriggerDriverAlert()" class="bg-amber-50 hover:bg-amber-100 text-amber-800 text-[11px] font-bold p-2 rounded-xl border border-amber-200"><i class="fa-solid fa-users"></i> Drivers</button>
+                                <!-- Custom Pool/Share Button Demand Included -->
+                                <button onclick="triggerCustomerShare(${item.id})" class="bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold p-2 rounded-xl text-xs" title="Share with friends to split ride fare cost"><i class="fa-solid fa-share-nodes text-sm"></i> Share ride</button>
+                                <a href="https://wa.me/${targetPhone}" onclick="registerClickTrack(${item.id})" target="_blank" class="bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-3 py-2 rounded-xl text-xs flex items-center shadow-sm"><i class="fa-brands fa-whatsapp mr-1 text-sm"></i> Book</a>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        // Initialize Core View Boot up
+        renderPublicEngine();
+        renderDriversView();
+    </script>
+</body>
+</html>
