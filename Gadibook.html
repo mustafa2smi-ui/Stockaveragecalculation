@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GaadiBooking - Local Vehicle Platform</title>
+    <!-- Tailwind CSS for Modern & Responsive UI -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome for Beautiful Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans pb-10">
+
+    <!-- --- HEADER BAR --- -->
+    <header class="bg-blue-600 text-white px-4 py-3 sticky top-0 z-50 shadow-md flex justify-between items-center">
+        <h1 class="text-xl font-bold tracking-wide"><i class="fa-solid fa-car-side mr-2"></i>GaadiBooking</h1>
+        <button onclick="showPage('login-page')" class="bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-bold px-3 py-1.5 rounded-lg text-sm shadow transition-all">
+            <i class="fa-solid fa-plus-circle mr-1"></i> Register My Gaadi
+        </button>
+    </header>
+
+    <!-- ================= HOMEPAGE SECTION ================= -->
+    <section id="home-page" class="page-section">
+        <!-- Hero Search Area -->
+        <div class="bg-gradient-to-b from-blue-600 to-blue-500 text-white px-4 pt-2 pb-6 rounded-b-2xl shadow-inner">
+            <p class="text-xs text-blue-100 mb-2 text-center">Apne gaon ya sheher se koi bhi gaadi turant book karein</p>
+            <div class="relative max-w-md mx-auto">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-gray-400"></i>
+                <input type="text" id="search-input" onkeyup="searchVehicles()" placeholder="Search Landmark, Village, Vehicle..." class="w-full bg-white text-gray-900 pl-10 pr-4 py-3 rounded-xl shadow focus:outline-none text-sm">
+            </div>
+        </div>
+
+        <!-- Available Area Horizontal Scroll -->
+        <div class="px-4 my-4">
+            <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-location-dot text-red-500 mr-1"></i> Service Available Area (Dantewada)</p>
+            <div class="flex gap-2 overflow-x-auto no-scrollbar py-1" id="area-filters">
+                <button onclick="filterByArea('All')" class="area-btn bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm">All Areas</button>
+                <button onclick="filterByArea('Mailawada')" class="area-btn bg-white text-gray-700 border border-gray-200 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm">Mailawada</button>
+                <button onclick="filterByArea('Bus Stand')" class="area-btn bg-white text-gray-700 border border-gray-200 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm">Bus Stand</button>
+                <button onclick="filterByArea('Main Market')" class="area-btn bg-white text-gray-700 border border-gray-200 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm">Main Market</button>
+                <button onclick="filterByArea('Geedam')" class="area-btn bg-white text-gray-700 border border-gray-200 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shadow-sm">Geedam</button>
+            </div>
+        </div>
+
+        <!-- Vehicle Grid System -->
+        <div class="px-4 grid grid-cols-1 md:grid-cols-2 gap-4" id="vehicle-listings-container">
+            <!-- Dynamic Cards Will Load Here -->
+        </div>
+    </section>
+
+
+    <!-- ================= LOGIN PAGE ================= -->
+    <section id="login-page" class="page-section hidden max-w-md mx-auto px-4 mt-6">
+        <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-gray-800"><i class="fa-solid fa-user-lock text-blue-600 mr-2"></i>Owner Registration</h2>
+                <button onclick="showPage('home-page')" class="text-gray-400 text-sm font-bold">Cancel</button>
+            </div>
+            
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Email ID</label>
+                    <input type="email" required class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Contact Number</label>
+                    <input type="tel" required class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">State</label>
+                        <input type="text" value="Chhattisgarh" required class="w-full border rounded-xl px-3 py-2 text-sm bg-gray-50">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">District</label>
+                        <input type="text" value="Dantewada" required class="w-full border rounded-xl px-3 py-2 text-sm bg-gray-50">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Landmark / Service Area</label>
+                    <input type="text" placeholder="e.g. Mailawada, Bus Stand" required id="reg-landmark" class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Pincode</label>
+                    <input type="number" required class="w-full border rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+                <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-xl text-sm shadow mt-2">Verify OTP & Login</button>
+            </form>
+        </div>
+    </section>
+
+
+    <!-- ================= DOUBLE NAVIGATION PAGE (CHOOSE ENTRY OR DASHBOARD) ================= -->
+    <section id="choice-page" class="page-section hidden max-w-md mx-auto px-4 mt-6">
+        <div class="bg-emerald-50 text-emerald-800 p-4 rounded-xl mb-4 text-xs font-semibold flex items-center">
+            <i class="fa-solid fa-circle-check text-lg mr-2"></i> Verification Successful! Welcome to GaadiBooking Panel.
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+            <button onclick="showPage('entry-page')" class="bg-white border-2 border-blue-500 p-6 rounded-2xl shadow-md text-center hover:bg-blue-50">
+                <i class="fa-solid fa-pen-to-square text-3xl text-blue-600 mb-2"></i>
+                <span class="block font-bold text-sm text-gray-800">Add/Edit Gaadi</span>
+            </button>
+            <button onclick="openDashboard()" class="bg-white border-2 border-emerald-500 p-6 rounded-2xl shadow-md text-center hover:bg-emerald-50">
+                <i class="fa-solid fa-chart-line text-3xl text-emerald-600 mb-2"></i>
+                <span class="block font-bold text-sm text-gray-800">View Dashboard</span>
+            </button>
+        </div>
+        <button onclick="showPage('home-page')" class="w-full mt-6 bg-gray-200 text-gray-700 py-2 rounded-xl text-xs font-bold">Back to Home</button>
+    </section>
+
+
+    <!-- ================= ENTRY / REGISTER FORM ================= -->
+    <section id="entry-page" class="page-section hidden max-w-md mx-auto px-4 mt-4">
+        <div class="bg-white p-5 rounded-2xl shadow-lg border">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="font-bold text-gray-800 text-base"><i class="fa-solid fa-file-invoice text-blue-600 mr-2"></i>Vehicle Entry Form</h2>
+                <button onclick="showPage('choice-page')" class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Back</button>
+            </div>
+            
+            <form id="vehicle-form" onsubmit="saveVehicle(event)" class="space-y-3">
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-0.5">Malik Ka Name</label>
+                        <input type="text" id="owner-name" required class="w-full border rounded-lg px-2.5 py-1.5 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-0.5">Vehicle Name</label>
+                        <input type="text" id="vehicle-name" placeholder="Bolero, Scorpio, Tractor" required class="w-full border rounded-lg px-2.5 py-1.5 text-sm">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-0.5">Malik Photo URL</label>
+                        <input type="text" id="owner-photo" value="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-full border rounded-lg px-2.5 py-1.5 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-0.5">Vehicle Photo URL</label>
+                        <input type="text" id="vehicle-photo" value="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400" class="w-full border rounded-lg px-2.5 py-1.5 text-xs">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-0.5">Service Type</label>
+                        <select id="service-type" class="w-full border rounded-lg px-2.5 py-1.5 text-sm bg-white">
+                            <option>Wedding Booking</option>
+                            <option>Taxi Booking</option>
+                            <option>Tractor Farming</option>
+                            <option>Goods Transport</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-0.5">WhatsApp Number</label>
+                        <input type="tel" id="owner-whatsapp" required class="w-full border rounded-lg px-2.5 py-1.5 text-sm">
+                    </div>
+                </div>
+
+                <!-- Simple Fare Table Fields -->
+                <div class="border-t pt-2 mt-2">
+                    <p class="text-xs font-bold text-gray-700 mb-1"><i class="fa-solid fa-table-list mr-1 text-blue-500"></i> Fare Table Sample Route</p>
+                    <div class="grid grid-cols-3 gap-1 text-center">
+                        <input type="text" id="fare-route" value="Mailawada to Dantewada" class="border text-xs rounded p-1 col-span-2" placeholder="Route">
+                        <input type="text" id="fare-price" value="₹2,000" class="border text-xs rounded p-1" placeholder="Price">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-0.5">Message Box / Note</label>
+                    <textarea id="owner-msg" placeholder="Best price and trusted service..." class="w-full border rounded-lg px-2.5 py-1.5 text-xs h-12"></textarea>
+                </div>
+
+                <!-- Action Buttons Inside Form -->
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" class="flex-1 bg-blue-600 text-white font-bold py-2 rounded-xl text-xs uppercase"><i class="fa-solid fa-floppy-disk mr-1"></i> Save/Update</button>
+                    <button type="button" onclick="deleteVehicle()" class="bg-red-500 text-white px-3 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-trash"></i> Delete</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+
+    <!-- ================= OWNER DASHBOARD ================= -->
+    <section id="dashboard-page" class="page-section hidden max-w-md mx-auto px-4 mt-4">
+        <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-5 rounded-2xl shadow-xl relative overflow-hidden">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <span class="bg-emerald-500 text-white font-bold px-2 py-0.5 rounded text-[10px] tracking-wide uppercase">Live Status</span>
+                    <h2 class="text-xl font-bold mt-1" id="dash-vehicle-title">Mahindra Bolero</h2>
+                    <p class="text-xs text-gray-400" id="dash-owner-title">Owner: Suresh Kumar</p>
+                </div>
+                <button onclick="showPage('choice-page')" class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg text-xs font-semibold">Menu</button>
+            </div>
+
+            <!-- Stats grid -->
+            <div class="grid grid-cols-2 gap-3 my-4 border-t border-b border-gray-700/50 py-3">
+                <div class="text-center">
+                    <p class="text-2xl font-black text-yellow-400" id="dash-booking-count">0</p>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-wider">Total Booked Requests</p>
+                </div>
+                <div class="text-center border-l border-gray-700/50">
+                    <p class="text-2xl font-black text-emerald-400">4.8 ★</p>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-wider">Customer Rating</p>
+                </div>
+            </div>
+
+            <!-- Dashboard Action Buttons -->
+            <div class="flex gap-2 mt-4">
+                <button onclick="showPage('entry-page')" class="flex-1 bg-blue-600 hover:bg-blue-700 font-bold py-2.5 rounded-xl text-xs text-center"><i class="fa-solid fa-edit mr-1"></i> Edit Entry Profile</button>
+                <!-- Floating Style Share Button -->
+                <button onclick="shareProfile()" class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg animate-pulse"><i class="fa-solid fa-share-nodes mr-1"></i> Smart Share</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- --- JAVASCRIPT LOGIC --- -->
+    <script>
+        // Default Mock Data for local testing
+        let vehicles = JSON.parse(localStorage.getItem('gaadi_data')) || [
+            {
+                id: 1,
+                ownerName: "Ramesh Bastar",
+                vehicleName: "Mahindra Scorpio (VIP)",
+                serviceType: "Wedding Booking",
+                ownerPhoto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150",
+                vehiclePhoto: "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400",
+                landmark: "Mailawada",
+                whatsapp: "919876543210",
+                route: "Mailawada to Dantewada",
+                price: "₹2,000",
+                msg: "Special Decoration available for Marriage bookings.",
+                bookingCount: 14
+            },
+            {
+                id: 2,
+                ownerName: "Sanjay Yadav",
+                vehicleName: "John Deere Tractor",
+                serviceType: "Tractor Farming",
+                ownerPhoto: "https://images.unsplash.com/photo-1628157582853-a796fa650a6a?w=150",
+                vehiclePhoto: "https://images.unsplash.com/photo-1594142455823-d8cd5f75e2eb?w=400",
+                landmark: "Bus Stand",
+                whatsapp: "918888888888",
+                route: "Bus Stand to Sukma",
+                price: "₹4,500",
+                msg: "Trolley attached, best for heavy loading.",
+                bookingCount: 8
+            }
+        ];
+
+        let currentActiveUserLandmark = "Mailawada";
+
+        // Handle Navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(section => section.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+
+        // Initialize Home Render
+        function renderHome(filterArea = 'All') {
+            const container = document.getElementById('vehicle-listings-container');
+            container.innerHTML = '';
+            
+            let filtered = vehicles;
+            if(filterArea !== 'All') {
+                filtered = vehicles.filter(v => v.landmark.toLowerCase() === filterArea.toLowerCase());
+            }
+
+            if(filtered.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-500 py-10 text-sm col-span-full">Is area me koi gaadi abhi registered nahi hai.</p>`;
+                return;
+            }
+
+            filtered.forEach(v => {
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden p-3.5 flex flex-col justify-between">
+                        <div>
+                            <!-- Top Info & Badges -->
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="bg-blue-50 text-blue-600 font-bold px-2 py-0.5 rounded-md text-[10px]">${v.serviceType}</span>
+                                <span class="text-xs text-gray-500 font-medium"><i class="fa-solid fa-location-dot text-red-500 mr-1"></i>${v.landmark}</span>
+                            </div>
+                            
+                            <!-- Main Photos Row -->
+                            <div class="flex gap-3 my-2">
+                                <img src="${v.vehiclePhoto}" class="w-24 h-20 object-cover rounded-xl bg-gray-100 shadow-sm" onerror="this.src='https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=400'">
+                                <div class="flex-1">
+                                    <h3 class="font-bold text-gray-900 text-sm leading-tight">${v.vehicleName}</h3>
+                                    <div class="flex items-center gap-1.5 mt-1">
+                                        <img src="${v.ownerPhoto}" class="w-5 h-5 rounded-full object-cover">
+                                        <p class="text-xs text-gray-600 font-medium">${v.ownerName}</p>
+                                    </div>
+                                    <p class="text-[11px] text-gray-500 mt-1 italic">"${v.msg}"</p>
+                                </div>
+                            </div>
+
+                            <!-- Route & Pricing -->
+                            <div class="bg-gray-50 rounded-xl p-2 my-2 border border-dashed border-gray-200 flex justify-between items-center text-xs">
+                                <span class="text-gray-600"><i class="fa-solid fa-route text-blue-500 mr-1"></i>${v.route}</span>
+                                <span class="font-extrabold text-blue-600">${v.price}</span>
+                            </div>
+                        </div>
+
+                        <!-- Booking Status & Buttons -->
+                        <div class="border-t border-gray-100 pt-2.5 mt-1 flex justify-between items-center">
+                            <div class="text-[10px] text-gray-500">
+                                <div class="text-yellow-500 font-bold mb-0.5">⭐ 4.5 <span class="text-gray-400 font-normal">(Local)</span></div>
+                                <div><i class="fa-solid fa-circle-check text-emerald-500 mr-0.5"></i> Yet <b>${v.bookingCount}</b> times booked</div>
+                            </div>
+                            <div class="flex gap-1.5">
+                                <a href="tel:${v.whatsapp}" onclick="trackBooking(${v.id})" class="bg-blue-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-sm"><i class="fa-solid fa-phone"></i> Call</a>
+                                <a href="https://wa.me/${v.whatsapp}" onclick="trackBooking(${v.id})" target="_blank" class="bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-sm"><i class="fa-brands fa-whatsapp text-sm"></i> Book</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Mock Login Handler
+        function handleLogin(event) {
+            event.preventDefault();
+            currentActiveUserLandmark = document.getElementById('reg-landmark').value;
+            showPage('choice-page');
+            
+            // Auto fill if vehicle exists
+            let exist = vehicles.find(v => v.landmark === currentActiveUserLandmark);
+            if(exist) {
+                document.getElementById('owner-name').value = exist.ownerName;
+                document.getElementById('vehicle-name').value = exist.vehicleName;
+                document.getElementById('owner-whatsapp').value = exist.whatsapp;
+                document.getElementById('fare-route').value = exist.route;
+                document.getElementById('fare-price').value = exist.price;
+                document.getElementById('owner-msg').value = exist.msg;
+            }
+        }
+
+        // Open Dashboard
+        function openDashboard() {
+            let userGaadi = vehicles.find(v => v.landmark === currentActiveUserLandmark) || {
+                vehicleName: "No Vehicle Added", ownerName: "Click Edit Profile", bookingCount: 0
+            };
+            document.getElementById('dash-vehicle-title').innerText = userGaadi.vehicleName;
+            document.getElementById('dash-owner-title').innerText = "Owner: " + userGaadi.ownerName;
+            document.getElementById('dash-booking-count').innerText = userGaadi.bookingCount;
+            showPage('dashboard-page');
+        }
+
+        // Save & Update Handler
+        function saveVehicle(event) {
+            event.preventDefault();
+            let existIndex = vehicles.findIndex(v => v.landmark === currentActiveUserLandmark);
+            
+            let newGaadi = {
+                id: existIndex !== -1 ? vehicles[existIndex].id : Date.now(),
+                ownerName: document.getElementById('owner-name').value,
+                vehicleName: document.getElementById('vehicle-name').value,
+                serviceType: document.getElementById('service-type').value,
+                ownerPhoto: document.getElementById('owner-photo').value,
+                vehiclePhoto: document.getElementById('vehicle-photo').value,
+                landmark: currentActiveUserLandmark,
+                whatsapp: document.getElementById('owner-whatsapp').value,
+                route: document.getElementById('fare-route').value,
+                price: document.getElementById('fare-price').value,
+                msg: document.getElementById('owner-msg').value,
+                bookingCount: existIndex !== -1 ? vehicles[existIndex].bookingCount : 0
+            };
+
+            if(existIndex !== -1) {
+                vehicles[existIndex] = newGaadi;
+            } else {
+                vehicles.push(newGaadi);
+            }
+
+            localStorage.setItem('gaadi_data', JSON.stringify(vehicles));
+            alert("Gaadi Entry Successfully Saved/Updated Live!");
+            renderHome();
+            openDashboard();
+        }
+
+        // Delete Handler
+        function deleteVehicle() {
+            vehicles = vehicles.filter(v => v.landmark !== currentActiveUserLandmark);
+            localStorage.setItem('gaadi_data', JSON.stringify(vehicles));
+            alert("Vehicle Deleted Successfully.");
+            renderHome();
+            showPage('choice-page');
+        }
+
+        // Track Booking Count
+        function trackBooking(id) {
+            let index = vehicles.findIndex(v => v.id === id);
+            if(index !== -1) {
+                vehicles[index].bookingCount += 1;
+                localStorage.setItem('gaadi_data', JSON.stringify(vehicles));
+                renderHome();
+            }
+        }
+
+        // Horizontal Scroll Filter Style Handler
+        function filterByArea(areaName) {
+            document.querySelectorAll('.area-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700', 'border');
+            });
+            event.target.classList.remove('bg-white', 'text-gray-700', 'border');
+            event.target.classList.add('bg-blue-600', 'text-white');
+            renderHome(areaName);
+        }
+
+        // Search Bar Logic
+        function searchVehicles() {
+            let val = document.getElementById('search-input').value.toLowerCase();
+            let cards = document.getElementById('vehicle-listings-container').children;
+            
+            vehicles.forEach((v, index) => {
+                let match = v.vehicleName.toLowerCase().includes(val) || 
+                            v.landmark.toLowerCase().includes(val) || 
+                            v.ownerName.toLowerCase().includes(val) ||
+                            v.serviceType.toLowerCase().includes(val);
+                renderHome(); // Simple reset for demo search filter state
+            });
+        }
+
+        // Smart Share Profile
+        function shareProfile() {
+            let userGaadi = vehicles.find(v => v.landmark === currentActiveUserLandmark);
+            if(!userGaadi) return alert("Pehle gaadi ki entry complete karein!");
+            
+            let text = `🚗 *GaadiBooking – Local Vehicle Booking*\n\nHi, I am ${userGaadi.ownerName} from ${userGaadi.landmark}.\nI provide *${userGaadi.serviceType}* services at affordable prices:\n\n✅ Route Rate: ${userGaadi.route} @ ${userGaadi.price}\n✔ Best Trusted Service\n\n🌐 Visit Website for details.\n📲 Book via WhatsApp: https://wa.me/${userGaadi.whatsapp}`;
+            
+            let whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // Initial Load
+        renderHome();
+    </script>
+</body>
+</html>
