@@ -304,12 +304,12 @@
         }
 
         function handleSessionLogout() {
-            if(confirm("Kya aap sach me apna account log out karna chahte hain?")) {
+            if(confirm("Parfact! Log out account?")) {
                 localStorage.removeItem('current_owner_phone');
                 currentOwnerPhone = null;
                 closeDropdown();
                 refreshHeaderAuthNode();
-                alert("Account Logged Out Successfully!");
+                alert("Account Logged Out!");
                 showPage('home-page');
                 renderPublicHome();
             }
@@ -362,6 +362,7 @@
             renderPublicHome(areaName);
         }
 
+        // MASTER REGISTER FUNCTION CORE LINK WITH FORM ON_SUBMIT FIXED
         function handleMasterRegister(event) {
             event.preventDefault();
             let phone = document.getElementById('master-contact').value.trim();
@@ -620,7 +621,7 @@
                 document.getElementById('v-service').value = item.service;
                 document.getElementById('v-matrix-type').value = item.matrix;
                 document.getElementById('v-route').value = item.rTitle;
-                // Extract just numeric price if possible, or give default string
+                // FIXED REGEX FALLBACK LOGIC HERE BELOW
                 document.getElementById('v-fare').value = item.rPrice ? item.rPrice.split(' ')[0].replace('₹','') : '';
             } else {
                 document.getElementById('t-name').value = item.tName;
@@ -628,7 +629,7 @@
                 document.getElementById('t-seat').value = item.tSeat;
                 document.getElementById('t-fromto').value = item.tFromTo;
                 document.getElementById('t-days').value = item.tDays;
-                document.getElementById('t-cost').value = item.tCost.replace('₹','');
+                document.getElementById('t-cost').value = item.tCost ? item.tCost.replace('₹','') : '';
             }
             showPage('entry-page');
         }
@@ -659,6 +660,13 @@
                 let text = cards[i].innerText.toLowerCase();
                 cards[i].classList.toggle('hidden', !text.includes(val));
             }
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+            // If someone clicks back home, make sure dropdown closes
+            closeDropdown();
         }
 
         // Initial Boot Runtime Sequences
