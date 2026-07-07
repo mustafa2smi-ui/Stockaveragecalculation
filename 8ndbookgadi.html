@@ -93,6 +93,11 @@
             <h2 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-id-card text-blue-600 mr-2"></i>Step 1: Master Profile Info</h2>
             <form onsubmit="handleMasterRegister(event)" class="space-y-3.5">
                 <div>
+                    <label class="block text-xs font-bold text-blue-900 mb-1">Email ID (Unique Registration ID)</label>
+                    <input type="email" id="master-email" onkeyup="checkOfferEmailCycle(this.value)" required placeholder="name@email.com" class="w-full border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-[10px] text-gray-400 mt-0.5">Note: Purani Email likhte hi aapka data auto-fill ho jayega.</p>
+                </div>
+                <div>
                     <label class="block text-xs font-medium text-gray-600 mb-1">Your Name (Malik Ka Naam)</label>
                     <input type="text" id="master-owner-name" required placeholder="Enter Full Name" class="w-full border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
@@ -100,6 +105,7 @@
                     <label class="block text-xs font-medium text-gray-600 mb-1">Contact Number (WhatsApp)</label>
                     <input type="tel" id="master-contact" required placeholder="Enter 10 Digit Mobile No" class="w-full border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
+                
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1">State</label>
@@ -120,6 +126,7 @@
                         <input type="text" id="master-colony" value="Kalar Para" required class="w-full border rounded-xl px-3 py-2 text-sm">
                     </div>
                 </div>
+
                 <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-xl text-sm shadow">Verify & Go to Workspace</button>
             </form>
         </div>
@@ -166,6 +173,7 @@
                         <label class="block text-xs font-medium text-gray-600 mb-0.5">Vehicle Name/Model</label>
                         <input type="text" id="v-name" placeholder="e.g. Scorpio, Tipper Truck" class="w-full border rounded-lg px-2.5 py-1.5 text-sm">
                     </div>
+                    
                     <div class="bg-gray-50 p-2.5 rounded-xl border border-dashed border-gray-300">
                         <label class="block text-[11px] font-bold text-slate-700 mb-1">Pricing Fare Options Matrix</label>
                         <div class="grid grid-cols-3 gap-1">
@@ -201,9 +209,10 @@
                     <p class="text-xs font-bold text-amber-900 mb-1.5">👨‍✈️ Assign Driver Info</p>
                     <div class="grid grid-cols-2 gap-2">
                         <input type="text" id="d-name" placeholder="Driver Name" class="w-full border bg-white rounded p-1 text-xs">
-                        <input type="tel" id="d-phone" placeholder="Driver Contact (Confidential)" class="w-full border bg-white rounded p-1 text-xs">
+                        <input type="tel" id="d-phone" placeholder="Driver Contact" class="w-full border bg-white rounded p-1 text-xs">
                     </div>
                 </div>
+
                 <button type="submit" class="w-full bg-blue-600 text-white font-bold py-2.5 rounded-xl text-xs uppercase shadow">Save Entry Data</button>
             </form>
         </div>
@@ -246,22 +255,20 @@
     </section>
 
     <script>
-        let currentOwnerPhone = localStorage.getItem('current_owner_phone') || null;
+        // Unique Email Identifier State Engine Mapping
+        let currentOwnerEmail = localStorage.getItem('current_owner_email') || null;
         
         let profilesDirectory = JSON.parse(localStorage.getItem('profiles_directory')) || {
-            "919876543210": { name: "Suresh Chandrakar", state: "Chhattisgarh", district: "Dantewada", landmark: "Mailawada", colony: "Kalar Para", offers: ["Marriage flat 500rs off!", "Aj ki booking par nasta free!"] },
-            "918888888888": { name: "Mahendra Bastar", state: "Chhattisgarh", district: "Dantewada", landmark: "Geedam", colony: "Talla Para", offers: ["Bastar tour guide free!"] },
-            "917777777777": { name: "Kishore Kumar", state: "Madhya Pradesh", district: "Bhopal", landmark: "Bairagarh", colony: "Sant Nagar", offers: ["Inaugural 10% discount!"] }
+            "suresh@gmail.com": { name: "Suresh Chandrakar", contact: "9827155555", state: "Chhattisgarh", district: "Dantewada", landmark: "Mailawada", colony: "Kalar Para", offers: ["Marriage season special flat 500rs discount!", "Aj ki booking par nasta free!"] },
+            "mahendra@gmail.com": { name: "Mahendra Bastar", contact: "8839211111", state: "Chhattisgarh", district: "Dantewada", landmark: "Geedam", colony: "Talla Para", offers: ["Bastar tour guide free today!"] }
         };
 
         let fleetStorage = JSON.parse(localStorage.getItem('fleet_data')) || [
-            { id: 101, ownerPhone: "919876543210", classType: "Vehicle", area: "Kalar Para", vName: "Scorpio Classic S11", service: "Wedding Booking", matrix: "Per Hour", rTitle: "Local Hours Limit", rPrice: "₹800 (Per Hour Rate)", dName: "Karan Nag", clicks: 14 },
-            { id: 102, ownerPhone: "919876543210", classType: "Vehicle", area: "Kalar Para", vName: "Tata Tipper Truck", service: "Goods Transport", matrix: "Per KM", rTitle: "Bastar Region Load", rPrice: "₹18 (Per KM Rate)", dName: "Sanjay Jha", clicks: 5 },
-            { id: 103, ownerPhone: "918888888888", classType: "Tour", area: "Talla Para", tName: "Tirth Yatra Group Tour", service: "Tour Package", tVtype: "Traveler Bus", tSeat: "14", tFromTo: "Geedam to Puri Temple", tDays: "5 Days", tCost: "₹18500", dName: "Ramu Gond", clicks: 8 },
-            { id: 104, ownerPhone: "917777777777", classType: "Vehicle", area: "Sant Nagar", vName: "Maruti Ertiga 7-Seater", service: "Taxi Booking", matrix: "Per KM", rTitle: "Bhopal to Indore", rPrice: "₹13 (Per KM Rate)", dName: "Rajesh Sahu", clicks: 3 }
+            { id: 101, ownerEmail: "suresh@gmail.com", classType: "Vehicle", area: "Kalar Para", vName: "Scorpio Classic S11", service: "Wedding Booking", matrix: "Per Hour", rTitle: "Local Hours Limit", rPrice: "₹800 (Per Hour Rate)", dName: "Karan Nag", clicks: 14 },
+            { id: 102, ownerEmail: "suresh@gmail.com", classType: "Vehicle", area: "Kalar Para", vName: "Tata Tipper Truck", service: "Goods Transport", matrix: "Per KM", rTitle: "Bastar Region Load", rPrice: "₹18 (Per KM Rate)", dName: "Sanjay Jha", clicks: 5 },
+            { id: 103, ownerEmail: "mahendra@gmail.com", classType: "Tour", area: "Talla Para", tName: "Tirth Yatra Special Group Tour", service: "Tour Package", tVtype: "Traveler Bus", tSeat: "14", tFromTo: "Geedam to Puri Temple", tDays: "5 Days", tCost: "₹18500", dName: "Ramu Gond", clicks: 8 }
         ];
 
-        // Point 3 Fix: Setup default filters to 'All' globally on boot
         let stateFilter = 'All', districtFilter = 'All', villageFilter = 'All';
 
         function showPage(pageId) {
@@ -270,10 +277,24 @@
             closeDropdown();
         }
 
+        // Point 1 Feature: Automatic Live search-matching engine as owner types Email ID
+        function checkOfferEmailCycle(emailVal) {
+            let email = emailVal.trim().toLowerCase();
+            if(profilesDirectory[email]) {
+                let matchData = profilesDirectory[email];
+                document.getElementById('master-owner-name').value = matchData.name;
+                document.getElementById('master-contact').value = matchData.contact;
+                document.getElementById('master-state').value = matchData.state;
+                document.getElementById('master-district').value = matchData.district;
+                document.getElementById('master-village').value = matchData.landmark;
+                document.getElementById('master-colony').value = matchData.colony;
+            }
+        }
+
         function refreshHeaderAuthNode() {
             const node = document.getElementById('header-auth-node');
-            if(currentOwnerPhone && profilesDirectory[currentOwnerPhone]) {
-                let name = profilesDirectory[currentOwnerPhone].name;
+            if(currentOwnerEmail && profilesDirectory[currentOwnerEmail]) {
+                let name = profilesDirectory[currentOwnerEmail].name;
                 node.innerHTML = `
                     <button onclick="toggleDropdownMenu()" class="bg-yellow-400 text-blue-950 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1.5 shadow">
                         <div class="w-4 h-4 bg-blue-600 text-white rounded-full flex items-center justify-center text-[9px] font-black"><i class="fa-solid fa-user"></i></div>
@@ -292,23 +313,26 @@
 
         function handleSessionLogout() {
             if(confirm("Confirm logging out session?")) {
-                localStorage.removeItem('current_owner_phone');
-                currentOwnerPhone = null;
+                localStorage.removeItem('current_owner_email');
+                currentOwnerEmail = null;
+                // Clean form values
+                document.getElementById('master-email').value = '';
+                document.getElementById('master-owner-name').value = '';
+                document.getElementById('master-contact').value = '';
+                
                 closeDropdown(); refreshHeaderAuthNode();
                 alert("Logged Out!"); showPage('home-page'); renderPublicHome();
             }
         }
 
-        // Point 1 Fix: Intelligent Dependent Hierarchical Tab Rendering Hub
+        // Point 1 & 5 Fix: Dependent Location Tabs Filter Architecture
         function renderHierarchicalLocationTabs() {
             let states = ['All'], districts = ['All'], villages = ['All'];
 
-            // Step A: Collect global unique locations
-            Object.keys(profilesDirectory).forEach(phone => {
-                let p = profilesDirectory[phone];
+            Object.keys(profilesDirectory).forEach(email => {
+                let p = profilesDirectory[email];
                 if(p.state && !states.includes(p.state)) states.push(p.state);
                 
-                // Step B: Dependent condition matching to show districts/villages
                 if(stateFilter === 'All' || p.state === stateFilter) {
                     if(p.district && !districts.includes(p.district)) districts.push(p.district);
                 }
@@ -317,52 +341,43 @@
                 }
             });
 
-            // Step C: If filter breaks out due to hide system, auto reset down chain values
             if(!districts.includes(districtFilter)) districtFilter = 'All';
             if(!villages.includes(villageFilter)) villageFilter = 'All';
 
-            const stBox = document.getElementById('tab-state-box');
-            stBox.innerHTML = states.map(s => `<button onclick="setStateFilter('${s}', this)" class="st-btn px-3 py-1 text-xs font-semibold rounded-full shadow-sm ${s===stateFilter?'bg-blue-600 text-white':'bg-white text-gray-700 border'}">${s}</button>`).join('');
-
-            const dsBox = document.getElementById('tab-district-box');
-            dsBox.innerHTML = districts.map(d => `<button onclick="setDistrictFilter('${d}', this)" class="ds-btn px-3 py-1 text-xs font-semibold rounded-full shadow-sm ${d===districtFilter?'bg-blue-600 text-white':'bg-white text-gray-700 border'}">${d}</button>`).join('');
-
-            const vlBox = document.getElementById('tab-village-box');
-            vlBox.innerHTML = villages.map(v => `<button onclick="setVillageFilter('${v}', this)" class="vl-btn px-3 py-1 text-xs font-semibold rounded-full shadow-sm ${v===villageFilter?'bg-blue-600 text-white':'bg-white text-gray-700 border'}">${v}</button>`).join('');
+            document.getElementById('tab-state-box').innerHTML = states.map(s => `<button onclick="setStateFilter('${s}', this)" class="st-btn px-3 py-1 text-xs font-semibold rounded-full shadow-sm ${s===stateFilter?'bg-blue-600 text-white':'bg-white text-gray-700 border'}">${s}</button>`).join('');
+            document.getElementById('tab-district-box').innerHTML = districts.map(d => `<button onclick="setDistrictFilter('${d}', this)" class="ds-btn px-3 py-1 text-xs font-semibold rounded-full shadow-sm ${d===districtFilter?'bg-blue-600 text-white':'bg-white text-gray-700 border'}">${d}</button>`).join('');
+            document.getElementById('tab-village-box').innerHTML = villages.map(v => `<button onclick="setVillageFilter('${v}', this)" class="vl-btn px-3 py-1 text-xs font-semibold rounded-full shadow-sm ${v===villageFilter?'bg-blue-600 text-white':'bg-white text-gray-700 border'}">${v}</button>`).join('');
         }
 
-        function setStateFilter(val, el) {
-            stateFilter = val; districtFilter = 'All'; villageFilter = 'All';
-            renderHierarchicalLocationTabs(); renderPublicHome();
-        }
-        function setDistrictFilter(val, el) {
-            districtFilter = val; villageFilter = 'All';
-            renderHierarchicalLocationTabs(); renderPublicHome();
-        }
-        function setVillageFilter(val, el) {
-            villageFilter = val;
-            renderHierarchicalLocationTabs(); renderPublicHome();
-        }
+        function setStateFilter(val, el) { stateFilter = val; districtFilter = 'All'; villageFilter = 'All'; renderHierarchicalLocationTabs(); renderPublicHome(); }
+        function setDistrictFilter(val, el) { districtFilter = val; villageFilter = 'All'; renderHierarchicalLocationTabs(); renderPublicHome(); }
+        function setVillageFilter(val, el) { villageFilter = val; renderHierarchicalLocationTabs(); renderPublicHome(); }
 
         function handleMasterRegister(event) {
             event.preventDefault();
-            let phone = document.getElementById('master-contact').value.trim();
-            currentOwnerPhone = phone;
-            localStorage.setItem('current_owner_phone', currentOwnerPhone);
+            let email = document.getElementById('master-email').value.trim().toLowerCase();
+            let contactPhone = document.getElementById('master-contact').value.trim();
 
-            profilesDirectory[phone] = {
+            // Point 2 Feature: Strict 10-Digit Mobile Validation Logic Rule
+            if(contactPhone.length !== 10 || isNaN(contactPhone)) {
+                alert("❌ Please enter a valid 10-digit mobile number!");
+                return;
+            }
+
+            currentOwnerEmail = email;
+            localStorage.setItem('current_owner_email', currentOwnerEmail);
+
+            profilesDirectory[email] = {
                 name: document.getElementById('master-owner-name').value,
-                contact: phone,
+                contact: contactPhone,
                 state: document.getElementById('master-state').value,
                 district: document.getElementById('master-district').value,
                 landmark: document.getElementById('master-village').value,
                 colony: document.getElementById('master-colony').value,
-                offers: profilesDirectory[phone]?.offers || []
+                offers: profilesDirectory[email]?.offers || []
             };
             localStorage.setItem('profiles_directory', JSON.stringify(profilesDirectory));
-            refreshHeaderAuthNode(); 
-            renderHierarchicalLocationTabs();
-            showPage('choice-page');
+            refreshHeaderAuthNode(); showPage('choice-page');
         }
 
         function openEntryForm(type) {
@@ -370,19 +385,21 @@
             document.getElementById('entry-class-type').value = type;
             document.getElementById('vehicle-fields-box').classList.toggle('hidden', type !== 'Vehicle');
             document.getElementById('tour-fields-box').classList.toggle('hidden', type !== 'Tour');
-            let prof = profilesDirectory[currentOwnerPhone];
+            let prof = profilesDirectory[currentOwnerEmail];
             document.getElementById('v-hub-area').value = prof ? prof.colony : "Kalar Para";
             showPage('entry-page');
         }
 
         function saveNewVehicle(event) {
             event.preventDefault();
+            if(!currentOwnerEmail) return alert("Session Error, please re-login!");
+
             let index = parseInt(document.getElementById('edit-index').value);
             let type = document.getElementById('entry-class-type').value;
 
             let dataObject = {
                 id: index !== -1 ? fleetStorage[index].id : Date.now(),
-                ownerPhone: currentOwnerPhone,
+                ownerEmail: currentOwnerEmail,
                 classType: type,
                 area: document.getElementById('v-hub-area').value,
                 dName: document.getElementById('d-name').value,
@@ -408,56 +425,51 @@
                 dataObject.tCost = "₹" + document.getElementById('t-cost').value.replace('₹','');
             }
 
-            fleetStorage.push(dataObject);
+            if(index !== -1) { fleetStorage[index] = dataObject; } else { fleetStorage.push(dataObject); }
             localStorage.setItem('fleet_data', JSON.stringify(fleetStorage));
             alert("Workspace Fleet Updated Live!");
             renderHierarchicalLocationTabs(); renderPublicHome(); openDashboard();
         }
 
         function addNewOfferToCycle() {
-            let owner = profilesDirectory[currentOwnerPhone];
+            let owner = profilesDirectory[currentOwnerEmail];
             if(!owner.offers) owner.offers = [];
             if(owner.offers.length >= 2) {
-                alert("Slots Full! Aap ek sath sirf 2 offers active rakh sakte hain. Naya chalane ke liye purana delete kijiye.");
-                return;
+                alert("Slots Full! Max 2 slots active allowed."); return;
             }
             let txt = document.getElementById('owner-new-offer-text').value.trim();
             if(!txt) return alert("Offer text required!");
             owner.offers.push(txt);
-            profilesDirectory[currentOwnerPhone] = owner;
+            profilesDirectory[currentOwnerEmail] = owner;
             localStorage.setItem('profiles_directory', JSON.stringify(profilesDirectory));
             document.getElementById('owner-new-offer-text').value = '';
             renderDashboardOffersBox(); renderPublicHome();
         }
 
         function deleteOfferFromCycle(idx) {
-            profilesDirectory[currentOwnerPhone].offers.splice(idx, 1);
+            profilesDirectory[currentOwnerEmail].offers.splice(idx, 1);
             localStorage.setItem('profiles_directory', JSON.stringify(profilesDirectory));
             renderDashboardOffersBox(); renderPublicHome();
         }
 
         function renderDashboardOffersBox() {
-            let owner = profilesDirectory[currentOwnerPhone];
+            let owner = profilesDirectory[currentOwnerEmail];
             const container = document.getElementById('dashboard-offers-list');
-            if(!owner || !owner.offers || owner.offers.length === 0) {
-                container.innerHTML = '<p class="text-gray-400 italic">No offers published. Max 2 slots active.</p>';
-                return;
-            }
-            container.innerHTML = owner.offers.map((off, i) => `
+            container.innerHTML = (!owner || !owner.offers || owner.offers.length === 0) ? '<p class="text-gray-400 italic">No offers published.</p>' : 
+                owner.offers.map((off, i) => `
                 <div class="bg-slate-900 p-2 rounded flex justify-between items-center border border-slate-700/60 text-gray-200">
-                    <span>🔥 Slot ${i+1}: ${off}</span>
-                    <button onclick="deleteOfferFromCycle(${i})" class="text-red-400 font-bold ml-2">Delete</button>
+                    <span>🔥 Slot ${i+1}: ${off}</span><button onclick="deleteOfferFromCycle(${i})" class="text-red-400 font-bold ml-2">Delete</button>
                 </div>`).join('');
         }
 
-        function openOwnerProfileModal(ownerPhone) {
-            let owner = profilesDirectory[ownerPhone];
+        function openOwnerProfileModal(ownerEmail) {
+            let owner = profilesDirectory[ownerEmail];
             if(!owner) return;
 
             document.getElementById('modal-owner-name').innerHTML = `👨‍💼 ${owner.name}`;
-            document.getElementById('modal-owner-hub').innerText = `📍 Hub Base: ${owner.colony}, ${owner.landmark} (${owner.district})`;
+            document.getElementById('modal-owner-hub').innerText = `📍 Address: ${owner.colony}, ${owner.landmark} (${owner.district})`;
 
-            let filteredItems = fleetStorage.filter(f => f.ownerPhone === ownerPhone);
+            let filteredItems = fleetStorage.filter(f => f.ownerEmail === ownerEmail);
             const container = document.getElementById('modal-items-container');
             container.innerHTML = '';
 
@@ -465,55 +477,53 @@
                 let isTour = item.classType === "Tour";
                 let name = isTour ? item.tName : item.vName;
                 let desc = isTour ? item.tFromTo : `${item.matrix}: ${item.rTitle}`;
-                let price = isTour ? item.tCost : (item.rPrice ? item.rPrice : "Direct Call Best Price");
+                let price = isTour ? item.tCost : (item.rPrice ? item.rPrice : "Call For Best Price");
 
                 container.innerHTML += `
                     <div class="bg-gray-50 border p-3 rounded-xl text-xs">
                         <span class="bg-blue-50 text-blue-600 uppercase font-black text-[9px] px-1.5 rounded">${item.service}</span>
                         <h4 class="font-bold text-gray-900 mt-1">${name}</h4>
                         <div class="flex justify-between items-center bg-white p-2 rounded border border-dashed text-xs mt-1">
-                            <span class="text-gray-500 truncate">${desc}</span>
-                            <span class="font-black text-blue-600 whitespace-nowrap">${price}</span>
+                            <span class="text-gray-500 truncate">${desc}</span><span class="font-black text-blue-600 whitespace-nowrap">${price}</span>
                         </div>
                     </div>`;
             });
 
             document.getElementById('modal-footer-actions').innerHTML = `
-                <a href="tel:${ownerPhone}" class="flex-1 text-center bg-blue-600 text-white font-bold py-2 rounded-xl text-xs">Call Now</a>
-                <a href="https://wa.me/${ownerPhone}" class="flex-1 text-center bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">WhatsApp</a>
+                <a href="tel:${owner.contact}" class="flex-1 text-center bg-blue-600 text-white font-bold py-2 rounded-xl text-xs">Call Now</a>
+                <a href="https://wa.me/${owner.contact}" class="flex-1 text-center bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">WhatsApp</a>
             `;
             document.getElementById('profile-modal').classList.remove('hidden');
         }
 
         function closeProfileModal() { document.getElementById('profile-modal').classList.add('hidden'); }
 
-        // Point 2 Fix: Support Multi Badge Stacking inside Card Render Block
+        // Point 2 Fix: Multiple Badges stacked rendering logic fixed
         function renderPublicHome() {
             const container = document.getElementById('homepage-listings');
             container.innerHTML = '';
             let renderedOwners = [];
 
             fleetStorage.forEach(f => {
-                let ownerPhone = f.ownerPhone;
-                if(renderedOwners.includes(ownerPhone)) return;
+                let ownerEmail = f.ownerEmail;
+                if(renderedOwners.includes(ownerEmail)) return;
 
-                let owner = profilesDirectory[ownerPhone];
+                let owner = profilesDirectory[ownerEmail];
                 if(!owner) return;
 
-                // Hierarchical filtering dynamic checks
                 if(stateFilter !== 'All' && owner.state !== stateFilter) return;
                 if(districtFilter !== 'All' && owner.district !== districtFilter) return;
                 if(villageFilter !== 'All' && owner.landmark !== villageFilter) return;
 
-                renderedOwners.push(ownerPhone);
-                let totalVehicles = fleetStorage.filter(v => v.ownerPhone === ownerPhone).length;
+                renderedOwners.push(ownerEmail);
+                let totalVehicles = fleetStorage.filter(v => v.ownerEmail === ownerEmail).length;
                 
-                // Point 2 Implementation: Dynamic stacked badges render loop for multiple offers
+                // Point 2: Stacking multiple round labels on card top dynamically
                 let badgesCombinedHtml = '';
                 if(owner.offers && owner.offers.length > 0) {
-                    badgesCombinedHtml = `<div class="absolute -top-3.5 right-2 flex flex-col gap-1 items-end z-10 max-w-[70%]">`;
+                    badgesCombinedHtml = `<div class="absolute -top-3.5 right-2 flex flex-col gap-1 items-end z-10 max-w-[75%]">`;
                     owner.offers.forEach((off, i) => {
-                        badgesCombinedHtml += `<div class="bg-orange-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow border border-orange-300 truncate w-full text-right">🔥 Deal ${i+1}: ${off}</div>`;
+                        badgesCombinedHtml += `<div class="bg-orange-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow border border-orange-300 truncate w-full text-right">🔥 Slot ${i+1}: ${off}</div>`;
                     });
                     badgesCombinedHtml += `</div>`;
                 }
@@ -540,13 +550,13 @@
                                 </div>
                             </div>
                             
-                            <div onclick="openOwnerProfileModal('${ownerPhone}')" class="bg-orange-50 hover:bg-orange-100 text-orange-950 p-2 rounded-xl text-[10px] font-bold border border-dashed border-orange-200 text-center cursor-pointer truncate">
+                            <div onclick="openOwnerProfileModal('${ownerEmail}')" class="bg-orange-50 hover:bg-orange-100 text-orange-950 p-2 rounded-xl text-[10px] font-bold border border-dashed border-orange-200 text-center cursor-pointer truncate">
                                 ${activeOfferText}
                             </div>
                         </div>
 
                         <div class="pt-1.5 border-t flex gap-1.5 justify-between items-center">
-                            <button onclick="openOwnerProfileModal('${ownerPhone}')" class="bg-amber-800 hover:bg-amber-900 text-white font-extrabold px-3 py-2 rounded-xl text-xs flex-1 shadow-sm uppercase tracking-wider text-center">
+                            <button onclick="openOwnerProfileModal('${ownerEmail}')" class="bg-amber-800 hover:bg-amber-900 text-white font-extrabold px-3 py-2 rounded-xl text-xs flex-1 shadow-sm uppercase tracking-wider text-center">
                                 <i class="fa-solid fa-folder-open mr-1"></i> View Full Rate Cards Fleet
                             </button>
                         </div>
@@ -559,12 +569,12 @@
         }
 
         function openDashboard() {
-            if(!currentOwnerPhone) { showPage('login-page'); return; }
-            let prof = profilesDirectory[currentOwnerPhone];
+            if(!currentOwnerEmail) { showPage('login-page'); return; }
+            let prof = profilesDirectory[currentOwnerEmail];
             document.getElementById('dash-personalized-welcome').innerText = `Hi, ${prof.name}!`;
             renderDashboardOffersBox();
 
-            let myFleet = fleetStorage.filter(f => f.ownerPhone === currentOwnerPhone);
+            let myFleet = fleetStorage.filter(f => f.ownerEmail === currentOwnerEmail);
             document.getElementById('dash-fleet-count').innerText = myFleet.length;
             let clicksCount = myFleet.reduce((acc, curr) => acc + (curr.clicks || 0), 0);
             document.getElementById('dash-fleet-clicks').innerText = clicksCount;
@@ -591,12 +601,12 @@
         }
 
         function globalWebsiteShare() {
-            let text = `🚗 *GaadiBooking - Local Transport Fleet Network!* ⚡\n\nHi! Apne village ya para se kisi bhi shadi gaadi, truck, ya tour package ki details aur direct malik ka number check karein:\n🌐 *Open Link:* https://GaadiBooking.com`;
+            let text = `🚗 *GaadiBooking - Local Transport Fleet Network!* ⚡\n\nHi! Apne village se kisi bhi shadi gaadi, truck, ya tour package ki details aur direct malik ka number check karein:\n🌐 *Open Link:* https://GaadiBooking.com`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
         }
 
         function shareOwnerWorkspaceProfile() {
-            let prof = profilesDirectory[currentOwnerPhone];
+            let prof = profilesDirectory[currentOwnerEmail];
             if(!prof) return;
             let text = `🚗 *GaadiBooking Asset Profile*\n\nHi, I am *${prof.name}* from *${prof.colony}, ${prof.landmark}*.\nCheck my full direct fleet rate list at link:\n🌐 https://GaadiBooking.com/live-profile`;
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
@@ -611,10 +621,10 @@
             }
         }
 
-        // Point 3 Fix: Execute proper pipeline order directly on first load boot
+        // Boot Hooks execution pipeline order fixed
         refreshHeaderAuthNode();
-        renderHierarchicalLocationTabs(); // Compiles tabs properly
-        renderPublicHome();              // Instantly displays standard listings without any action required
+        renderHierarchicalLocationTabs();
+        renderPublicHome(); // Home elements loaded properly now on startup
     </script>
 </body>
 </html>
