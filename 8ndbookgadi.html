@@ -28,25 +28,21 @@
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans pb-10">
 
-    <!-- --- HEADER BAR (With Dynamic Auth Profile Engine) --- -->
     <header class="bg-blue-600 text-white px-4 py-3 sticky top-0 z-50 shadow-md flex justify-between items-center">
-        <h1 onclick="showPage('home-page')" class="text-xl font-bold tracking-wide cursor-pointer"><i class="fa-solid fa-truck-pickup mr-2"></i>GaadiBooking</h1>
+        <h1 onclick="showPage('home-page')" class="text-xl font-bold tracking-wide cursor-pointer"><i class="fa-solid fa-car-side mr-2"></i>GaadiBooking</h1>
         
-        <!-- Dynamic Profile Node Injection Area -->
         <div class="relative" id="header-auth-node">
-            <!-- JavaScript will dynamically toggle between "Register Button" and "User Profile Dropdown" -->
-        </div>
+            </div>
     </header>
 
-    <!-- --- DYNAMIC USER DROPDOWN COMPONENT OVERLAY --- -->
-    <div id="profile-dropdown-menu" class="fixed right-4 top-14 bg-white text-gray-800 rounded-xl shadow-xl border w-48 hidden z-50 animate-fade-in">
+    <div id="profile-dropdown-menu" class="absolute right-4 top-14 bg-white text-gray-800 rounded-xl shadow-xl border w-48 hidden z-50">
         <div class="p-3 border-b bg-gray-50 rounded-t-xl">
             <p class="text-xs text-gray-400 font-medium">Logged In Account</p>
-            <p id="dropdown-user-title" class="text-sm font-bold text-gray-800 truncate">Suresh Kumar</p>
+            <p id="dropdown-user-title" class="text-sm font-bold text-gray-800 truncate">Owner Name</p>
         </div>
         <ul class="py-1 text-xs font-semibold">
             <li>
-                <button onclick="openDashboard(); closeDropdown();" class="w-full text-left px-3 py-2 hover:bg-blue-50 flex items-center gap-2 text-blue-600">
+                <button onclick="openDashboard();" class="w-full text-left px-3 py-2 hover:bg-blue-50 flex items-center gap-2 text-blue-600">
                     <i class="fa-solid fa-chart-line text-sm"></i> My Fleet Dashboard
                 </button>
             </li>
@@ -58,16 +54,13 @@
         </ul>
     </div>
 
-    <!-- --- ANIMATED MOVING OFFERS BANNER --- -->
     <div class="bg-amber-100 border-b border-amber-200 text-amber-950 overflow-hidden relative py-2 shadow-inner">
         <div class="w-full overflow-hidden whitespace-nowrap">
             <div class="animate-marquee text-xs font-bold space-x-10 cursor-pointer" id="live-marquee-box">
-                <!-- Rolling dynamic offers injected here -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- ================= HOMEPAGE SECTION ================= -->
     <section id="home-page" class="page-section">
         <div class="bg-gradient-to-b from-blue-600 to-blue-500 text-white px-4 pt-3 pb-6 rounded-b-2xl shadow-inner">
             <p class="text-xs text-blue-100 mb-2 text-center">💡 Tip: Colony ya Para select karke bilkul paas ki gaadi check karein!</p>
@@ -77,21 +70,16 @@
             </div>
         </div>
 
-        <!-- Dynamic Hub Filters -->
         <div class="px-4 my-4">
             <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-map-location-dot text-red-500 mr-1"></i> Active Colony / Area Tabs</p>
             <div class="flex gap-2 overflow-x-auto no-scrollbar py-1" id="dynamic-hub-tabs">
-                <!-- Dynamic Area tabs inject here -->
-            </div>
+                </div>
         </div>
 
-        <!-- Multi-Owner Coffee Card Grid System -->
         <div class="px-4 grid grid-cols-1 md:grid-cols-2 gap-4" id="homepage-listings">
-            <!-- Dynamic Fleet Owner Profiles Inject Live -->
-        </div>
+            </div>
     </section>
 
-    <!-- ================= OWNER PROFILE POPUP MODAL SCREEN ================= -->
     <div id="profile-modal" class="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center hidden p-4">
         <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl max-h-[85vh] overflow-y-auto p-5 space-y-4 shadow-2xl border-t-4 border-amber-800">
             <div class="flex justify-between items-start border-b pb-2">
@@ -107,15 +95,13 @@
             <div class="space-y-3">
                 <p class="text-xs font-extrabold text-gray-700 tracking-wider uppercase"><i class="fa-solid fa-list-check text-blue-600 mr-1"></i> Services & Rate Cards</p>
                 <div id="modal-items-container" class="space-y-2.5">
-                    <!-- Cards injection -->
-                </div>
+                    </div>
             </div>
 
             <div id="modal-footer-actions" class="pt-3 border-t flex gap-2"></div>
         </div>
     </div>
 
-    <!-- ================= REGISTRATION MASTER SCREEN (With Colony Hierarchy) ================= -->
     <section id="login-page" class="page-section hidden max-w-md mx-auto px-4 mt-6">
         <div class="bg-white p-6 rounded-2xl shadow-lg border">
             <h2 class="text-lg font-bold text-gray-800 mb-4"><i class="fa-solid fa-id-card text-blue-600 mr-2"></i>Step 1: Master Profile Info</h2>
@@ -125,11 +111,10 @@
                     <input type="text" id="master-owner-name" required placeholder="Enter Full Name" class="w-full border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-600 mb-1">Contact Number / WhatsApp Email</label>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Contact Number (WhatsApp)</label>
                     <input type="tel" id="master-contact" required placeholder="Enter 10 Digit Mobile No." class="w-full border rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 
-                <!-- Expanded Geolocation Hierarchy Matrix -->
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-1">State</label>
@@ -156,7 +141,6 @@
         </div>
     </section>
 
-    <!-- ================= DASHBOARD CORE HUB SELECTOR ================= -->
     <section id="choice-page" class="page-section hidden max-w-md mx-auto px-4 mt-6">
         <div class="bg-white p-5 rounded-2xl shadow border text-center space-y-4">
             <h3 class="font-bold text-gray-800"><i class="fa-solid fa-layer-group text-blue-600 mr-1"></i> Fleet Setup & Management</h3>
@@ -171,7 +155,6 @@
         </div>
     </section>
 
-    <!-- ================= UNIFIED ENTRY SYSTEM FORM ================= -->
     <section id="entry-page" class="page-section hidden max-w-md mx-auto px-4 mt-4">
         <div class="bg-white p-5 rounded-2xl shadow-lg border space-y-4">
             <div class="flex justify-between items-center border-b pb-2">
@@ -194,7 +177,6 @@
                     </div>
                 </div>
 
-                <!-- Vehicle Fields Box -->
                 <div id="vehicle-fields-box" class="space-y-3">
                     <div>
                         <label class="block text-xs font-medium text-gray-600 mb-0.5">Vehicle Name/Model</label>
@@ -216,7 +198,6 @@
                     </div>
                 </div>
 
-                <!-- Tour Fields Box -->
                 <div id="tour-fields-box" class="space-y-3 hidden bg-emerald-50/20 p-3 rounded-xl border border-emerald-100">
                     <div>
                         <label class="block text-xs font-medium text-emerald-950 mb-0.5">Tour Package Name</label>
@@ -246,23 +227,20 @@
         </div>
     </section>
 
-    <!-- ================= OWNER PREMIUM WORKSPACE DASHBOARD ================= -->
     <section id="dashboard-page" class="page-section hidden max-w-md mx-auto px-4 mt-4">
         <div class="bg-slate-900 text-white p-5 rounded-2xl shadow-xl space-y-4">
             <div class="flex justify-between items-center">
                 <div>
-                    <!-- Personalized Dashboard Heading (Requirement Fix) -->
                     <h2 class="text-lg font-bold text-yellow-400" id="dash-personalized-welcome">Hi, Fleet Owner!</h2>
                     <p class="text-xs text-gray-400">Welcome to your personal Workspace</p>
                 </div>
                 <button onclick="showPage('choice-page')" class="bg-white/10 px-2.5 py-1 rounded text-xs font-bold">Panel Hub</button>
             </div>
 
-            <!-- Custom Flash Offer Component Box -->
             <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 space-y-2">
                 <label class="block text-[11px] font-bold text-orange-400 uppercase tracking-wide"><i class="fa-solid fa-bullhorn mr-1"></i> Update Your Live Deal Offer Message</label>
                 <textarea id="owner-flash-msg" placeholder="Write offer, e.g. Aaj Shadi ki gaadi booking par Flat 500rs discount h!" class="w-full text-xs p-2 bg-slate-900 rounded border border-gray-700 text-gray-200 outline-none h-12"></textarea>
-                <button onclick="saveLiveOffer()" class="bg-orange-500 text-white font-bold text-[10px] px-3 py-1 rounded shadow block ml-auto uppercase">Update Live Banner</button>
+                <button onclick="saveLiveOffer()" class="bg-orange-50 text-white font-bold text-[10px] px-3 py-1 rounded shadow block ml-auto uppercase">Update Live Banner</button>
             </div>
 
             <div class="grid grid-cols-2 gap-2 bg-slate-800 p-3 rounded-xl text-center">
@@ -280,9 +258,8 @@
         </div>
     </section>
 
-    <!-- --- JAVASCRIPT LOGIC ENGINE --- -->
     <script>
-        // Reactive System Array States (Session Persisted Engine)
+        // Multi-Vendor Storage Nodes
         let currentOwnerPhone = localStorage.getItem('current_owner_phone') || null;
         
         let profilesDirectory = JSON.parse(localStorage.getItem('profiles_directory')) || {
@@ -363,7 +340,6 @@
             const tabsBox = document.getElementById('dynamic-hub-tabs');
             let areas = ['All', 'Tour Package'];
             
-            // Generate deep colony tabs dynamically
             fleetStorage.forEach(f => {
                 if(f.area && !areas.includes(f.area)) areas.push(f.area);
             });
@@ -412,7 +388,6 @@
             document.getElementById('tour-fields-box').classList.toggle('hidden', type !== 'Tour');
             
             let currentProf = profilesDirectory[currentOwnerPhone];
-            // Auto assigns colony path to unit object record
             document.getElementById('v-hub-area').value = currentProf ? currentProf.colony : "Kalar Para";
             showPage('entry-page');
         }
@@ -465,7 +440,7 @@
             }
 
             localStorage.setItem('fleet_data', JSON.stringify(fleetStorage));
-            alert("Workspace Entry Saved Successfully!");
+            alert("Entry Uploaded Live!");
             generateDynamicHubTabs();
             renderPublicHome();
             openDashboard();
@@ -544,7 +519,6 @@
                 let owner = profilesDirectory[ownerPhone];
                 if(!owner) return;
 
-                // Tab selection filtration validations
                 if(filterParam === 'Tour Package' && f.classType !== 'Tour') return;
                 if(filterParam !== 'All' && filterParam !== 'Tour Package' && f.area.toLowerCase() !== filterParam.toLowerCase()) return;
 
@@ -595,7 +569,6 @@
             if(!currentOwnerPhone) { showPage('login-page'); return; }
             let prof = profilesDirectory[currentOwnerPhone];
             
-            // Personalised Welcome Text heading
             document.getElementById('dash-personalized-welcome').innerText = `Hi, ${prof.name}!`;
             document.getElementById('owner-flash-msg').value = prof.offer || "";
 
@@ -616,17 +589,57 @@
                             <p class="font-bold text-yellow-400">${title}</p>
                             <p class="text-[10px] text-gray-400">${f.service} • Rate: ${f.rPrice || f.tCost || 'Custom Call'}</p>
                         </div>
-                        <button onclick="triggerDeleteRow(${f.id})" class="text-red-400 text-sm px-2"><i class="fa-solid fa-trash-can"></i></button>
+                        <div class="flex items-center gap-2">
+                            <button onclick="triggerEditRow(${f.id})" class="text-blue-400 font-bold hover:underline">Edit</button>
+                            <button onclick="triggerDeleteRow(${f.id})" class="text-red-400 text-sm px-2"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
                     </div>`;
             });
+            closeDropdown();
             showPage('dashboard-page');
+        }
+
+        function triggerEditRow(id) {
+            let idx = fleetStorage.findIndex(f => f.id === id);
+            if(idx === -1) return;
+            let item = fleetStorage[idx];
+
+            document.getElementById('edit-index').value = idx;
+            document.getElementById('entry-class-type').value = item.classType;
+            
+            document.getElementById('vehicle-fields-box').classList.toggle('hidden', item.classType !== 'Vehicle');
+            document.getElementById('tour-fields-box').classList.toggle('hidden', item.classType !== 'Tour');
+            document.getElementById('form-type-title').innerHTML = `<i class="fa-solid fa-wrench text-orange-500 mr-1"></i> Edit/Update ${item.classType}`;
+
+            document.getElementById('v-hub-area').value = item.area;
+            document.getElementById('d-name').value = item.dName;
+            document.getElementById('d-phone').value = item.dPhone;
+
+            if(item.classType === 'Vehicle') {
+                document.getElementById('v-name').value = item.vName;
+                document.getElementById('v-service').value = item.service;
+                document.getElementById('v-matrix-type').value = item.matrix;
+                document.getElementById('v-route').value = item.rTitle;
+                // Extract just numeric price if possible, or give default string
+                document.getElementById('v-fare').value = item.rPrice ? item.rPrice.split(' ')[0].replace('₹','') : '';
+            } else {
+                document.getElementById('t-name').value = item.tName;
+                document.getElementById('t-vtype').value = item.tVtype;
+                document.getElementById('t-seat').value = item.tSeat;
+                document.getElementById('t-fromto').value = item.tFromTo;
+                document.getElementById('t-days').value = item.tDays;
+                document.getElementById('t-cost').value = item.tCost.replace('₹','');
+            }
+            showPage('entry-page');
         }
 
         function triggerDeleteRow(id) {
             if(confirm("Delete item?")) {
                 fleetStorage = fleetStorage.filter(f => f.id !== id);
                 localStorage.setItem('fleet_data', JSON.stringify(fleetStorage));
-                openDashboard();
+                if(!document.getElementById('dashboard-page').classList.contains('hidden')) {
+                    openDashboard();
+                }
                 renderPublicHome();
             }
         }
@@ -647,13 +660,6 @@
                 cards[i].classList.toggle('hidden', !text.includes(val));
             }
         }
-
-        // Global Event listener for close dropdown handling
-        window.addEventListener('click', function(e){   
-            if (!document.getElementById('header-auth-node').contains(e.target)){
-                closeDropdown();
-            }
-        });
 
         // Initial Boot Runtime Sequences
         refreshHeaderAuthNode();
