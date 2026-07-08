@@ -16,7 +16,7 @@
             Yah Dashboard aapko ek se zyada digital business cards banane aur unka Live Preview dekhne ki suvidha deta hai. Sabhi data aapke device me surakshit save rahega.
         </p>
         <div class="pt-2 flex gap-2">
-            <button onclick="window.location.href='index.html'" class="flex-1 bg-slate-800 hover:bg-slate-700 text-gray-300 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Back</button>
+            <button onclick="window.location.href='./'" class="flex-1 bg-slate-800 hover:bg-slate-700 text-gray-300 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Back</button>
             <button onclick="acceptNoticeAndShowDashboard()" class="flex-1 bg-yellow-400 hover:bg-yellow-500 text-slate-950 py-2 rounded-xl text-xs font-black">Open My Dashboard</button>
         </div>
     </div>
@@ -33,7 +33,7 @@
         <div class="space-y-3">
             <div class="flex justify-between items-center">
                 <h3 class="text-xs font-black text-gray-400 uppercase tracking-wider"><i class="fa-solid fa-address-card text-blue-500"></i> Your Cards (Saved locally)</h3>
-                <button onclick="window.location.href='index.html'" class="text-[10px] bg-slate-800 text-gray-300 px-2 py-1 rounded border border-gray-700 font-bold"><i class="fa-solid fa-home"></i> View Homepage</button>
+                <button onclick="window.location.href='./'" class="text-[10px] bg-slate-800 text-gray-300 px-2 py-1 rounded border border-gray-700 font-bold"><i class="fa-solid fa-home"></i> View Homepage</button>
             </div>
             <div id="saved-cards-box" class="space-y-3"></div>
         </div>
@@ -84,10 +84,10 @@
             </div>
             <div>
                 <label class="block text-gray-400 mb-1">Full Work Description</label>
-                <textarea id="owner-desc" rows="3" placeholder="Aap kya-kya service dete hain detail me likhein..." class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white resize-none outline-none"></textarea>
+                <textarea id="owner-desc" rows="3" placeholder="Aap kya-kya service dete hain detail me likhein..." class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white resize-none"></textarea>
             </div>
             <div>
-                <label class="block text-gray-400 mb-1">Upload Photo (Optional)</label>
+                <label class="block text-gray-400 mb-1">Upload Business Photo / Banner Image</label>
                 <input type="file" id="media-hook" accept="image/*" class="w-full text-gray-400 bg-slate-900 p-2 rounded-xl border border-gray-700">
             </div>
         </div>
@@ -99,7 +99,7 @@
     </div>
 
     <script>
-        const ADMIN_RECEIVING_EMAIL = "admin@gaadibooking.com"; // 👈 Yahan apna sahi Gmail ID bhar dena!
+        const ADMIN_RECEIVING_EMAIL = "admin@gaadibooking.com"; 
         let localCardsArr = JSON.parse(localStorage.getItem('my_local_cards')) || [];
 
         function acceptNoticeAndShowDashboard() {
@@ -157,7 +157,6 @@
                 document.getElementById('owner-desc').value = c.description || "";
             } else {
                 document.getElementById('card-index').value = "";
-                // Do not clear the location defaults to save owner typing time
                 document.getElementById('owner-email').value = "";
                 document.getElementById('owner-name').value = "";
                 document.getElementById('owner-phone').value = "";
@@ -171,14 +170,12 @@
             document.getElementById('dashboard-view').classList.remove('hidden');
         }
 
-        // 🌟 100% FIXED SAVE LOGIC AND IDENTIFIER HOOKS
         function saveCardToStorage() {
             let idx = document.getElementById('card-index').value;
             let phone = document.getElementById('owner-phone').value.trim();
             let email = document.getElementById('owner-email').value.trim();
             let name = document.getElementById('owner-name').value.trim();
 
-            // Strict Validation Check
             if(!email || !name || phone.length !== 10 || isNaN(phone)) {
                 alert("❌ Kripya poori aur sahi 10-Digit Phone Number (e.g. 9876543210) aur details fill karein!");
                 return;
