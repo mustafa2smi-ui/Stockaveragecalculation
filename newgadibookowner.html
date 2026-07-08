@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LocalHub - Studio Dashboard</title>
+    <title>LocalHub Studio - Manage Cards</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -13,30 +13,46 @@
         <div class="w-12 h-12 bg-blue-500 text-slate-900 rounded-full flex items-center justify-center text-xl font-black mx-auto shadow">📢</div>
         <h3 class="text-sm font-black text-blue-400 uppercase tracking-wide">Digital Visiting Card Creation System</h3>
         <p class="text-xs text-gray-200 leading-relaxed text-justify px-1">
-            Yah Website Aapke Apni Gadiyo Ko Live Booking Ke Liye Publishing karne ke liye hai. Agar aap apni Gadiyo ko kiraye par chalate hai to email id and State, district, city, village, colony add karke continue kare. Aur Yadi Aap Kiraye Par Gadi Dekhrhe hai To Back Button Par click Kare. Dhanyawad.
+            Yah Dashboard aapko ek se zyada digital business cards banane aur unka Live Preview dekhne ki suvidha deta hai. Sabhi data aapke device me surakshit save rahega.
         </p>
         <div class="pt-2 flex gap-2">
             <button onclick="window.location.href='index.html'" class="flex-1 bg-slate-800 hover:bg-slate-700 text-gray-300 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Back</button>
-            <button onclick="acceptNoticeAndShowForm()" class="flex-1 bg-yellow-400 hover:bg-yellow-500 text-slate-950 py-2 rounded-xl text-xs font-black">Continue Registration</button>
+            <button onclick="acceptNoticeAndShowDashboard()" class="flex-1 bg-yellow-400 hover:bg-yellow-500 text-slate-950 py-2 rounded-xl text-xs font-black">Open My Dashboard</button>
         </div>
     </div>
 
-    <div id="setup-view" class="hidden bg-slate-800 p-5 rounded-2xl shadow-xl border border-gray-700 space-y-4">
-        <h2 class="text-sm font-bold text-yellow-400 text-center border-b pb-2 border-gray-700"><i class="fa-solid fa-magic mr-1"></i> Create Digital Business Profile</h2>
-        
-        <div class="space-y-3.5 text-xs">
+    <div id="dashboard-view" class="hidden space-y-5">
+        <div class="flex justify-between items-center bg-slate-800 p-4 rounded-xl border border-gray-700">
             <div>
-                <label class="block text-gray-400 mb-1">Email ID</label>
-                <input type="email" id="owner-email" placeholder="name@email.com" class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 outline-none text-white">
+                <h2 class="text-xs font-bold text-gray-400">Welcome to Your</h2>
+                <h1 class="text-sm font-black text-yellow-400"><i class="fa-solid fa-table-columns mr-1"></i> Business Card Studio</h1>
+            </div>
+            <button onclick="openCardForm()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow"><i class="fa-solid fa-plus mr-1"></i> Create New</button>
+        </div>
+
+        <div class="space-y-3">
+            <h3 class="text-xs font-black text-gray-400 uppercase tracking-wider"><i class="fa-solid fa-address-card text-blue-500"></i> Your Cards (Saved locally)</h3>
+            <div id="saved-cards-box" class="space-y-3"></div>
+        </div>
+    </div>
+
+    <div id="form-view" class="hidden bg-slate-800 p-5 rounded-2xl shadow-xl border border-gray-700 space-y-4">
+        <h2 class="text-sm font-bold text-yellow-400 text-center border-b pb-2 border-gray-700"><i class="fa-solid fa-pen-to-square mr-1"></i> Card Details</h2>
+        
+        <div class="space-y-3 text-xs">
+            <input type="hidden" id="card-index">
+            <div>
+                <label class="block text-gray-400 mb-1">Owner Email ID</label>
+                <input type="email" id="owner-email" placeholder="name@email.com" class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white outline-none">
             </div>
             <div class="grid grid-cols-2 gap-2">
                 <div>
-                    <label class="block text-gray-400 mb-1">Business / Person Name</label>
-                    <input type="text" id="owner-name" placeholder="e.g. Suresh Plumber" class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 outline-none text-white">
+                    <label class="block text-gray-400 mb-1">Business Name</label>
+                    <input type="text" id="owner-name" placeholder="e.g. Suresh Plumber" class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white outline-none">
                 </div>
                 <div>
-                    <label class="block text-gray-400 mb-1">Profession Category</label>
-                    <select id="owner-category" class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white font-medium">
+                    <label class="block text-gray-400 mb-1">Profession</label>
+                    <select id="owner-category" class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white font-medium outline-none">
                         <option value="Wedding Car">Wedding Car</option>
                         <option value="Plumber">Plumber</option>
                         <option value="Driver">Driver / Pilot</option>
@@ -48,54 +64,116 @@
                 </div>
             </div>
             <div>
-                <label class="block text-gray-400 mb-1">Contact WhatsApp Number</label>
-                <input type="tel" id="owner-phone" placeholder="10 Digit Number" class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 outline-none text-white">
+                <label class="block text-gray-400 mb-1">WhatsApp Number</label>
+                <input type="tel" id="owner-phone" placeholder="10 Digit Number" class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white outline-none">
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <input type="text" id="owner-state" value="Chhattisgarh" class="bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white">
-                <input type="text" id="owner-district" value="Dantewada" class="bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white">
+                <input type="text" id="owner-state" placeholder="State" value="Chhattisgarh" class="bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white">
+                <input type="text" id="owner-district" placeholder="District" value="Dantewada" class="bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white">
             </div>
             <div class="grid grid-cols-2 gap-2">
-                <input type="text" id="owner-village" value="Mailawada" class="bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white">
-                <input type="text" id="owner-colony" value="Kalar Para" class="bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white">
+                <input type="text" id="owner-village" placeholder="Village" value="Mailawada" class="bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white">
+                <input type="text" id="owner-colony" placeholder="Colony" value="Kalar Para" class="bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white">
             </div>
             <div>
-                <label class="block text-gray-400 mb-1">Short Tagline for Homepage Card (Max 60 letters)</label>
-                <input type="text" id="owner-tagline" placeholder="e.g. Shadi ke liye VIP gaadi uchit rate par milti hai." class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white">
+                <label class="block text-gray-400 mb-1">Short Tagline (Max 60 chars)</label>
+                <input type="text" id="owner-tagline" placeholder="e.g. Scorpio gaadi uchit rate par milti hai." class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white outline-none">
             </div>
             <div>
-                <label class="block text-gray-400 mb-1">Full Description (Aap kya-kya service dete hain detail me likhein)</label>
-                <textarea id="owner-desc" rows="3" placeholder="e.g. Hamare yahan pipe fitting, tanki leaks aur sanitary fitting ka poora kaam kiya jata hai..." class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white resize-none"></textarea>
+                <label class="block text-gray-400 mb-1">Full Work Description</label>
+                <textarea id="owner-desc" rows="3" placeholder="Aap kya-kya service dete hain detail me likhein..." class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white resize-none outline-none"></textarea>
             </div>
             <div>
-                <label class="block text-gray-400 mb-1">Upload Business Photo / Banner Image</label>
+                <label class="block text-gray-400 mb-1">Upload Photo (Optional)</label>
                 <input type="file" id="media-hook" accept="image/*" class="w-full text-gray-400 bg-slate-900 p-2 rounded-xl border border-gray-700">
             </div>
         </div>
 
-        <button onclick="processAndTriggerGmail()" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 font-black py-3 rounded-xl text-xs uppercase shadow-xl tracking-wider text-center"><i class="fa-solid fa-envelope-open-text mr-1 text-sm"></i> Export & Submit via Gmail</button>
+        <div class="pt-2 flex gap-2">
+            <button onclick="closeCardForm()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-gray-300 py-2.5 rounded-xl text-xs font-bold">Cancel</button>
+            <button onclick="saveCardToStorage()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-black"><i class="fa-solid fa-floppy-disk mr-1"></i> Save to Storage</button>
+        </div>
     </div>
 
     <script>
-        const ADMIN_RECEIVING_EMAIL = "admin@gaadibooking.com"; // 👈 Apna master email laga lein
+        const ADMIN_RECEIVING_EMAIL = "mustafawebtool@gmail.com"; // 👈 Yahan apna sahi Gmail ID bhar dena!
+        let localCardsArr = JSON.parse(localStorage.getItem('my_local_cards')) || [];
 
-        function acceptNoticeAndShowForm() {
+        function acceptNoticeAndShowDashboard() {
             document.getElementById('notice-card').classList.add('hidden');
-            document.getElementById('setup-view').classList.remove('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            renderSavedDashboardCards();
         }
 
-        function processAndTriggerGmail() {
+        function renderSavedDashboardCards() {
+            const container = document.getElementById('saved-cards-box');
+            if(localCardsArr.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-500 py-8 text-xs italic">Aapke paas koi card saved nahi hai. Naya banayein!</p>`;
+                return;
+            }
+
+            container.innerHTML = localCardsArr.map((card, index) => `
+                <div class="bg-slate-800 p-4 rounded-xl border border-gray-700 space-y-3">
+                    <div class="bg-white text-gray-900 rounded-xl p-3 shadow-sm space-y-2">
+                        <div class="flex justify-between items-start border-b pb-1.5 border-dashed border-gray-200">
+                            <div>
+                                <h4 class="font-extrabold text-xs text-blue-800"><i class="fa-solid fa-circle-check text-blue-600 mr-1"></i> ${card.name}</h4>
+                                <p class="text-[10px] text-gray-500">📍 ${card.colony}, ${card.village}</p>
+                            </div>
+                            <span class="bg-blue-50 text-blue-700 text-[8px] font-black px-2 py-0.5 rounded-full border border-blue-200 uppercase">${card.category}</span>
+                        </div>
+                        <p class="text-[11px] text-gray-600 italic font-medium">"${card.shortTagline}"</p>
+                        <div class="bg-slate-100 text-[9px] font-bold text-center py-1 rounded text-gray-500 uppercase">✨ Card Dashboard Preview Style</div>
+                    </div>
+                    
+                    <div class="flex gap-2 pt-1 text-xs font-bold">
+                        <button onclick="deleteCard(${index})" class="bg-red-950/40 hover:bg-red-900 text-red-400 px-3 py-2 rounded-xl"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="openCardForm(${index})" class="bg-slate-700 hover:bg-slate-600 text-gray-300 px-3 py-2 rounded-xl"><i class="fa-solid fa-edit"></i> Edit</button>
+                        <button onclick="exportSingleCardViaGmail(${index})" class="flex-1 bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 text-slate-950 font-black py-2 rounded-xl uppercase tracking-wider text-center"><i class="fa-solid fa-paper-plane mr-1"></i> Submit Card</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openCardForm(index = null) {
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('form-view').classList.remove('hidden');
+            
+            if(index !== null) {
+                let c = localCardsArr[index];
+                document.getElementById('card-index').value = index;
+                document.getElementById('owner-email').value = c.email;
+                document.getElementById('owner-name').value = c.name;
+                document.getElementById('owner-category').value = c.category;
+                document.getElementById('owner-phone').value = c.phone;
+                document.getElementById('owner-state').value = c.state;
+                document.getElementById('owner-district').value = c.district;
+                document.getElementById('owner-village').value = c.village;
+                document.getElementById('owner-colony').value = c.colony;
+                document.getElementById('owner-tagline').value = c.shortTagline;
+                document.getElementById('owner-desc').value = c.description;
+            } else {
+                document.getElementById('card-index').value = "";
+                document.getElementById('owner-name').value = "";
+                document.getElementById('owner-tagline').value = "";
+                document.getElementById('owner-desc').value = "";
+            }
+        }
+
+        function closeCardForm() {
+            document.getElementById('form-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+        }
+
+        function saveCardToStorage() {
+            let idx = document.getElementById('card-index').value;
             let phone = document.getElementById('owner-phone').value.trim();
             let email = document.getElementById('owner-email').value.trim();
             let name = document.getElementById('owner-name').value.trim();
-            let tagline = document.getElementById('owner-tagline').value.trim();
-            let desc = document.getElementById('owner-desc').value.trim();
 
-            if(!email || !name || !desc || !tagline) return alert("❌ Kripya saari jankari poori tareeke se bharein!");
-            if(phone.length !== 10 || isNaN(phone)) return alert("❌ Please enter valid 10-Digit Phone!");
+            if(!email || !name || phone.length !== 10) return alert("❌ Kripya poori aur sahi jankari fill karein!");
 
-            let fileInput = document.getElementById('media-hook');
-            let payload = {
+            let cardData = {
                 email: email,
                 name: name,
                 category: document.getElementById('owner-category').value,
@@ -104,26 +182,46 @@
                 district: document.getElementById('owner-district').value,
                 village: document.getElementById('owner-village').value,
                 colony: document.getElementById('owner-colony').value,
-                shortTagline: tagline,
-                description: desc,
+                shortTagline: document.getElementById('owner-tagline').value,
+                description: document.getElementById('owner-desc').value,
                 image64: ""
             };
 
+            let fileInput = document.getElementById('media-hook');
             if (fileInput.files && fileInput.files[0]) {
                 let reader = new FileReader();
                 reader.onload = function (e) {
-                    payload.image64 = e.target.result;
-                    launchGmail(payload);
+                    cardData.image64 = e.target.result;
+                    commitSave(idx, cardData);
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                launchGmail(payload);
+                if(idx !== "") cardData.image64 = localCardsArr[idx].image64;
+                commitSave(idx, cardData);
             }
         }
 
-        function launchGmail(finalPayload) {
-            let subject = encodeURIComponent(`LocalHub New Card Package - ${finalPayload.name}`);
-            let body = encodeURIComponent(`Hi Admin,\n\nMain apne business ka digital data bhej raha hoon.\n\n👤 NAME: ${finalPayload.name}\n🛠️ CATEGORY: ${finalPayload.category}\n\n📦 PASTE THIS ENTIRE BLOCK INSIDE THE NEW FILE:\n\n${JSON.stringify(finalPayload)}\n\n`);
+        function commitSave(idx, data) {
+            if(idx !== "") localCardsArr[idx] = data;
+            else localCardsArr.push(data);
+            
+            localStorage.setItem('my_local_cards', JSON.stringify(localCardsArr));
+            closeCardForm();
+            renderSavedDashboardCards();
+        }
+
+        function deleteCard(index) {
+            if(confirm("Kya aap is card ko delete karna chahte hain?")) {
+                localCardsArr.splice(index, 1);
+                localStorage.setItem('my_local_cards', JSON.stringify(localCardsArr));
+                renderSavedDashboardCards();
+            }
+        }
+
+        function exportSingleCardViaGmail(index) {
+            let card = localCardsArr[index];
+            let subject = encodeURIComponent(`LocalHub Registration Request - ${card.name}`);
+            let body = encodeURIComponent(`Hi Admin,\n\nMaine dashboard par apna digital card verify kar liya hai. Kripya ise live karein.\n\n👤 NAME: ${card.name}\n🛠️ CATEGORY: ${card.category}\n\n📦 COPY THIS CODE PACKAGE:\n\n${JSON.stringify(card)}\n\n`);
             window.location.href = `mailto:${ADMIN_RECEIVING_EMAIL}?subject=${subject}&body=${body}`;
         }
     </script>
