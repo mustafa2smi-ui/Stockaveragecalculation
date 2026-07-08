@@ -16,7 +16,7 @@
             Yah Dashboard aapko ek se zyada digital business cards banane aur unka Live Preview dekhne ki suvidha deta hai. Sabhi data aapke device me surakshit save rahega.
         </p>
         <div class="pt-2 flex gap-2">
-            <button onclick="window.location.href='./'" class="flex-1 bg-slate-800 hover:bg-slate-700 text-gray-300 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Back</button>
+            <button onclick="window.location.href='newgadibookindex.html'" class="flex-1 bg-slate-800 hover:bg-slate-700 text-gray-300 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Back</button>
             <button onclick="acceptNoticeAndShowDashboard()" class="flex-1 bg-yellow-400 hover:bg-yellow-500 text-slate-950 py-2 rounded-xl text-xs font-black">Open My Dashboard</button>
         </div>
     </div>
@@ -33,7 +33,7 @@
         <div class="space-y-3">
             <div class="flex justify-between items-center">
                 <h3 class="text-xs font-black text-gray-400 uppercase tracking-wider"><i class="fa-solid fa-address-card text-blue-500"></i> Your Cards (Saved locally)</h3>
-                <button onclick="window.location.href='./'" class="text-[10px] bg-slate-800 text-gray-300 px-2 py-1 rounded border border-gray-700 font-bold"><i class="fa-solid fa-home"></i> View Homepage</button>
+                <button onclick="window.location.href='newgadubookindex.html'" class="text-[10px] bg-slate-800 text-gray-300 px-2 py-1 rounded border border-gray-700 font-bold"><i class="fa-solid fa-home"></i> View Homepage</button>
             </div>
             <div id="saved-cards-box" class="space-y-3"></div>
         </div>
@@ -99,7 +99,7 @@
     </div>
 
     <script>
-        const ADMIN_RECEIVING_EMAIL = "admin@gaadibooking.com"; 
+        const ADMIN_RECEIVING_EMAIL = "mustafawebtool@gmail.com"; 
         let localCardsArr = JSON.parse(localStorage.getItem('my_local_cards')) || [];
 
         function acceptNoticeAndShowDashboard() {
