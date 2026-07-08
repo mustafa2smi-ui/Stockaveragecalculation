@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalHub - Studio Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-gray-100 font-sans pb-10 max-w-md mx-auto px-4 pt-4">
+
+    <div id="notice-card" class="bg-gradient-to-br from-blue-950 to-slate-950 p-5 rounded-2xl shadow-xl border border-blue-500/30 space-y-4 text-center">
+        <div class="w-12 h-12 bg-blue-500 text-slate-900 rounded-full flex items-center justify-center text-xl font-black mx-auto shadow">📢</div>
+        <h3 class="text-sm font-black text-blue-400 uppercase tracking-wide">Digital Visiting Card Creation System</h3>
+        <p class="text-xs text-gray-200 leading-relaxed text-justify px-1">
+            Yah Website Aapke Apni Gadiyo Ko Live Booking Ke Liye Publishing karne ke liye hai. Agar aap apni Gadiyo ko kiraye par chalate hai to email id and State, district, city, village, colony add karke continue kare. Aur Yadi Aap Kiraye Par Gadi Dekhrhe hai To Back Button Par click Kare. Dhanyawad.
+        </p>
+        <div class="pt-2 flex gap-2">
+            <button onclick="window.location.href='index.html'" class="flex-1 bg-slate-800 hover:bg-slate-700 text-gray-300 py-2 rounded-xl text-xs font-bold"><i class="fa-solid fa-arrow-left mr-1"></i> Back</button>
+            <button onclick="acceptNoticeAndShowForm()" class="flex-1 bg-yellow-400 hover:bg-yellow-500 text-slate-950 py-2 rounded-xl text-xs font-black">Continue Registration</button>
+        </div>
+    </div>
+
+    <div id="setup-view" class="hidden bg-slate-800 p-5 rounded-2xl shadow-xl border border-gray-700 space-y-4">
+        <h2 class="text-sm font-bold text-yellow-400 text-center border-b pb-2 border-gray-700"><i class="fa-solid fa-magic mr-1"></i> Create Digital Business Profile</h2>
+        
+        <div class="space-y-3.5 text-xs">
+            <div>
+                <label class="block text-gray-400 mb-1">Email ID</label>
+                <input type="email" id="owner-email" placeholder="name@email.com" class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 outline-none text-white">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-gray-400 mb-1">Business / Person Name</label>
+                    <input type="text" id="owner-name" placeholder="e.g. Suresh Plumber" class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 outline-none text-white">
+                </div>
+                <div>
+                    <label class="block text-gray-400 mb-1">Profession Category</label>
+                    <select id="owner-category" class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white font-medium">
+                        <option value="Wedding Car">Wedding Car</option>
+                        <option value="Plumber">Plumber</option>
+                        <option value="Driver">Driver / Pilot</option>
+                        <option value="Room Rent">Room/Makan Rent</option>
+                        <option value="Tailor">Tailor (Darzi)</option>
+                        <option value="Mistry">Mistry (Contractor)</option>
+                        <option value="Shop">Shop / Hotal</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-gray-400 mb-1">Contact WhatsApp Number</label>
+                <input type="tel" id="owner-phone" placeholder="10 Digit Number" class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 outline-none text-white">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="owner-state" value="Chhattisgarh" class="bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white">
+                <input type="text" id="owner-district" value="Dantewada" class="bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="owner-village" value="Mailawada" class="bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white">
+                <input type="text" id="owner-colony" value="Kalar Para" class="bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white">
+            </div>
+            <div>
+                <label class="block text-gray-400 mb-1">Short Tagline for Homepage Card (Max 60 letters)</label>
+                <input type="text" id="owner-tagline" placeholder="e.g. Shadi ke liye VIP gaadi uchit rate par milti hai." class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white">
+            </div>
+            <div>
+                <label class="block text-gray-400 mb-1">Full Description (Aap kya-kya service dete hain detail me likhein)</label>
+                <textarea id="owner-desc" rows="3" placeholder="e.g. Hamare yahan pipe fitting, tanki leaks aur sanitary fitting ka poora kaam kiya jata hai..." class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white resize-none"></textarea>
+            </div>
+            <div>
+                <label class="block text-gray-400 mb-1">Upload Business Photo / Banner Image</label>
+                <input type="file" id="media-hook" accept="image/*" class="w-full text-gray-400 bg-slate-900 p-2 rounded-xl border border-gray-700">
+            </div>
+        </div>
+
+        <button onclick="processAndTriggerGmail()" class="w-full bg-gradient-to-r from-blue-500 to-indigo-600 font-black py-3 rounded-xl text-xs uppercase shadow-xl tracking-wider text-center"><i class="fa-solid fa-envelope-open-text mr-1 text-sm"></i> Export & Submit via Gmail</button>
+    </div>
+
+    <script>
+        const ADMIN_RECEIVING_EMAIL = "admin@gaadibooking.com"; // 👈 Apna master email laga lein
+
+        function acceptNoticeAndShowForm() {
+            document.getElementById('notice-card').classList.add('hidden');
+            document.getElementById('setup-view').classList.remove('hidden');
+        }
+
+        function processAndTriggerGmail() {
+            let phone = document.getElementById('owner-phone').value.trim();
+            let email = document.getElementById('owner-email').value.trim();
+            let name = document.getElementById('owner-name').value.trim();
+            let tagline = document.getElementById('owner-tagline').value.trim();
+            let desc = document.getElementById('owner-desc').value.trim();
+
+            if(!email || !name || !desc || !tagline) return alert("❌ Kripya saari jankari poori tareeke se bharein!");
+            if(phone.length !== 10 || isNaN(phone)) return alert("❌ Please enter valid 10-Digit Phone!");
+
+            let fileInput = document.getElementById('media-hook');
+            let payload = {
+                email: email,
+                name: name,
+                category: document.getElementById('owner-category').value,
+                phone: phone,
+                state: document.getElementById('owner-state').value,
+                district: document.getElementById('owner-district').value,
+                village: document.getElementById('owner-village').value,
+                colony: document.getElementById('owner-colony').value,
+                shortTagline: tagline,
+                description: desc,
+                image64: ""
+            };
+
+            if (fileInput.files && fileInput.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    payload.image64 = e.target.result;
+                    launchGmail(payload);
+                };
+                reader.readAsDataURL(fileInput.files[0]);
+            } else {
+                launchGmail(payload);
+            }
+        }
+
+        function launchGmail(finalPayload) {
+            let subject = encodeURIComponent(`LocalHub New Card Package - ${finalPayload.name}`);
+            let body = encodeURIComponent(`Hi Admin,\n\nMain apne business ka digital data bhej raha hoon.\n\n👤 NAME: ${finalPayload.name}\n🛠️ CATEGORY: ${finalPayload.category}\n\n📦 PASTE THIS ENTIRE BLOCK INSIDE THE NEW FILE:\n\n${JSON.stringify(finalPayload)}\n\n`);
+            window.location.href = `mailto:${ADMIN_RECEIVING_EMAIL}?subject=${subject}&body=${body}`;
+        }
+    </script>
+</body>
+</html>
