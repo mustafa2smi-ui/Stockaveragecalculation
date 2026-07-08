@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Hub Profile View</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.html">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col justify-between max-w-md mx-auto">
+
+    <div>
+        <div id="image-container" class="w-full h-56 bg-gradient-to-br from-blue-700 to-indigo-900 text-white flex flex-col items-center justify-center text-center px-4 relative shadow-md">
+            <i class="fa-solid fa-briefcase text-5xl mb-2 text-yellow-400"></i>
+            <h2 id="hero-name" class="text-xl font-black tracking-tight">Loading Business...</h2>
+            <span id="hero-badge" class="absolute bottom-3 right-3 bg-yellow-400 text-slate-950 font-black text-[10px] px-3 py-1 rounded-full uppercase tracking-wider shadow">Service</span>
+        </div>
+
+        <div class="p-4 space-y-4">
+            <div class="bg-white p-4 rounded-2xl shadow-sm border space-y-2">
+                <h3 class="text-xs font-black text-gray-400 uppercase tracking-wider"><i class="fa-solid fa-circle-info text-blue-600"></i> About Our Service</h3>
+                <p id="main-desc" class="text-xs text-gray-700 leading-relaxed font-medium">Loading details package...</p>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl shadow-sm border space-y-2 text-xs font-medium text-gray-700">
+                <h3 class="text-xs font-black text-gray-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-map-marked-alt text-blue-600"></i> Operational Hub Address</h3>
+                <p id="adr-colony"><i class="fa-solid fa-arrow-turn-up text-gray-300 mr-1 rotate-90"></i> Colony: Loading...</p>
+                <p id="adr-village"><i class="fa-solid fa-arrow-turn-up text-gray-300 mr-1 rotate-90"></i> Village: Loading...</p>
+                <p id="adr-district"><i class="fa-solid fa-arrow-turn-up text-gray-300 mr-1 rotate-90"></i> District: Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="p-4 bg-white border-t flex gap-2 sticky bottom-0">
+        <a id="action-call" href="#" class="flex-1 text-center bg-blue-700 hover:bg-blue-800 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wide shadow-md"><i class="fa-solid fa-phone mr-1"></i> Call Owner</a>
+        <a id="action-wa" href="#" target="_blank" class="flex-1 text-center bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wide shadow-md"><i class="fa-brands fa-whatsapp text-sm mr-1"></i> WhatsApp Chat</a>
+    </div>
+
+    <script>
+        // =========================================================================
+        // 📦 INDIVIDUAL FILE DATA INJECTOR (Yahan WhatsApp/Gmail wala code paste hoga)
+        // =========================================================================
+        const singleProfileDataPayload = {
+            "email": "suresh@email.com",
+            "name": "Suresh Travels",
+            "category": "Wedding Car",
+            "phone": "919876543210",
+            "state": "Chhattisgarh",
+            "district": "Dantewada",
+            "village": "Mailawada",
+            "colony": "Kalar Para",
+            "shortTagline": "Shadi aur emergency ke liye Scorpio aur Bolero available hai.",
+            "description": "Hamare yahan shadi, barat, bastar tour, aur kisi bhi emergency parivar kamon ke liye ac and non-ac Scorpio aur Bolero gadi saste rate par bheji jati hai. Ek baar seva ka mauka zarur dein.",
+            "image64": "" // Agar image hogi toh bada base64 code hoga
+        };
+
+        // UI Auto Render Engine Motor
+        function bootstrapProfileView() {
+            const data = singleProfileDataPayload;
+            
+            document.title = `${data.name} - LocalHub Profile`;
+            document.getElementById('hero-name').innerText = data.name;
+            document.getElementById('hero-badge').innerText = data.category;
+            document.getElementById('main-desc').innerText = data.description;
+            
+            document.getElementById('adr-colony').innerHTML = `<span class="text-gray-400">Colony/Area:</span> ${data.colony}`;
+            document.getElementById('adr-village').innerHTML = `<span class="text-gray-400">Village/City:</span> ${data.village}`;
+            document.getElementById('adr-district').innerHTML = `<span class="text-gray-400">District:</span> ${data.district} (${data.state})`;
+
+            // Image Engine Handler
+            if(data.image64 && data.image64.trim() !== "") {
+                document.getElementById('image-container').innerHTML = `<img src="${data.image64}" class="w-full h-full object-cover absolute inset-0 z-0"><div class="absolute inset-0 bg-black/40 z-10"></div><h2 class="text-xl font-black text-white relative z-20 tracking-tight shadow-sm">${data.name}</h2><span class="absolute bottom-3 right-3 bg-yellow-400 text-slate-950 font-black text-[10px] px-3 py-1 rounded-full uppercase z-20 shadow">${data.category}</span>`;
+            }
+
+            // Action Trigger Injector
+            document.getElementById('action-call').href = `tel:${data.phone}`;
+            document.getElementById('action-wa').href = `https://wa.me/${data.phone}?text=Hello%20${encodeURIComponent(data.name)},%20Maine%20aapka%20profile%20LocalHub%20par%20dekha.%20Mujhe%20aapki%20service%20chahiye.`;
+        }
+
+        // Run Engine
+        bootstrapProfileView();
+    </script>
+</body>
+</html>
