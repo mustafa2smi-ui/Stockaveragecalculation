@@ -9,7 +9,6 @@
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .coffee-border { border: 2px solid #1e3a8a; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans pb-10">
@@ -28,30 +27,40 @@
         </div>
     </div>
 
-    <section class="max-w-md mx-auto mt-4 px-4 space-y-4">
+    <section class="max-w-md mx-auto mt-4 px-4 space-y-3">
         
         <div>
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-layer-group text-blue-600"></i> 1. Select Profession</p>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-layer-group text-blue-600"></i> 1. Profession</p>
             <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="tab-category-box"></div>
         </div>
 
         <div>
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-map-location-dot text-blue-600"></i> 2. Filter Location (Village/City)</p>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-map text-blue-600"></i> 2. State</p>
+            <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="tab-state-box"></div>
+        </div>
+
+        <div>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-location-crosshairs text-blue-600"></i> 3. District</p>
+            <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="tab-district-box"></div>
+        </div>
+
+        <div>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-map-location-dot text-blue-600"></i> 4. Village/City</p>
             <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="tab-village-box"></div>
         </div>
 
-        <hr class="border-gray-200">
+        <hr class="border-gray-200 my-4">
 
         <div class="grid grid-cols-1 gap-4 pt-1" id="directory-listings"></div>
     </section>
 
     <script>
         // =========================================================================
-        // 📥 INDEX DATABASE ARRAY (Yahan bas chota data update karte jana hai!)
+        // 📥 INDEX DATABASE ARRAY (Demo Hide karne ke liye andar ka data delete karein)
         // =========================================================================
         const activeDirectoryDatabase = [
             {
-                slug: "suresh_travels", // Isse suresh_travels.html file khulegi
+                slug: "suresh_travels", 
                 name: "Suresh Travels",
                 category: "Wedding Car",
                 state: "Chhattisgarh",
@@ -61,7 +70,7 @@
                 shortTagline: "Shadi aur emergency ke liye Scorpio aur Bolero available hai."
             },
             {
-                slug: "mustafa_plumber", // Isse mustafa_plumber.html file khulegi
+                slug: "mustafa_plumber",
                 name: "Mustafa Plumbing Works",
                 category: "Plumber",
                 state: "Chhattisgarh",
@@ -72,16 +81,22 @@
             }
         ];
 
-        let selectedCategory = 'All', selectedVillage = 'All';
+        let selCat = 'All', selState = 'All', selDist = 'All', selVill = 'All';
 
         function renderFilterHubTabs() {
-            let categories = ['All'], villages = ['All'];
+            let cats = ['All'], states = ['All'], dists = ['All'], vills = ['All'];
+            
             activeDirectoryDatabase.forEach(b => {
-                if(!categories.includes(b.category)) categories.push(b.category);
-                if(!villages.includes(b.village)) villages.push(b.village);
+                if(!cats.includes(b.category)) cats.push(b.category);
+                if(!states.includes(b.state)) states.push(b.state);
+                if(!dists.includes(b.district)) dists.push(b.district);
+                if(!vills.includes(b.village)) vills.push(b.village);
             });
-            document.getElementById('tab-category-box').innerHTML = categories.map(c => `<button onclick="selectedCategory='${c}'; renderFilterHubTabs(); renderCards();" class="px-3 py-1 text-xs font-bold rounded-full shadow-sm whitespace-nowrap ${c===selectedCategory?'bg-blue-700 text-white':'bg-white text-gray-700 border'}">${c}</button>`).join('');
-            document.getElementById('tab-village-box').innerHTML = villages.map(v => `<button onclick="selectedVillage='${v}'; renderFilterHubTabs(); renderCards();" class="px-3 py-1 text-xs font-bold rounded-full shadow-sm whitespace-nowrap ${v===selectedVillage?'bg-blue-700 text-white':'bg-white text-gray-700 border'}">${v}</button>`).join('');
+
+            document.getElementById('tab-category-box').innerHTML = cats.map(c => `<button onclick="selCat='${c}'; renderFilterHubTabs(); renderCards();" class="px-3 py-1 text-xs font-bold rounded-full shadow-sm whitespace-nowrap ${c===selCat?'bg-blue-700 text-white':'bg-white text-gray-700 border'}">${c}</button>`).join('');
+            document.getElementById('tab-state-box').innerHTML = states.map(s => `<button onclick="selState='${s}'; renderFilterHubTabs(); renderCards();" class="px-3 py-1 text-xs font-bold rounded-full shadow-sm whitespace-nowrap ${s===selState?'bg-blue-700 text-white':'bg-white text-gray-700 border'}">${s}</button>`).join('');
+            document.getElementById('tab-district-box').innerHTML = dists.map(d => `<button onclick="selDist='${d}'; renderFilterHubTabs(); renderCards();" class="px-3 py-1 text-xs font-bold rounded-full shadow-sm whitespace-nowrap ${d===selDist?'bg-blue-700 text-white':'bg-white text-gray-700 border'}">${d}</button>`).join('');
+            document.getElementById('tab-village-box').innerHTML = vills.map(v => `<button onclick="selVill='${v}'; renderFilterHubTabs(); renderCards();" class="px-3 py-1 text-xs font-bold rounded-full shadow-sm whitespace-nowrap ${v===selVill?'bg-blue-700 text-white':'bg-white text-gray-700 border'}">${v}</button>`).join('');
         }
 
         function renderCards() {
@@ -89,13 +104,15 @@
             container.innerHTML = '';
 
             let filtered = activeDirectoryDatabase.filter(b => {
-                if(selectedCategory !== 'All' && b.category !== selectedCategory) return false;
-                if(selectedVillage !== 'All' && b.village !== selectedVillage) return false;
+                if(selCat !== 'All' && b.category !== selCat) return false;
+                if(selState !== 'All' && b.state !== selState) return false;
+                if(selDist !== 'All' && b.district !== selDist) return false;
+                if(selVill !== 'All' && b.village !== selVill) return false;
                 return true;
             });
 
             if(filtered.length === 0) {
-                container.innerHTML = `<p class="text-center text-gray-400 py-10 text-xs">No cards found in this area.</p>`;
+                container.innerHTML = `<p class="text-center text-gray-400 py-10 text-xs">No cards found in this filter selection.</p>`;
                 return;
             }
 
@@ -110,7 +127,6 @@
                             <span class="bg-blue-50 text-blue-700 text-[9px] font-black px-2 py-0.5 rounded-full border border-blue-200 uppercase">${card.category}</span>
                         </div>
                         <p class="text-xs text-gray-600 italic font-medium">"${card.shortTagline}"</p>
-                        
                         <button onclick="window.open('${card.slug}.html', '_blank')" class="bg-blue-700 hover:bg-blue-800 text-white font-extrabold px-3 py-2 rounded-xl text-xs w-full uppercase tracking-wider text-center shadow-sm">
                             <i class="fa-solid fa-folder-open mr-1"></i> Explore Business & Contact
                         </button>
