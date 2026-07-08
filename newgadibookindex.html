@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalBusiness Hub - Digital Directory</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .coffee-border { border: 2px solid #1e3a8a; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans pb-10">
+
+    <header class="bg-blue-700 text-white px-4 py-3 sticky top-0 z-50 shadow-md flex justify-between items-center">
+        <h1 onclick="location.reload()" class="text-xl font-black tracking-wide cursor-pointer"><i class="fa-solid fa-address-card mr-2 text-yellow-400"></i>LocalHub</h1>
+        <button onclick="window.open('owner.html', '_blank')" class="bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs shadow-sm">
+            <i class="fa-solid fa-plus-circle mr-1"></i> Make My Card
+        </button>
+    </header>
+
+    <div class="bg-blue-700 text-white px-4 pb-5 rounded-b-3xl shadow-inner pt-1 max-w-md mx-auto">
+        <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-gray-400"></i>
+            <input type="text" id="search-input" onkeyup="searchFilter()" placeholder="Search Plumber, Travels, Shop, Village..." class="w-full bg-white text-gray-900 pl-10 pr-4 py-2.5 rounded-xl shadow focus:outline-none text-sm">
+        </div>
+    </div>
+
+    <section class="max-w-md mx-auto mt-4 px-4 space-y-4">
+        
+        <div>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-layer-group text-blue-600"></i> 1. Select Profession</p>
+            <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="tab-category-box"></div>
+        </div>
+
+        <div>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-map-location-dot text-blue-600"></i> 2. Filter Location (Village/City)</p>
+            <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="tab-village-box"></div>
+        </div>
+
+        <hr class="border-gray-200">
+
+        <div class="grid grid-cols-1 gap-4 pt-1" id="directory-listings"></div>
+    </section>
+
+    <script>
+        // =========================================================================
+        // 📥 INDEX DATABASE ARRAY (Yahan bas chota data update karte jana hai!)
+        // =========================================================================
+        const activeDirectoryDatabase = [
+            {
+                slug: "suresh_travels", // Isse suresh_travels.html file khulegi
+                name: "Suresh Travels",
+                category: "Wedding Car",
+                state: "Chhattisgarh",
+                district: "Dantewada",
+                village: "Mailawada",
+                colony: "Kalar Para",
+                shortTagline: "Shadi aur emergency ke liye Scorpio aur Bolero available hai."
+            },
+            {
+                slug: "mustafa_plumber", // Isse mustafa_plumber.html file khulegi
+                name: "Mustafa Plumbing Works",
+                category: "Plumber",
+                state: "Chhattisgarh",
+                district: "Dantewada",
+                village: "Geedam",
+                colony: "Talla Para",
+                shortTagline: "Ghar ki nayi pipe fitting aur bathroom nal repair ka kaam."
+            }
+        ];
+
+        let selectedCategory = 'All', selectedVillage = 'All';
+
+        function renderFilterHubTabs() {
+            let categories = ['All'], villages = ['All'];
+            activeDirectoryDatabase.forEach(b => {
+                if(!categories.includes(b.category)) categories.push(b.category);
+                if(!villages.includes(b.village)) villages.push(b.village);
+            });
+            document.getElementById('tab-category-box').innerHTML = categories.map(c => `<button onclick="selectedCategory='${c}'; renderFilterHubTabs(); renderCards();" class="px-3 py-1 text-xs font-bold rounded-full shadow-sm whitespace-nowrap ${c===selectedCategory?'bg-blue-700 text-white':'bg-white text-gray-700 border'}">${c}</button>`).join('');
+            document.getElementById('tab-village-box').innerHTML = villages.map(v => `<button onclick="selectedVillage='${v}'; renderFilterHubTabs(); renderCards();" class="px-3 py-1 text-xs font-bold rounded-full shadow-sm whitespace-nowrap ${v===selectedVillage?'bg-blue-700 text-white':'bg-white text-gray-700 border'}">${v}</button>`).join('');
+        }
+
+        function renderCards() {
+            const container = document.getElementById('directory-listings');
+            container.innerHTML = '';
+
+            let filtered = activeDirectoryDatabase.filter(b => {
+                if(selectedCategory !== 'All' && b.category !== selectedCategory) return false;
+                if(selectedVillage !== 'All' && b.village !== selectedVillage) return false;
+                return true;
+            });
+
+            if(filtered.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-400 py-10 text-xs">No cards found in this area.</p>`;
+                return;
+            }
+
+            filtered.forEach(card => {
+                container.innerHTML += `
+                    <div class="bg-white rounded-2xl shadow-md p-4 border border-gray-100 flex flex-col justify-between space-y-3 relative">
+                        <div class="flex justify-between items-start border-b pb-2 border-dashed border-gray-200">
+                            <div>
+                                <h3 class="font-extrabold text-gray-900 text-sm tracking-tight"><i class="fa-solid fa-circle-check text-blue-600 mr-1"></i> ${card.name}</h3>
+                                <p class="text-[11px] text-gray-500 font-medium mt-0.5">📍 ${card.colony}, ${card.village}</p>
+                            </div>
+                            <span class="bg-blue-50 text-blue-700 text-[9px] font-black px-2 py-0.5 rounded-full border border-blue-200 uppercase">${card.category}</span>
+                        </div>
+                        <p class="text-xs text-gray-600 italic font-medium">"${card.shortTagline}"</p>
+                        
+                        <button onclick="window.open('${card.slug}.html', '_blank')" class="bg-blue-700 hover:bg-blue-800 text-white font-extrabold px-3 py-2 rounded-xl text-xs w-full uppercase tracking-wider text-center shadow-sm">
+                            <i class="fa-solid fa-folder-open mr-1"></i> Explore Business & Contact
+                        </button>
+                    </div>`;
+            });
+        }
+
+        function searchFilter() {
+            let val = document.getElementById('search-input').value.toLowerCase();
+            let lists = document.getElementById('directory-listings').children;
+            for (let i = 0; i < lists.length; i++) {
+                lists[i].classList.toggle('hidden', !lists[i].innerText.toLowerCase().includes(val));
+            }
+        }
+
+        renderFilterHubTabs();
+        renderCards();
+    </script>
+</body>
+</html>
