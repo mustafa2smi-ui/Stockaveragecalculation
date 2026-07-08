@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>WheelRent • Premium Vehicle Rentals</title>
+  <!-- Font Awesome 6 for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(145deg, #f0f4f8 0%, #e6ecf3 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    /* premium glassmorphism container */
+    .app {
+      max-width: 1300px;
+      width: 100%;
+      background: rgba(255,255,255,0.65);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-radius: 3.5rem;
+      box-shadow: 0 30px 55px rgba(0,20,40,0.2), inset 0 1px 1px rgba(255,255,255,0.7);
+      padding: 1.8rem 2rem 2.5rem;
+      border: 1px solid rgba(255,255,255,0.7);
+      transition: all 0.3s ease;
+    }
+
+    /* header */
+    .premium-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+    .logo {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #0b2b5e, #1a4b8c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .logo i {
+      background: linear-gradient(135deg, #d4af37, #f5e7b3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-size: 2.2rem;
+    }
+    .auth-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+    .btn {
+      padding: 0.7rem 1.8rem;
+      border-radius: 3rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      background: white;
+      backdrop-filter: blur(10px);
+      background: rgba(255,255,255,0.8);
+      box-shadow: 0 10px 20px -8px rgba(0,0,0,0.2);
+      transition: all 0.25s;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #0b2b5e;
+      border: 1px solid rgba(255,255,255,0.9);
+    }
+    .btn-primary {
+      background: linear-gradient(105deg, #0b2b5e, #1e4a7a);
+      color: white;
+      box-shadow: 0 12px 22px -10px #0b2b5e;
+      border: none;
+    }
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 25px -12px rgba(0,0,0,0.3);
+    }
+
+    /* search box animated */
+    .search-section {
+      margin: 1.8rem 0 1.5rem;
+    }
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: rgba(255,255,255,0.75);
+      backdrop-filter: blur(15px);
+      border-radius: 4rem;
+      padding: 0.2rem 0.2rem 0.2rem 1.8rem;
+      box-shadow: 0 18px 30px -10px rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.8);
+      transition: 0.3s;
+    }
+    .search-box i {
+      color: #1e4a7a;
+      font-size: 1.3rem;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 1rem 0.8rem;
+      border: none;
+      background: transparent;
+      font-size: 1.1rem;
+      outline: none;
+      font-weight: 500;
+    }
+    .search-box button {
+      background: #d4af37;
+      border: none;
+      border-radius: 3rem;
+      padding: 0.9rem 2.2rem;
+      font-weight: 700;
+      color: #0b2b5e;
+      cursor: pointer;
+      transition: 0.2s;
+      letter-spacing: 0.4px;
+    }
+
+    /* pill tabs */
+    .location-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin: 1.5rem 0 1rem;
+    }
+    .pill-tab {
+      padding: 0.6rem 1.6rem;
+      border-radius: 3rem;
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(10px);
+      font-weight: 600;
+      color: #1e3b5a;
+      cursor: pointer;
+      transition: all 0.3s;
+      border: 1px solid rgba(255,255,240,0.8);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.05);
+      font-size: 0.9rem;
+    }
+    .pill-tab.active {
+      background: #0b2b5e;
+      color: white;
+      box-shadow: 0 12px 20px -6px #0b2b5e;
+      border-color: #d4af37;
+      transform: scale(1.02);
+    }
+
+    .listings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.8rem;
+      margin-top: 2rem;
+    }
+
+    /* premium visiting card */
+    .listing-card {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(16px);
+      border-radius: 2.5rem;
+      overflow: hidden;
+      box-shadow: 0 25px 40px -15px rgba(0,0,0,0.3);
+      transition: all 0.3s;
+      border: 1px solid rgba(255,255,255,0.8);
+      position: relative;
+    }
+    .card-bg {
+      height: 130px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+    .owner-pic {
+      width: 75px;
+      height: 75px;
+      border-radius: 50%;
+      border: 4px solid white;
+      background-size: cover;
+      background-position: center;
+      position: absolute;
+      bottom: -35px;
+      left: 20px;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.2);
+      background-color: #ddd;
+    }
+    .card-content {
+      padding: 2.8rem 1.2rem 1.2rem;
+    }
+    .owner-name {
+      font-weight: 700;
+      font-size: 1.2rem;
+    }
+    .actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .icon-btn {
+      background: white;
+      border-radius: 2rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 5px 12px rgba(0,0,0,0.1);
+    }
+
+    /* dashboard styles */
+    .dashboard-panel {
+      background: rgba(255,255,255,0.5);
+      backdrop-filter: blur(20px);
+      border-radius: 2.5rem;
+      padding: 1.8rem;
+      margin-top: 1rem;
+    }
+    .hidden {
+      display: none !important;
+    }
+    textarea, input, select {
+      background: rgba(255,255,255,0.8);
+      border-radius: 1.5rem;
+      border: 1px solid #ccdbe9;
+      padding: 0.7rem;
+      width: 100%;
+      margin: 0.3rem 0;
+    }
+    @media (max-width: 600px) {
+      .app { padding: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="app" id="appContainer">
+  <!-- Public Homepage -->
+  <div id="publicView">
+    <div class="premium-header">
+      <div class="logo"><i class="fas fa-car-side"></i> WheelRent</div>
+      <div class="auth-buttons">
+        <button class="btn" id="showLoginBtn"><i class="fas fa-sign-in-alt"></i> Login</button>
+        <button class="btn btn-primary" id="showRegisterBtn"><i class="fas fa-user-plus"></i> Register</button>
+      </div>
+    </div>
+    <div class="search-section">
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search owner, vehicle, service, location...">
+        <button id="searchBtn"><i class="fas fa-arrow-right"></i></button>
+      </div>
+    </div>
+    <!-- Location Pills -->
+    <div>
+      <div class="location-filters" id="statePills"></div>
+      <div class="location-filters" id="districtPills"></div>
+      <div class="location-filters" id="villagePills"></div>
+    </div>
+    <div class="listings-grid" id="listingsContainer"></div>
+  </div>
+
+  <!-- Owner Dashboard (hidden by default) -->
+  <div id="dashboardView" class="dashboard-panel hidden">
+    <div style="display: flex; justify-content: space-between;">
+      <h2 id="dashboardTitle">Dashboard</h2>
+      <button class="btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+    <div style="margin: 1rem 0;">
+      <button class="btn" id="viewListingBtn"><i class="fas fa-eye"></i> View My Listing</button>
+      <button class="btn" id="shareListingBtn"><i class="fas fa-share-alt"></i> Share</button>
+      <button class="btn" id="exportJsonBtn"><i class="fas fa-download"></i> Export JSON</button>
+      <button class="btn" id="importJsonBtn"><i class="fas fa-upload"></i> Import</button>
+      <button class="btn" id="emailJsonBtn"><i class="fas fa-envelope"></i> Email JSON (demo)</button>
+      <input type="file" id="importFileInput" accept=".json" class="hidden">
+    </div>
+    <div id="ownerForm"></div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    // ---------- Storage keys ----------
+    const STORAGE_OWNERS = 'wheelrent_owners';
+    const STORAGE_CURRENT_USER = 'wheelrent_current_user';
+
+    // Data structures
+    let owners = []; // array of owner objects
+    let currentUser = null; // owner object or null
+
+    // Location hierarchy (Indian demo)
+    const statesDistricts = {
+      "Maharashtra": ["Mumbai", "Pune", "Nagpur"],
+      "Karnataka": ["Bangalore", "Mysore", "Hubli"],
+      "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai"]
+    };
+    const districtVillages = {
+      "Mumbai": ["Andheri", "Bandra", "Dadar"],
+      "Pune": ["Hinjewadi", "Kothrud", "Viman Nagar"],
+      "Nagpur": ["Dharampeth", "Sadar"],
+      "Bangalore": ["Whitefield", "Koramangala", "Indiranagar"],
+      "Mysore": ["Vijayanagar", "Hebbal"],
+      "Hubli": ["Vidyanagar"],
+      "Chennai": ["T Nagar", "Adyar"],
+      "Coimbatore": ["RS Puram", "Gandhipuram"],
+      "Madurai": ["Anna Nagar"]
+    };
+
+    // current filter selections
+    let selectedState = null;
+    let selectedDistrict = null;
+    let selectedVillage = null;
+
+    // Utility: generate unique id
+    function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
+
+    // Load owners from localStorage
+    function loadOwners() {
+      const data = localStorage.getItem(STORAGE_OWNERS);
+      if (data) {
+        try { owners = JSON.parse(data); } catch(e){ owners = []; }
+      } else { owners = []; }
+    }
+    function saveOwners() {
+      localStorage.setItem(STORAGE_OWNERS, JSON.stringify(owners));
+    }
+
+    // Load current user
+    function loadCurrentUser() {
+      const cu = localStorage.getItem(STORAGE_CURRENT_USER);
+      if (cu) {
+        try { currentUser = JSON.parse(cu); } catch(e){ currentUser = null; }
+      } else currentUser = null;
+    }
+    function saveCurrentUser(user) {
+      if (user) localStorage.setItem(STORAGE_CURRENT_USER, JSON.stringify(user));
+      else localStorage.removeItem(STORAGE_CURRENT_USER);
+    }
+
+    // Filter owners based on search & location
+    function getFilteredOwners() {
+      const searchTerm = document.getElementById('searchInput')?.value.trim().toLowerCase() || '';
+      return owners.filter(owner => {
+        if (selectedState && owner.state !== selectedState) return false;
+        if (selectedDistrict && owner.district !== selectedDistrict) return false;
+        if (selectedVillage && owner.village !== selectedVillage) return false;
+        if (searchTerm) {
+          const haystack = (owner.name + ' ' + owner.businessName + ' ' + 
+            (owner.vehicles || []).map(v => v.model + ' ' + v.serviceTypes).join(' ') +
+            ' ' + owner.state + ' ' + owner.district + ' ' + owner.village).toLowerCase();
+          return haystack.includes(searchTerm);
+        }
+        return true;
+      });
+    }
+
+    // Render public listings
+    function renderListings() {
+      const container = document.getElementById('listingsContainer');
+      if (!container) return;
+      const filtered = getFilteredOwners();
+      container.innerHTML = filtered.map(owner => {
+        const vehicles = owner.vehicles || [];
+        return vehicles.map((v, idx) => {
+          const bgImage = v.vehiclePhoto || '';
+          const ownerPic = owner.profilePhoto || '';
+          return `
+            <div class="listing-card">
+              <div class="card-bg" style="background-image: url('${bgImage || 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400'}')"></div>
+              <div class="owner-pic" style="background-image: url('${ownerPic || 'https://via.placeholder.com/100'}')"></div>
+              <div class="card-content">
+                <div class="owner-name">${owner.businessName || owner.name}</div>
+                <div><i class="fas fa-car"></i> ${v.model || 'Vehicle'}</div>
+                <div><i class="fas fa-tag"></i> ${v.serviceTypes || 'Rental'}</div>
+                <div><i class="fas fa-map-marker-alt"></i> ${owner.village}, ${owner.district}</div>
+                <div class="actions">
+                  <button class="icon-btn" onclick="alert('Contact: ${owner.contact}')"><i class="fas fa-phone"></i> Contact</button>
+                  <a class="icon-btn" target="_blank" href="https://wa.me/${owner.whatsapp || ''}"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                  <button class="icon-btn" onclick="navigator.share && navigator.share({title:'${owner.businessName}', text:'Check ${v.model}', url:window.location.href})"><i class="fas fa-share-alt"></i></button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }).join('');
+    }
+
+    // Render location pills
+    function renderStatePills() {
+      const container = document.getElementById('statePills');
+      container.innerHTML = Object.keys(statesDistricts).map(state => 
+        `<span class="pill-tab ${selectedState===state?'active':''}" data-state="${state}">${state}</span>`
+      ).join('');
+    }
+    function renderDistrictPills() {
+      const container = document.getElementById('districtPills');
+      if (!selectedState) { container.innerHTML = ''; return; }
+      const districts = statesDistricts[selectedState] || [];
+      container.innerHTML = districts.map(d => 
+        `<span class="pill-tab ${selectedDistrict===d?'active':''}" data-district="${d}">${d}</span>`
+      ).join('');
+    }
+    function renderVillagePills() {
+      const container = document.getElementById('villagePills');
+      if (!selectedDistrict) { container.innerHTML = ''; return; }
+      const villages = districtVillages[selectedDistrict] || [];
+      container.innerHTML = villages.map(v => 
+        `<span class="pill-tab ${selectedVillage===v?'active':''}" data-village="${v}">${v}</span>`
+      ).join('');
+    }
+
+    function refreshUI() {
+      renderStatePills();
+      renderDistrictPills();
+      renderVillagePills();
+      renderListings();
+    }
+
+    // Event delegation for pills
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('pill-tab')) {
+        if (e.target.dataset.state) {
+          selectedState = e.target.dataset.state;
+          selectedDistrict = null;
+          selectedVillage = null;
+        } else if (e.target.dataset.district) {
+          selectedDistrict = e.target.dataset.district;
+          selectedVillage = null;
+        } else if (e.target.dataset.village) {
+          selectedVillage = e.target.dataset.village;
+        }
+        refreshUI();
+      }
+    });
+
+    // Dashboard form rendering
+    function renderDashboard() {
+      if (!currentUser) return;
+      document.getElementById('dashboardTitle').innerText = `Dashboard • ${currentUser.businessName || currentUser.name}`;
+      const formDiv = document.getElementById('ownerForm');
+      formDiv.innerHTML = `
+        <h3>Owner Profile</h3>
+        <input placeholder="Owner Name" id="ownerName" value="${currentUser.name || ''}">
+        <input placeholder="Business Name" id="businessName" value="${currentUser.businessName || ''}">
+        <input placeholder="Contact" id="contact" value="${currentUser.contact || ''}">
+        <input placeholder="WhatsApp Number" id="whatsapp" value="${currentUser.whatsapp || ''}">
+        <label>Profile Photo</label><input type="file" id="profilePhotoInput" accept="image/*">
+        <div id="vehiclesContainer">${(currentUser.vehicles||[]).map((v,i)=>`
+          <div style="border:1px solid #ccc; border-radius:1.5rem; padding:1rem; margin:1rem 0">
+            <input placeholder="Vehicle Model" class="vehicleModel" value="${v.model||''}">
+            <input placeholder="Service Types (comma)" class="vehicleService" value="${v.serviceTypes||''}">
+            <label>Vehicle Photo</label><input type="file" class="vehiclePhotoInput" accept="image/*">
+            <button class="btn removeVehicleBtn">Remove</button>
+          </div>`).join('')}</div>
+        <button class="btn" id="addVehicleBtn">+ Add Vehicle</button>
+        <button class="btn btn-primary" id="saveProfileBtn">Save Profile</button>
+      `;
+      document.getElementById('addVehicleBtn')?.addEventListener('click', ()=>{
+        currentUser.vehicles.push({ model:'', serviceTypes:'', vehiclePhoto:'' });
+        renderDashboard();
+      });
+      document.getElementById('saveProfileBtn')?.addEventListener('click', saveProfile);
+    }
+
+    async function saveProfile() {
+      if (!currentUser) return;
+      currentUser.name = document.getElementById('ownerName').value;
+      currentUser.businessName = document.getElementById('businessName').value;
+      currentUser.contact = document.getElementById('contact').value;
+      currentUser.whatsapp = document.getElementById('whatsapp').value;
+      const profileFile = document.getElementById('profilePhotoInput').files[0];
+      if (profileFile) {
+        currentUser.profilePhoto = await toBase64(profileFile);
+      }
+      const vehicleModels = document.querySelectorAll('.vehicleModel');
+      const vehicleServices = document.querySelectorAll('.vehicleService');
+      const vehiclePhotos = document.querySelectorAll('.vehiclePhotoInput');
+      for (let i=0; i<currentUser.vehicles.length; i++) {
+        currentUser.vehicles[i].model = vehicleModels[i]?.value || '';
+        currentUser.vehicles[i].serviceTypes = vehicleServices[i]?.value || '';
+        if (vehiclePhotos[i]?.files[0]) {
+          currentUser.vehicles[i].vehiclePhoto = await toBase64(vehiclePhotos[i].files[0]);
+        }
+      }
+      const index = owners.findIndex(o => o.id === currentUser.id);
+      if (index !== -1) owners[index] = currentUser;
+      saveOwners();
+      saveCurrentUser(currentUser);
+      alert('Profile saved!');
+      refreshUI();
+    }
+
+    function toBase64(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Auth simulation
+    function showPublic() {
+      document.getElementById('publicView').classList.remove('hidden');
+      document.getElementById('dashboardView').classList.add('hidden');
+    }
+    function showDashboard() {
+      document.getElementById('publicView').classList.add('hidden');
+      document.getElementById('dashboardView').classList.remove('hidden');
+      renderDashboard();
+    }
+
+    // Register / Login logic
+    document.getElementById('showRegisterBtn').addEventListener('click', ()=>{
+      const email = prompt('Register: Enter email');
+      if (!email) return;
+      const state = prompt('State (Maharashtra, Karnataka, Tamil Nadu)');
+      const district = prompt('District');
+      const village = prompt('Village/City');
+      const name = prompt('Your name');
+      const newOwner = {
+        id: generateId(),
+        email, state, district, village, name,
+        businessName: '',
+        contact:'', whatsapp:'', profilePhoto:'',
+        vehicles: []
+      };
+      owners.push(newOwner);
+      saveOwners();
+      currentUser = newOwner;
+      saveCurrentUser(currentUser);
+      showDashboard();
+      refreshUI();
+    });
+
+    document.getElementById('showLoginBtn').addEventListener('click', ()=>{
+      const email = prompt('Login: Enter email');
+      const found = owners.find(o => o.email === email);
+      if (found) {
+        currentUser = found;
+        saveCurrentUser(currentUser);
+        showDashboard();
+      } else {
+        alert('Owner not found. Please register.');
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', ()=>{
+      currentUser = null;
+      saveCurrentUser(null);
+      showPublic();
+    });
+
+    document.getElementById('viewListingBtn')?.addEventListener('click', ()=>{
+      showPublic();
+      document.getElementById('searchInput').value = currentUser?.businessName || '';
+      refreshUI();
+    });
+
+    document.getElementById('shareListingBtn')?.addEventListener('click', ()=>{
+      if (navigator.share && currentUser) {
+        navigator.share({title: currentUser.businessName, text: 'Check my vehicles', url: window.location.href});
+      } else alert('Share not supported / copy link');
+    });
+
+    document.getElementById('exportJsonBtn')?.addEventListener('click', ()=>{
+      const dataStr = JSON.stringify(owners, null, 2);
+      const blob = new Blob([dataStr], {type:'application/json'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='wheelrent_backup.json'; a.click();
+    });
+
+    document.getElementById('importJsonBtn')?.addEventListener('click', ()=> document.getElementById('importFileInput').click());
+    document.getElementById('importFileInput')?.addEventListener('change', (e)=>{
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          owners = JSON.parse(ev.target.result);
+          saveOwners();
+          alert('Imported!');
+          refreshUI();
+        } catch(ex) { alert('Invalid JSON'); }
+      };
+      reader.readAsText(file);
+    });
+
+    document.getElementById('emailJsonBtn')?.addEventListener('click', ()=>{
+      alert('Demo: JSON emailed to registered address (simulation)');
+    });
+
+    document.getElementById('searchBtn')?.addEventListener('click', refreshUI);
+    document.getElementById('searchInput')?.addEventListener('input', refreshUI);
+
+    // Init
+    loadOwners();
+    loadCurrentUser();
+    if (currentUser) {
+      showDashboard();
+    } else {
+      showPublic();
+    }
+    refreshUI();
+  })();
+</script>
+</body>
+</html>
