@@ -84,17 +84,17 @@
             </div>
             <div>
                 <label class="block text-gray-400 mb-1">Full Work Description</label>
-                <textarea id="owner-desc" rows="3" placeholder="Aap kya-kya service dete hain detail me likhein..." class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white resize-none"></textarea>
+                <textarea id="owner-desc" rows="3" placeholder="Aap kya-kya service dete hain detail me likhein..." class="w-full bg-slate-900 p-2.5 rounded-xl border border-gray-700 text-white resize-none outline-none"></textarea>
             </div>
             <div>
-                <label class="block text-gray-400 mb-1">Upload Business Photo / Banner Image</label>
+                <label class="block text-gray-400 mb-1">Upload Photo (Optional)</label>
                 <input type="file" id="media-hook" accept="image/*" class="w-full text-gray-400 bg-slate-900 p-2 rounded-xl border border-gray-700">
             </div>
         </div>
 
         <div class="pt-2 flex gap-2">
             <button onclick="closeCardForm()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-gray-300 py-2.5 rounded-xl text-xs font-bold">Cancel</button>
-            <button onclick="saveCardToStorage()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-black"><i class="fa-solid fa-floppy-disk mr-1"></i> Save to Storage</button>
+            <button id="save-btn" onclick="saveCardToStorage()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-black"><i class="fa-solid fa-floppy-disk mr-1"></i> Save to Storage</button>
         </div>
     </div>
 
@@ -197,10 +197,38 @@
 
             let fileInput = document.getElementById('media-hook');
             if (fileInput.files && fileInput.files[0]) {
+                document.getElementById('save-btn').innerText = "⏳ Compressing Image...";
+                document.getElementById('save-btn').disabled = true;
+
                 let reader = new FileReader();
                 reader.onload = function (e) {
-                    cardData.image64 = e.target.result;
-                    commitSave(idx, cardData);
+                    let img = new Image();
+                    img.onload = function() {
+                        // 🌟 AUTOMATIC IMAGE COMPRESSION (Max 600px width for fast local storage data block write)
+                        let canvas = document.createElement('canvas');
+                        let max_size = 600;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > max_size) { height *= max_size / width; width = max_size; }
+                        } else {
+                            if (height > max_size) { width *= max_size / height; height = max_size; }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        
+                        let ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Quality factor 0.6 keeps image lightweight under 50kb!
+                        cardData.image64 = canvas.toDataURL('image/jpeg', 0.6);
+                        
+                        document.getElementById('save-btn').innerText = "Save to Storage";
+                        document.getElementById('save-btn').disabled = false;
+                        commitSave(idx, cardData);
+                    };
+                    img.src = e.target.result;
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
@@ -212,16 +240,21 @@
         }
 
         function commitSave(idx, data) {
-            if(idx !== "") {
-                localCardsArr[idx] = data;
-            } else {
-                localCardsArr.push(data);
+            try {
+                if(idx !== "") {
+                    localCardsArr[idx] = data;
+                } else {
+                    localCardsArr.push(data);
+                }
+                localStorage.setItem('my_local_cards', JSON.stringify(localCardsArr));
+                alert("🎉 Card Saved Successfully!");
+                closeCardForm();
+                renderSavedDashboardCards();
+            } catch(e) {
+                alert("❌ Storage Full! Kripya choti size ki photo upload karein.");
+                document.getElementById('save-btn').innerText = "Save to Storage";
+                document.getElementById('save-btn').disabled = false;
             }
-            
-            localStorage.setItem('my_local_cards', JSON.stringify(localCardsArr));
-            alert("🎉 Card Saved Successfully!");
-            closeCardForm();
-            renderSavedDashboardCards();
         }
 
         function deleteCard(index) {
