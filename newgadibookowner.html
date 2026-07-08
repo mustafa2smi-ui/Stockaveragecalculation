@@ -154,7 +154,9 @@
                 document.getElementById('owner-desc').value = c.description;
             } else {
                 document.getElementById('card-index').value = "";
+                document.getElementById('owner-email').value = "";
                 document.getElementById('owner-name').value = "";
+                document.getElementById('owner-phone').value = "";
                 document.getElementById('owner-tagline').value = "";
                 document.getElementById('owner-desc').value = "";
             }
@@ -165,13 +167,17 @@
             document.getElementById('dashboard-view').classList.remove('hidden');
         }
 
+        // FIXED SAVE PIPELINE FUNCTION
         function saveCardToStorage() {
             let idx = document.getElementById('card-index').value;
             let phone = document.getElementById('owner-phone').value.trim();
             let email = document.getElementById('owner-email').value.trim();
             let name = document.getElementById('owner-name').value.trim();
 
-            if(!email || !name || phone.length !== 10) return alert("❌ Kripya poori aur sahi jankari fill karein!");
+            if(!email || !name || phone.length !== 10) {
+                alert("❌ Kripya poori aur sahi 10-Digit Phone aur details fill korein!");
+                return;
+            }
 
             let cardData = {
                 email: email,
@@ -192,18 +198,24 @@
                 let reader = new FileReader();
                 reader.onload = function (e) {
                     cardData.image64 = e.target.result;
-                    commitSave(idx, cardData);
+                    commitSave(idx, cardData); // Triggers correct data write
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                if(idx !== "") cardData.image64 = localCardsArr[idx].image64;
+                // Keep old image if editing
+                if(idx !== "" && localCardsArr[idx]) {
+                    cardData.image64 = localCardsArr[idx].image64;
+                }
                 commitSave(idx, cardData);
             }
         }
 
         function commitSave(idx, data) {
-            if(idx !== "") localCardsArr[idx] = data;
-            else localCardsArr.push(data);
+            if(idx !== "") {
+                localCardsArr[idx] = data;
+            } else {
+                localCardsArr.push(data);
+            }
             
             localStorage.setItem('my_local_cards', JSON.stringify(localCardsArr));
             closeCardForm();
