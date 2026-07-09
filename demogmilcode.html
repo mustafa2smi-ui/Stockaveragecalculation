@@ -121,6 +121,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business Hub Profile View</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- HTML ko image me badalne ke liye script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col justify-between max-w-md mx-auto">
@@ -170,6 +173,9 @@
     <i class="fa-solid fa-share-nodes mr-1"></i> Share Card
 </button>
 
+<button onclick="shareClientCardProMax()" class="flex-1 text-center bg-slate-800 hover:bg-slate-700 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wide shadow-md">
+    <i class="fa-solid fa-share-nodes mr-1"></i> Share Card
+</button>
 
 
     </div>
@@ -196,7 +202,51 @@ function shareClientCard() {
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareData.text + shareData.url)}`, '_blank');
     }
 }
-   
+   async function shareClientCardProMax() {
+    const btn = event.currentTarget;
+    btn.innerHTML = "<i class='fa-solid fa-spinner animate-spin'></i> Processing Image...";
+    btn.disabled = true;
+
+    // Poore card area ka screenshot background me lega (Footer chhor kar)
+    const targetArea = document.body; 
+    
+    try {
+        const canvas = await html2canvas(targetArea, {
+            useCORS: true,
+            scale: 2, // High quality image
+            ignoreElements: (element) => element.tagName === 'BUTTON' || element.closest('.sticky') // Share & Call buttons hide ho jayenge screenshot me
+        });
+
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], "business_card.jpg", { type: "image/jpeg" });
+            const businessName = document.getElementById('hero-name').innerText;
+            const msgText = `👋 Namaskar! *${businessName}* ka digital visiting card dekhne ke liye niche diye gaye link par click karein:\n\n🔗 Link: ${window.location.href}`;
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                // Phone ka asli share sheet kholega jo photo + text sath bhejta hai
+                await navigator.share({
+                    files: [file],
+                    title: businessName,
+                    text: msgText
+                });
+            } else {
+                // Fallback agar browser file share support na kare (Direct image download karwa dega automatic)
+                const link = document.createElement('a');
+                link.download = `${businessName}_Card.jpg`;
+                link.href = canvas.toDataURL('image/jpeg');
+                link.click();
+                alert("ℹ️ Aapke browser me direct photo share locked hai. Card ki photo download ho gayi hai, ab aap ise WhatsApp par caption ke sath share kar sakte hain!");
+            }
+            btn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+            btn.disabled = false;
+        }, 'image/jpeg', 0.8);
+
+    } catch (err) {
+        console.error(err);
+        btn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+        btn.disabled = false;
+    }
+}
         function bootstrapProfileView() {
             const data = singleProfileDataPayload;
             
