@@ -403,54 +403,51 @@
 
         // 🌟 100% WORKING UN-COMMENTED PRO MAX NATIVE IMAGE SHARE ENGINE
         async function shareOwnerCardLink(index) {
-            const targetCardPreview = document.getElementById(`card-to-share-${index}`);
-            const shareBtn = document.getElementById(`share-btn-${index}`);
-            
-            if(!targetCardPreview) return alert("Card matrix template not found!");
+    const targetCardPreview = document.getElementById(`card-to-share-${index}`);
+    const shareBtn = document.getElementById(`share-btn-${index}`);
+    
+    if(!targetCardPreview) return alert("Card template not found!");
 
-            shareBtn.innerHTML = "<i class='fa-solid fa-spinner animate-spin'></i> Wait...";
-            shareBtn.disabled = true;
+    shareBtn.innerHTML = "<i class='fa-solid fa-spinner animate-spin'></i> Downloading...";
+    shareBtn.disabled = true;
 
-            try {
-                const canvas = await html2canvas(targetCardPreview, { scale: 2, useCORS: true });
-                canvas.toBlob(async (blob) => {
-                    const card = localCardsArr[index];
-                    const file = new File([blob], "digital_visiting_card.jpg", { type: "image/jpeg" });
-                    
-                    let livePageLink = `${window.location.origin}/${card.name.toLowerCase().replace(/ /g, "_")}.html`; 
+    try {
+        // High quality accurate snapshot capture without CORS crashing
+        const canvas = await html2canvas(targetCardPreview, { 
+            scale: 2, 
+            logging: false,
+            useCORS: true,
+            allowTaint: true 
+        });
 
-                    let msgText = `🌟 *${card.name}* 🌟\n_"${card.shortTagline}"_\n\n📌 *Profession:* ${card.category}\n📍 *Location:* ${card.colony}, ${card.village}\n📱 *Contact:* ${card.phone}\n\nHamara poora details aur photo card dekhne ke liye link open karein:\n🔗 ${livePageLink}`;
+        // 🌟 DIRECT HIGH-PERFORMANCE DOWNLOAD ENGINES FOR MOBILE PHONE
+        const link = document.createElement('a');
+        const card = localCardsArr[index];
+        link.download = `${card.name.replace(/ /g, "_")}_Card.jpg`;
+        link.href = canvas.toDataURL('image/jpeg', 0.9);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
 
-                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            files: [file],
-                            title: card.name,
-                            text: msgText
-                        });
-                    } else {
-                        const link = document.createElement('a');
-                        link.download = `${card.name}_Card.jpg`;
-                        link.href = canvas.toDataURL('image/jpeg');
-                        link.click();
-                        alert("🎉 Photo Downloaded! Ab aap ise WhatsApp par share karke caption me apna details daal sakte hain.");
-                    }
-                    shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
-                    shareBtn.disabled = false;
-                }, 'image/jpeg', 0.85);
-            } catch(e) {
-                console.error(e);
-                shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
-                shareBtn.disabled = false;
-            }
-        }
+        alert("🎉 Mubarak Ho! Aapka Digital Card photo mobile gallery (Download folder) me save ho gaya hai.\n\nAb WhatsApp par photo ke sath description caption bhej sakte hain.");
 
-        // 🌟 100% WORKING UN-COMMENTED PRO MAX TEXT MESSAGING ENGINE
-        function shareOwnerCustomText(index) {
-            let card = localCardsArr[index];
-            let customMsg = `🔥 *Bumper Service Alert!* 🔥\n\nKya aapko ek behtareen aur bharosemand *${card.category}* ki zarurat hai? \n\n*${card.name}* aapki seva mein hazir hai! \n📝 _"${card.description}"_\n\n📍 *Address:* ${card.colony}, ${card.village} (${card.district})\n📞 *Direct Call/WhatsApp:* ${card.phone}\n\nKripya is message ko apne dosto aur groups me share karein! 🙏`;
+        // Automatic opens WhatsApp with caption text package
+        let livePageLink = `${window.location.origin}/${card.name.toLowerCase().replace(/ /g, "_")}.html`; 
+        let msgText = `🌟 *${card.name}* 🌟\n_"${card.shortTagline}"_\n\n📌 *Profession:* ${card.category}\n📍 *Location:* ${card.colony}, ${card.village}\n📱 *Contact:* ${card.phone}\n\nHamara poora details aur photo card dekhne ke liye link open karein:\n🔗 ${livePageLink}`;
+        
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msgText)}`, '_blank');
 
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(customMsg)}`, '_blank');
-        }
+        shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+        shareBtn.disabled = false;
+
+    } catch(e) {
+        console.error(e);
+        alert("Kuch error aaya, normal messaging share use karein.");
+        shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+        shareBtn.disabled = false;
+    }
+}
+
     </script>
 </body>
 </html>
