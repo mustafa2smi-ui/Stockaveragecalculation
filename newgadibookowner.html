@@ -613,6 +613,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Favicon -->
+<link rel="icon" href="https://yourwebsite.com/favicon.ico">
+
+<!-- Meta Description (WhatsApp Preview ke liye) -->
+<meta name="description" content="Local business digital directory - Apne area ke top professionals se juden.">
+<meta property="og:title" content="LocalHub Directory">
+<meta property="og:description" content="Apne gaon/sheher ke best services ka digital card dekhein.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://yourwebsite.com">
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LocalHub Studio - Manage Cards</title>
@@ -748,6 +758,11 @@
                 <div class="bg-slate-800 p-4 rounded-xl border border-gray-700 space-y-3">
                     <div class="bg-white text-gray-900 rounded-xl p-3 shadow-sm space-y-2">
                         <div class="flex justify-between items-start border-b pb-1.5 border-dashed border-gray-200">
+                            <!-- Yeh code card ke white box ke andar, sabse niche paste karein -->
+<div class="absolute bottom-0 left-0 w-full bg-black/80 text-white text-[8px] text-center py-0.5 tracking-widest uppercase">
+    Visit: www.website.com
+</div>
+
                             <div class="flex items-center gap-2">
                                 ${masterOwnerPhotoBase64 ? `<img src="${masterOwnerPhotoBase64}" class="w-8 h-8 rounded-full object-cover border border-blue-500">` : `<div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs">👨‍✈️</div>`}
                                 <div>
@@ -1025,6 +1040,7 @@
     }
 }
 */
+        /*
 function shareOwnerCustomText(index) {
     let card = localCardsArr[index];
     let customMsg = `🔥 *Bumper Service Alert!* 🔥\n\nKya aapko ek behtareen aur bharosemand *${card.category}* ki zarurat hai? \n\n*${card.name}* aapki seva mein hazir hai! \n📝 _"${card.description}"_\n\n📍 *Address:* ${card.colony}, ${card.village} (${card.district})\n📞 *Direct Call/WhatsApp:* ${card.phone}\n\nKripya is message ko apne dosto aur groups me share karein! 🙏`;
@@ -1069,6 +1085,41 @@ async function shareOwnerCardLink(index) {
         console.error(e);
     }
 }
+        */
+// Function renderSavedDashboardCards ke andar:
+container.innerHTML = localCardsArr.map((card, index) => `
+    <div class="bg-slate-800 p-4 rounded-xl border border-gray-700 space-y-3">
+        <!-- 🌟 WATERMARK ENABLED CARD PREVIEW -->
+        <div id="card-to-share-${index}" class="bg-white text-gray-900 rounded-xl p-3 shadow-sm space-y-2 relative overflow-hidden">
+            <div class="flex justify-between items-start border-b pb-1.5 border-dashed border-gray-200">
+                <div class="flex items-center gap-2">
+                    ${masterOwnerPhotoBase64 ? `<img src="${masterOwnerPhotoBase64}" class="w-8 h-8 rounded-full object-cover border border-blue-500">` : `<div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-xs">👨‍✈️</div>`}
+                    <div>
+                        <h4 class="font-extrabold text-xs text-blue-800">${card.name}</h4>
+                        <p class="text-[9px] text-gray-500">📍 ${card.colony}, ${card.village}</p>
+                    </div>
+                </div>
+                <span class="bg-blue-50 text-blue-700 text-[8px] font-black px-2 py-0.5 rounded-full border border-blue-200 uppercase">${card.category}</span>
+            </div>
+            
+            <div class="flex gap-2 items-center justify-between pb-4">
+                <p class="text-[11px] text-gray-600 italic font-medium flex-1">"${card.shortTagline}"</p>
+                ${card.image64 ? `<img src="${card.image64}" class="w-16 h-12 rounded object-cover border shadow-xs">` : `<div class="w-16 h-12 rounded bg-gray-100 border text-center flex items-center justify-center text-[9px] font-bold text-gray-400">No Pic</div>`}
+            </div>
+
+            <!-- 🌟 BRANDING WATERMARK -->
+            <div class="absolute bottom-0 left-0 w-full bg-blue-900 text-white text-[8px] text-center py-0.5 tracking-widest uppercase">
+                Visit: www.website.com
+            </div>
+        </div>
+        
+        <div class="flex gap-2 pt-1 text-xs font-bold">
+            <button onclick="deleteCard(${index})" class="bg-red-950/40 hover:bg-red-900 text-red-400 px-3 py-2 rounded-xl"><i class="fa-solid fa-trash"></i></button>
+            <button onclick="openCardForm(${index})" class="bg-slate-700 hover:bg-slate-600 text-gray-300 px-3 py-2 rounded-xl"><i class="fa-solid fa-edit"></i> Edit</button>
+            <button onclick="shareOwnerCardLink(${index})" class="flex-1 bg-gradient-to-r from-yellow-500 to-amber-600 text-slate-950 font-black py-2 rounded-xl uppercase text-center"><i class="fa-solid fa-share-nodes mr-1"></i> Share Card</button>
+        </div>
+    </div>
+`).join('');
 
     </script>
 </body>
