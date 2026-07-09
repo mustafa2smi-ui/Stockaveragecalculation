@@ -766,6 +766,16 @@
                         <button onclick="deleteCard(${index})" class="bg-red-950/40 hover:bg-red-900 text-red-400 px-3 py-2 rounded-xl"><i class="fa-solid fa-trash"></i></button>
                         <button onclick="openCardForm(${index})" class="bg-slate-700 hover:bg-slate-600 text-gray-300 px-3 py-2 rounded-xl"><i class="fa-solid fa-edit"></i> Edit</button>
                         <button onclick="exportSingleCardViaGmail(${index})" class="flex-1 bg-gradient-to-r from-yellow-500 to-amber-600 text-slate-950 font-black py-2 rounded-xl uppercase text-center"><i class="fa-solid fa-paper-plane mr-1"></i> Submit Card</button>
+                   <div class="grid grid-cols-2 gap-2 mt-2">
+    <button onclick="shareOwnerCardLink(${index})" class="bg-blue-950 text-blue-400 py-2 rounded-xl text-[11px] font-bold border border-blue-800">
+        <i class="fa-solid fa-link mr-1"></i> Share With Link
+    </button>
+    
+    <button onclick="shareOwnerCustomText(${index})" class="bg-amber-950 text-amber-400 py-2 rounded-xl text-[11px] font-bold border border-amber-800">
+        <i class="fa-solid fa-comment-sms mr-1"></i> Share Msg Only
+    </button>
+</div>
+
                     </div>
                 </div>
             `).join('');
@@ -994,6 +1004,32 @@
             let body = encodeURIComponent(`Hi Admin,\n\nMaine dashboard par apna digital card verify kar liya hai. Kripya ise live karein.\n\n👤 NAME: ${card.name}\n🛠️ CATEGORY: ${card.category}\n\n📦 COPY THIS CODE PACKAGE:\n\n${JSON.stringify(card)}\n\n`);
             window.location.href = `mailto:${ADMIN_RECEIVING_EMAIL}?subject=${subject}&body=${body}`;
         }
+        function shareOwnerCardLink(index) {
+    let card = localCardsArr[index];
+    // Note: Live hone ke baad ye link client ke asli page ka hona chahiye. Abhi local preview bhej rahe hain.
+    let fakeLiveLink = `https://yourdomain.com/${card.name.toLowerCase().replace(/ /g, "_")}.html`; 
+    
+    let msgText = `*${card.name}* 🌟\n_${card.shortTagline}_\n\n📌 *Profession:* ${card.category}\n📍 *Location:* ${card.colony}, ${card.village}\n📱 *WhatsApp:* ${card.phone}\n\nHamara digital visiting card dekhne aur direct contact karne ke liye niche link open karein:\n`;
+
+    if (navigator.share) {
+        navigator.share({
+            title: card.name,
+            text: msgText,
+            url: fakeLiveLink
+        }).catch(e => console.log(e));
+    } else {
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msgText + fakeLiveLink)}`, '_blank');
+    }
+}
+
+function shareOwnerCustomText(index) {
+    let card = localCardsArr[index];
+    let customMsg = `🔥 *Bumper Service Alert!* 🔥\n\nKya aapko ek behtareen aur bharosemand *${card.category}* ki zarurat hai? \n\n*${card.name}* aapki seva mein hazir hai! \n📝 _"${card.description}"_\n\n📍 *Address:* ${card.colony}, ${card.village} (${card.district})\n📞 *Direct Call/WhatsApp:* ${card.phone}\n\nKripya is message ko apne dosto aur groups me share karein! 🙏`;
+
+    // Direct WhatsApp API blast for clean text message formatting
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(customMsg)}`, '_blank');
+}
+
     </script>
 </body>
 </html>
