@@ -1065,45 +1065,32 @@ async function shareOwnerCardLink(index) {
         }
 */
         // 🌟 WORKING SHARE - Same pattern as Dua App
-async function shareOwnerCardLink(index) {
-    const shareBtn = document.getElementById(`share-btn-${index}`);
+// 🌟 EKDOM SIMPLE SCREENSHOT & DOWNLOAD ENGINE
+function shareOwnerCardLink(index) {
     const captureArea = document.getElementById(`card-to-share-${index}`);
-    
-    if(!captureArea) return alert("Card template not found!");
+    if(!captureArea) return alert("Card not found!");
 
-    shareBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Generating...";
-    shareBtn.disabled = true;
-
-    try {
-        // Hide action buttons before capture (like Dua app hides ui-elements)
-        const actionButtons = captureArea.parentElement.querySelectorAll('button, .actions');
-        actionButtons.forEach(btn => btn.style.display = 'none');
-        
-        // Simple html2canvas call (like Dua app)
-        const canvas = await html2canvas(captureArea, { scale: 2 });
-        
-        // Show buttons again
-        actionButtons.forEach(btn => btn.style.display = '');
-        
-        // Download the image
-        const card = localCardsArr[index];
+    // html2canvas ka sabse safe aur simple core version
+    html2canvas(captureArea, { logging: false, useCORS: true }).then(canvas => {
         const link = document.createElement('a');
-        link.download = `${card.name.replace(/ /g, "_")}_Card.jpg`;
-        link.href = canvas.toDataURL('image/jpeg', 0.9);
-        document.body.appendChild(link);
+        const card = localCardsArr[index];
+        link.download = `${card.name.replace(/ /g, "_")}.png`;
+        link.href = canvas.toDataURL('image/png');
         link.click();
-        document.body.removeChild(link);
         
-        alert("🎉 Card image downloaded! Ab aap ise share kar sakte hain.");
-        
-    } catch(e) {
-        console.error(e);
-        alert("Image generation failed. Please try again.");
-    }
-    
-    shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes'></i> Share Card";
-    shareBtn.disabled = false;
+        alert("🎉 Photo Downloaded! Ab gallery se WhatsApp par direct share karein.");
+    }).catch(err => {
+        alert("Browser restricted screenshot. 'Msg Only' use karein.");
+    });
 }
+
+// 🌟 DIRECT MESSAGE ONLY ENGINE
+function shareOwnerCustomText(index) {
+    let card = localCardsArr[index];
+    let customMsg = `🔥 *${card.name}* 🔥\n_"${card.shortTagline || ''}"_\n\n📍 *Address:* ${card.colony}, ${card.village}\n📞 *Call/WhatsApp:* ${card.phone}\n\nKripya share karein! 🙏`;
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(customMsg)}`, '_blank');
+}
+
         // 🌟 MESSAGE ONLY BLAST ENGINE (unchanged)
         function shareOwnerCustomText(index) {
             try {
