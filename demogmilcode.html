@@ -392,7 +392,7 @@ function shareClientCard() {
         }
 */
         // 🌟 100% FOOLPROOF CLIENT CARD SHARE ENGINE
-function shareClientCardProMax() {
+/*function shareClientCardProMax() {
     try {
         const businessName = document.getElementById('hero-name').innerText;
         const msgText = `👋 Namaskar! *${businessName}* ka digital visiting card dekhne ke liye niche diye gaye link par click karein. Yahan aapko saari services, contact aur photos milengi:\n\n🔗 Link: ${window.location.href}`;
@@ -412,7 +412,44 @@ function shareClientCardProMax() {
         alert("Sharing blocked by browser layout.");
     }
 }
+*/
+// 🌟 100% WORKING CLIENT CARD SNAPSHOT DOWNLOAD
+async function shareClientCardProMax() {
+    const btn = document.getElementById('client-share-btn');
+    btn.innerHTML = "<i class='fa-solid fa-spinner animate-spin'></i> Saving...";
+    btn.disabled = true;
 
+    const targetArea = document.body; 
+    
+    try {
+        const canvas = await html2canvas(targetArea, {
+            useCORS: false,
+            allowTaint: true,
+            scale: 2, 
+            logging: false,
+            ignoreElements: (element) => element.tagName === 'BUTTON' || element.closest('.sticky') // Footer hide rakhega
+        });
+
+        const link = document.createElement('a');
+        const businessName = document.getElementById('hero-name').innerText;
+        link.download = `${businessName.replace(/ /g, "_")}_Card.jpg`;
+        link.href = canvas.toDataURL('image/jpeg', 0.9);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        alert("🎉 Card image aapki mobile gallery me download ho gayi hai!");
+
+        btn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+        btn.disabled = false;
+
+    } catch (err) {
+        console.error(err);
+        alert("Screenshot chunk failed.");
+        btn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+        btn.disabled = false;
+    }
+}
 
         function bootstrapProfileView() {
             const data = singleProfileDataPayload;
