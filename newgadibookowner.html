@@ -403,7 +403,7 @@
 
         // 🌟 100% WORKING UN-COMMENTED PRO MAX NATIVE IMAGE SHARE ENGINE
         // 🌟 100% BULLET-PROOF NATIVE SHARE FUNCTION (BINA CRASH WALA LOGIC)
-function shareOwnerCardLink(index) {
+/*function shareOwnerCardLink(index) {
     try {
         const card = localCardsArr[index];
         if(!card) return alert("Card data not found!");
@@ -430,7 +430,7 @@ function shareOwnerCardLink(index) {
         alert("WhatsApp open karne me dikkat hai, sahi se check karein.");
     }
 }
-
+*/
 // 🌟 MESSAGE ONLY BLAST ENGINE
 function shareOwnerCustomText(index) {
     try {
@@ -442,6 +442,47 @@ function shareOwnerCustomText(index) {
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(customMsg)}`, '_blank');
     } catch(e) {
         alert("WhatsApp open nahi ho paa raha hai.");
+    }
+}
+
+        // 🌟 BULLET-PROOF SCREENSHOT & GALLERY DOWNLOAD ENGINE
+async function shareOwnerCardLink(index) {
+    const targetCardPreview = document.getElementById(`card-to-share-${index}`);
+    const shareBtn = document.getElementById(`share-btn-${index}`);
+    
+    if(!targetCardPreview) return alert("Card matrix template not found!");
+
+    shareBtn.innerHTML = "<i class='fa-solid fa-spinner animate-spin'></i> Image Making...";
+    shareBtn.disabled = true;
+
+    try {
+        // Pure preview block ka transparent screenshot bypass lock engine
+        const canvas = await html2canvas(targetCardPreview, { 
+            scale: 2, 
+            logging: false,
+            useCORS: false, // Security block bypass karne ke liye false kiya
+            allowTaint: true 
+        });
+
+        // Gallery Download Trigger
+        const link = document.createElement('a');
+        const card = localCardsArr[index];
+        link.download = `${card.name.replace(/ /g, "_")}_DigitalCard.jpg`;
+        link.href = canvas.toDataURL('image/jpeg', 0.9);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        alert("🎉 Card Ka Image Aapke Phone Me Download Ho Gaya Hai!\n\nAb aap ise WhatsApp status ya groups me direct photo ki tarah share kar sakte hain.");
+
+        shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+        shareBtn.disabled = false;
+
+    } catch(e) {
+        console.error(e);
+        alert("Snapshot lene me browser permission issue hai.");
+        shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+        shareBtn.disabled = false;
     }
 }
 
