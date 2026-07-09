@@ -46,7 +46,7 @@
 
   // Agar image hogi toh bada base64 code hoga
         };
-
+/*
         // UI Auto Render Engine Motor
         function bootstrapProfileView() {
             const data = singleProfileDataPayload;
@@ -72,6 +72,43 @@
 
         // Run Engine
         bootstrapProfileView();
+            *//*
+                    // =========================================================================
+        // 📦 INDIVIDUAL FILE DATA INJECTOR (Aapka email wala naya format code)
+        // =========================================================================
+        const singleProfileDataPayload = {
+            // 💡 YAHAN PAR APNA EMAIL WALA FULL REFRESHED CODE TEXT PASTE RAHNE DENA!
+        };
+*/
+        // UI Auto Render Engine Motor (Naye Format Ke Mutabik Updated)
+        function bootstrapProfileView() {
+            const data = singleProfileDataPayload;
+            
+            document.title = `${data.name || 'Business'} - LocalHub Profile`;
+            document.getElementById('hero-name').innerText = data.name || "Business Name";
+            document.getElementById('hero-badge').innerText = data.category || "Service";
+            document.getElementById('main-desc').innerText = data.description || "No description provided.";
+            
+            document.getElementById('adr-colony').innerHTML = `<span class="text-gray-400">Colony/Area:</span> ${data.colony || 'N/A'}`;
+            document.getElementById('adr-village').innerHTML = `<span class="text-gray-400">Village/City:</span> ${data.village || 'N/A'}`;
+            document.getElementById('adr-district').innerHTML = `<span class="text-gray-400">District:</span> ${data.district || 'N/A'} (${data.state || 'N/A'})`;
+
+            // Image Engine Handler
+            const imgBox = document.getElementById('image-container');
+            if(data.image64 && data.image64.trim() !== "") {
+                imgBox.innerHTML = `<img src="${data.image64}" class="w-full h-full object-cover absolute inset-0 z-0"><div class="absolute inset-0 bg-black/40 z-10"></div><h2 class="text-xl font-black text-white relative z-20 tracking-tight shadow-sm">${data.name}</h2><span class="absolute bottom-3 right-3 bg-yellow-400 text-slate-950 font-black text-[10px] px-3 py-1 rounded-full uppercase z-20 shadow">${data.category}</span>`;
+            } else {
+                imgBox.innerHTML = `<i class="fa-solid fa-briefcase text-5xl mb-2 text-yellow-400"></i><h2 class="text-xl font-black tracking-tight">${data.name}</h2><span class="absolute bottom-3 right-3 bg-yellow-400 text-slate-950 font-black text-[10px] px-3 py-1 rounded-full uppercase tracking-wider shadow">${data.category}</span>`;
+            }
+
+            // Action Trigger Injector
+            document.getElementById('action-call').href = `tel:${data.phone}`;
+            document.getElementById('action-wa').href = `https://wa.me/${data.phone}?text=Hello%20${encodeURIComponent(data.name)},%20Maine%20aapka%20profile%20LocalHub%20par%20dekha.%20Urgent%20kaam%20hai.`;
+        }
+
+        // Run Engine
+        bootstrapProfileView();
+
     </script>
 </body>
 </html>
