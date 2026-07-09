@@ -402,49 +402,46 @@
         }
 
         // 🌟 100% WORKING UN-COMMENTED PRO MAX NATIVE IMAGE SHARE ENGINE
-        async function shareOwnerCardLink(index) {
-    const targetCardPreview = document.getElementById(`card-to-share-${index}`);
-    const shareBtn = document.getElementById(`share-btn-${index}`);
-    
-    if(!targetCardPreview) return alert("Card template not found!");
-
-    shareBtn.innerHTML = "<i class='fa-solid fa-spinner animate-spin'></i> Downloading...";
-    shareBtn.disabled = true;
-
+        // 🌟 100% BULLET-PROOF NATIVE SHARE FUNCTION (BINA CRASH WALA LOGIC)
+function shareOwnerCardLink(index) {
     try {
-        // High quality accurate snapshot capture without CORS crashing
-        const canvas = await html2canvas(targetCardPreview, { 
-            scale: 2, 
-            logging: false,
-            useCORS: true,
-            allowTaint: true 
-        });
-
-        // 🌟 DIRECT HIGH-PERFORMANCE DOWNLOAD ENGINES FOR MOBILE PHONE
-        const link = document.createElement('a');
         const card = localCardsArr[index];
-        link.download = `${card.name.replace(/ /g, "_")}_Card.jpg`;
-        link.href = canvas.toDataURL('image/jpeg', 0.9);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        if(!card) return alert("Card data not found!");
 
-        alert("🎉 Mubarak Ho! Aapka Digital Card photo mobile gallery (Download folder) me save ho gaya hai.\n\nAb WhatsApp par photo ke sath description caption bhej sakte hain.");
-
-        // Automatic opens WhatsApp with caption text package
+        // Live hone ke baad ye link aapki website ka domain automatic pakad lega
         let livePageLink = `${window.location.origin}/${card.name.toLowerCase().replace(/ /g, "_")}.html`; 
-        let msgText = `🌟 *${card.name}* 🌟\n_"${card.shortTagline}"_\n\n📌 *Profession:* ${card.category}\n📍 *Location:* ${card.colony}, ${card.village}\n📱 *Contact:* ${card.phone}\n\nHamara poora details aur photo card dekhne ke liye link open karein:\n🔗 ${livePageLink}`;
+
+        let msgText = `🌟 *${card.name}* 🌟\n_"${card.shortTagline || ''}"_\n\n📌 *Profession:* ${card.category}\n📍 *Location:* ${card.colony}, ${card.village}\n📱 *Contact/WhatsApp:* ${card.phone}\n\nHamara poora details aur photo card dekhne ke liye link open karein:\n🔗 ${livePageLink}`;
+
+        // Agar phone native text sharing support kare toh mobile menu kholega
+        if (navigator.share && !navigator.userAgent.includes("FBAN") && !navigator.userAgent.includes("FBAV")) {
+            navigator.share({
+                title: card.name,
+                text: msgText
+            }).catch(e => {
+                // Fail hone par seedhe WhatsApp khol dega
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msgText)}`, '_blank');
+            });
+        } else {
+            // Direct WhatsApp route
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msgText)}`, '_blank');
+        }
+    } catch(err) {
+        alert("WhatsApp open karne me dikkat hai, sahi se check karein.");
+    }
+}
+
+// 🌟 MESSAGE ONLY BLAST ENGINE
+function shareOwnerCustomText(index) {
+    try {
+        let card = localCardsArr[index];
+        if(!card) return alert("Card data not found!");
         
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msgText)}`, '_blank');
+        let customMsg = `🔥 *Bumper Service Alert!* 🔥\n\nKya aapko ek behtareen aur bharosemand *${card.category}* ki zarurat hai? \n\n*${card.name}* aapki seva mein hazir hai! \n📝 _"${card.description || ''}"_\n\n📍 *Address:* ${card.colony}, ${card.village} (${card.district})\n📞 *Direct Call/WhatsApp:* ${card.phone}\n\nKripya is message ko apne dosto aur groups me share karein! 🙏`;
 
-        shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
-        shareBtn.disabled = false;
-
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(customMsg)}`, '_blank');
     } catch(e) {
-        console.error(e);
-        alert("Kuch error aaya, normal messaging share use karein.");
-        shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
-        shareBtn.disabled = false;
+        alert("WhatsApp open nahi ho paa raha hai.");
     }
 }
 
