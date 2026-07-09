@@ -1066,7 +1066,7 @@ async function shareOwnerCardLink(index) {
 */
         // 🌟 WORKING SHARE - Same pattern as Dua App
 // 🌟 EKDOM SIMPLE SCREENSHOT & DOWNLOAD ENGINE
-function shareOwnerCardLink(index) {
+/*function shareOwnerCardLink(index) {
     const captureArea = document.getElementById(`card-to-share-${index}`);
     if(!captureArea) return alert("Card not found!");
 
@@ -1083,7 +1083,32 @@ function shareOwnerCardLink(index) {
         alert("Browser restricted screenshot. 'Msg Only' use karein.");
     });
 }
+*/
+        // 🌟 100% ERROR-FREE DIRECT LINK ENGINE (NO CANVASES, NO SNAPSHOTS)
+function shareOwnerCardLink(index) {
+    const card = localCardsArr[index];
+    if(!card) return alert("Card not found!");
 
+    // Live hone ke baad ye aapka automatic URL link pakad lega
+    let livePageLink = `${window.location.origin}/${card.name.toLowerCase().replace(/ /g, "_")}.html`; 
+
+    // Dynamic clean text formatting for WhatsApp
+    let msgText = `🌟 *${card.name}* 🌟\n_"${card.shortTagline || ''}"_\n\n📌 *Profession:* ${card.category}\n📍 *Location:* ${card.colony}, ${card.village}\n📱 *Contact/WhatsApp:* ${card.phone}\n\nHamara poora details aur 3-Photo Collage dekhne ke liye link open karein:\n🔗 ${livePageLink}`;
+
+    // Direct launch WhatsApp API without browser loops or redirects
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msgText)}`, '_blank');
+}
+
+// 🌟 MESSAGE ONLY BLAST ENGINE
+function shareOwnerCustomText(index) {
+    let card = localCardsArr[index];
+    if(!card) return alert("Card not found!");
+    
+    let customMsg = `🔥 *Bumper Service Alert!* 🔥\n\n*${card.name}* aapki seva mein hazir hai! \n📝 _"${card.description || ''}"_\n\n📍 *Address:* ${card.colony}, ${card.village}\n📞 *Direct Call/WhatsApp:* ${card.phone}\n\nKripya is message ko share karein! 🙏`;
+
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(customMsg)}`, '_blank');
+}
+/*
 // 🌟 DIRECT MESSAGE ONLY ENGINE
 function shareOwnerCustomText(index) {
     let card = localCardsArr[index];
@@ -1104,7 +1129,7 @@ function shareOwnerCustomText(index) {
                 alert("WhatsApp open nahi ho paa raha hai.");
             }
         }
-
+*/
     </script>
 </body>
 </html>
