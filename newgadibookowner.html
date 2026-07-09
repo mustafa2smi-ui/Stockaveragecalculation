@@ -617,6 +617,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LocalHub Studio - Manage Cards</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-900 text-gray-100 font-sans pb-10 max-w-md mx-auto px-4 pt-4">
@@ -1004,6 +1006,7 @@
             let body = encodeURIComponent(`Hi Admin,\n\nMaine dashboard par apna digital card verify kar liya hai. Kripya ise live karein.\n\n👤 NAME: ${card.name}\n🛠️ CATEGORY: ${card.category}\n\n📦 COPY THIS CODE PACKAGE:\n\n${JSON.stringify(card)}\n\n`);
             window.location.href = `mailto:${ADMIN_RECEIVING_EMAIL}?subject=${subject}&body=${body}`;
         }
+        /*
         function shareOwnerCardLink(index) {
     let card = localCardsArr[index];
     // Note: Live hone ke baad ye link client ke asli page ka hona chahiye. Abhi local preview bhej rahe hain.
@@ -1021,13 +1024,50 @@
         window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msgText + fakeLiveLink)}`, '_blank');
     }
 }
-
+*/
 function shareOwnerCustomText(index) {
     let card = localCardsArr[index];
     let customMsg = `🔥 *Bumper Service Alert!* 🔥\n\nKya aapko ek behtareen aur bharosemand *${card.category}* ki zarurat hai? \n\n*${card.name}* aapki seva mein hazir hai! \n📝 _"${card.description}"_\n\n📍 *Address:* ${card.colony}, ${card.village} (${card.district})\n📞 *Direct Call/WhatsApp:* ${card.phone}\n\nKripya is message ko apne dosto aur groups me share karein! 🙏`;
 
     // Direct WhatsApp API blast for clean text message formatting
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(customMsg)}`, '_blank');
+}
+async function shareOwnerCardLink(index) {
+    // Jis card ko share karna hai, uske div element ko target karega
+    const cardElements = document.querySelectorAll('#saved-cards-box > div');
+    const targetCardPreview = cardElements[index].querySelector('.bg-white'); // Target only the white preview box inside row
+
+    if(!targetCardPreview) return alert("Card template not found!");
+
+    try {
+        const canvas = await html2canvas(targetCardPreview, { scale: 2 });
+        canvas.toBlob(async (blob) => {
+            const card = localCardsArr[index];
+            const file = new File([blob], "my_digital_card.jpg", { type: "image/jpeg" });
+            
+            // Yahan aap apna Netlify link live hone ke baad daal sakte hain
+            let livePageLink = `https://yourdomain.com/${card.name.toLowerCase().replace(/ /g, "_")}.html`; 
+
+            let msgText = `🌟 *${card.name}* 🌟\n_"${card.shortTagline}"_\n\n📌 *Profession:* ${card.category}\n📍 *Location:* ${card.colony}, ${card.village}\n📱 *Contact:* ${card.phone}\n\nHamara poora details aur photo card dekhne ke liye link open karein:\n🔗 ${livePageLink}`;
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: card.name,
+                    text: msgText
+                });
+            } else {
+                // Safe Fallback for older browsers
+                const link = document.createElement('a');
+                link.download = `${card.name}_Card.jpg`;
+                link.href = canvas.toDataURL('image/jpeg');
+                link.click();
+                alert("🎉 Photo Downloaded! Ab aap ise WhatsApp par share karke caption me apna details daal sakte hain.");
+            }
+        }, 'image/jpeg', 0.8);
+    } catch(e) {
+        console.error(e);
+    }
 }
 
     </script>
