@@ -444,7 +444,7 @@ function shareOwnerCustomText(index) {
         alert("WhatsApp open nahi ho paa raha hai.");
     }
 }
-
+/*
         // 🌟 BULLET-PROOF SCREENSHOT & GALLERY DOWNLOAD ENGINE
 async function shareOwnerCardLink(index) {
     const targetCardPreview = document.getElementById(`card-to-share-${index}`);
@@ -485,6 +485,54 @@ async function shareOwnerCardLink(index) {
         shareBtn.disabled = false;
     }
 }
+*/
+        async function shareOwnerCardLink(index) {
+    const captureArea = document.getElementById(`card-to-share-${index}`);
+    const shareBtn = document.getElementById(`share-btn-${index}`);
+    
+    if(!captureArea) return alert("Card template not found!");
+
+    shareBtn.innerHTML = "<i class='fa-solid fa-spinner animate-spin'></i> Making...";
+    shareBtn.disabled = true;
+
+    try {
+        // Exact aapka purana tried-and-tested method (Scale 2 ke sath)
+        const canvas = await html2canvas(captureArea, { 
+            scale: 2,
+            logging: false,
+            useCORS: true
+        });
+
+        canvas.toBlob(blob => {
+            const card = localCardsArr[index];
+            const file = new File([blob], `${card.name.replace(/ /g, "_")}.png`, { type: 'image/png' });
+            
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({ 
+                    files: [file], 
+                    title: card.name 
+                }).catch(e => console.log("Share cancelled"));
+            } else {
+                // Fallback: Agar browser deep link file share allow na kare toh automatic save to phone
+                const link = document.createElement('a');
+                link.download = `${card.name.replace(/ /g, "_")}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                alert("🎉 Photo Phone me download ho gayi hai! Ab aap WhatsApp par share kar sakte hain.");
+            }
+
+            shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+            shareBtn.disabled = false;
+        }, 'image/png');
+
+    } catch(e) {
+        console.error(e);
+        alert("Snapshot failed. Msg Only button use karein.");
+        shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+        shareBtn.disabled = false;
+    }
+}
+
 
     </script>
 </body>
