@@ -114,6 +114,7 @@
 </body>
 </html>
 -->
+<!--
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -121,14 +122,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business Hub Profile View</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <!-- HTML ko image me badalne ke liye script -->
+    <!-- HTML ko image me badalne ke liye script --
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col justify-between max-w-md mx-auto">
 
-    <!-- TOP BANNER -->
+    <!-- TOP BANNER --
     <div>
         <div id="image-container" class="w-full h-56 bg-gradient-to-br from-blue-700 to-indigo-900 text-white flex flex-col items-center justify-center text-center px-4 relative shadow-md">
             <i class="fa-solid fa-briefcase text-5xl mb-2 text-yellow-400"></i>
@@ -136,10 +137,10 @@
             <span id="hero-badge" class="absolute bottom-3 right-3 bg-yellow-400 text-slate-950 font-black text-[10px] px-3 py-1 rounded-full uppercase tracking-wider shadow">Service</span>
         </div>
 
-        <!-- DEEP DETAILS DETAILS BOX -->
+        <!-- DEEP DETAILS DETAILS BOX --
         <div class="p-4 space-y-4">
             
-            <!-- 🌟 NEW: OWNER PROFILE BRANDING CARD CARD -->
+            <!-- 🌟 NEW: OWNER PROFILE BRANDING CARD CARD --
             <div class="bg-white p-4 rounded-2xl shadow-sm border flex items-center gap-3">
                 <div id="owner-avatar-box">
                     <div class="w-14 h-14 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xl font-bold">👨‍✈️</div>
@@ -165,7 +166,7 @@
         </div>
     </div>
 
-    <!-- PERSISTENT FOOTER ACTION BAR -->
+    <!-- PERSISTENT FOOTER ACTION BAR --
     <div class="p-4 bg-white border-t flex gap-2 sticky bottom-0">
         <a id="action-call" href="#" class="flex-1 text-center bg-blue-700 hover:bg-blue-800 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wide shadow-md"><i class="fa-solid fa-phone mr-1"></i> Call Owner</a>
         <a id="action-wa" href="#" target="_blank" class="flex-1 text-center bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wide shadow-md"><i class="fa-brands fa-whatsapp text-sm mr-1"></i> WhatsApp Chat</a>
@@ -273,6 +274,147 @@ function shareClientCard() {
 
             document.getElementById('action-call').href = `tel:${data.phone}`;
             document.getElementById('action-wa').href = `https://wa.me/${data.phone}?text=Hello%20,%20Maine%20aapka%20profile%20LocalHub%20par%20dekha.`;
+        }
+
+        bootstrapProfileView();
+    </script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Hub Profile View</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- HTML ko image me badalne ke liye script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 text-gray-800 font-sans min-h-screen flex flex-col justify-between max-w-md mx-auto">
+
+    <!-- TOP BANNER -->
+    <div>
+        <div id="image-container" class="w-full h-56 bg-gradient-to-br from-blue-700 to-indigo-900 text-white flex flex-col items-center justify-center text-center px-4 relative shadow-md">
+            <i class="fa-solid fa-briefcase text-5xl mb-2 text-yellow-400"></i>
+            <h2 id="hero-name" class="text-xl font-black tracking-tight">Loading Business...</h2>
+            <span id="hero-badge" class="absolute bottom-3 right-3 bg-yellow-400 text-slate-950 font-black text-[10px] px-3 py-1 rounded-full uppercase tracking-wider shadow">Service</span>
+        </div>
+
+        <!-- DEEP DETAILS DETAILS BOX -->
+        <div class="p-4 space-y-4">
+            
+            <!-- OWNER PROFILE BRANDING CARD -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border flex items-center gap-3">
+                <div id="owner-avatar-box">
+                    <div class="w-14 h-14 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center text-xl font-bold">👨‍✈️</div>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider">Verified Professional Malik</p>
+                    <h3 id="owner-title-name" class="text-sm font-bold text-gray-900">Loading Owner...</h3>
+                    <p id="owner-contact-sub" class="text-[11px] text-gray-500 font-medium">Contact WhatsApp Active</p>
+                </div>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl shadow-sm border space-y-2">
+                <h3 class="text-xs font-black text-gray-400 uppercase tracking-wider"><i class="fa-solid fa-circle-info text-blue-600"></i> About Our Service</h3>
+                <p id="main-desc" class="text-xs text-gray-700 leading-relaxed font-medium">Loading details...</p>
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl shadow-sm border space-y-2 text-xs font-medium text-gray-700">
+                <h3 class="text-xs font-black text-gray-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-map-marked-alt text-blue-600"></i> Operational Hub Address</h3>
+                <p id="adr-colony">Colony: Loading...</p>
+                <p id="adr-village">Village: Loading...</p>
+                <p id="adr-district">District: Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PERSISTENT FOOTER ACTION BAR -->
+    <div class="p-4 bg-white border-t flex gap-2 sticky bottom-0 z-50">
+        <a id="action-call" href="#" class="flex-1 text-center bg-blue-700 hover:bg-blue-800 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wide shadow-md"><i class="fa-solid fa-phone mr-1"></i> Call Owner</a>
+        <a id="action-wa" href="#" target="_blank" class="flex-1 text-center bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wide shadow-md"><i class="fa-brands fa-whatsapp text-sm mr-1"></i> WhatsApp</a>
+        <button id="client-share-btn" onclick="shareClientCardProMax()" class="flex-1 text-center bg-slate-800 hover:bg-slate-700 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wide shadow-md">
+            <i class="fa-solid fa-share-nodes mr-1"></i> Share Card
+        </button>
+    </div>
+
+    <script>
+        // 💡 IS `{}` KE ANDAR APNA GMAIL SE AAYA HUA CODE YA TEST CODE INJECT KARNA
+        const singleProfileDataPayload = {
+        };
+
+        async function shareClientCardProMax() {
+            const btn = document.getElementById('client-share-btn');
+            btn.innerHTML = "<i class='fa-solid fa-spinner animate-spin'></i> Wait...";
+            btn.disabled = true;
+
+            const targetArea = document.body; 
+            
+            try {
+                // Background process framework canvas assembler
+                const canvas = await html2canvas(targetArea, {
+                    useCORS: true,
+                    scale: 2, 
+                    ignoreElements: (element) => element.tagName === 'BUTTON' || element.closest('.sticky')
+                });
+
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], "business_card.jpg", { type: "image/jpeg" });
+                    const businessName = document.getElementById('hero-name').innerText;
+                    const msgText = `👋 Namaskar! *${businessName}* ka digital visiting card dekhne ke liye niche diye gaye link par click karein:\n\n🔗 Link: ${window.location.href}`;
+
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: businessName,
+                            text: msgText
+                        });
+                    } else {
+                        const link = document.createElement('a');
+                        link.download = `${businessName}_Card.jpg`;
+                        link.href = canvas.toDataURL('image/jpeg');
+                        link.click();
+                        alert("🎉 Photo Downloaded! Ab aap ise WhatsApp par share karke caption me apna details daal sakte hain.");
+                    }
+                    btn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+                    btn.disabled = false;
+                }, 'image/jpeg', 0.85);
+
+            } catch (err) {
+                console.error(err);
+                btn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+                btn.disabled = false;
+            }
+        }
+
+        function bootstrapProfileView() {
+            const data = singleProfileDataPayload;
+            
+            document.title = `${data.name || 'Business'} - LocalHub Profile`;
+            document.getElementById('hero-name').innerText = data.name || "Business Name";
+            document.getElementById('hero-badge').innerText = data.category || "Service";
+            document.getElementById('main-desc').innerText = data.description || "No description provided.";
+            document.getElementById('owner-title-name').innerText = data.name || "Owner Profile";
+            
+            document.getElementById('adr-colony').innerHTML = `<span class="text-gray-400">Colony/Area:</span> ${data.colony || 'N/A'}`;
+            document.getElementById('adr-village').innerHTML = `<span class="text-gray-400">Village/City:</span> ${data.village || 'N/A'}`;
+            document.getElementById('adr-district').innerHTML = `<span class="text-gray-400">District:</span> ${data.district || 'N/A'} (${data.state || 'N/A'})`;
+
+            // Render Owner Photo avatar
+            if(data.ownerPhoto && data.ownerPhoto.trim() !== "") {
+                document.getElementById('owner-avatar-box').innerHTML = `<img src="${data.ownerPhoto}" class="w-14 h-14 rounded-full object-cover border-2 border-blue-500">`;
+            }
+
+            // Image Engine Handler
+            const imgBox = document.getElementById('image-container');
+            if(data.image64 && data.image64.trim() !== "") {
+                imgBox.innerHTML = `<img src="${data.image64}" class="w-full h-full object-cover absolute inset-0 z-0"><div class="absolute inset-0 bg-black/40 z-10"></div><h2 class="text-xl font-black text-white relative z-20 tracking-tight shadow-sm">${data.name}</h2><span class="absolute bottom-3 right-3 bg-yellow-400 text-slate-950 font-black text-[10px] px-3 py-1 rounded-full uppercase z-20 shadow">${data.category}</span>`;
+            }
+
+            document.getElementById('action-call').href = `tel:${data.phone}`;
+            document.getElementById('action-wa').href = `https://wa.me/${data.phone}?text=Hello%20${encodeURIComponent(data.name || '')},%20Maine%20aapka%20profile%20LocalHub%20par%20dekha.`;
         }
 
         bootstrapProfileView();
