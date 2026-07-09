@@ -391,45 +391,28 @@ function shareClientCard() {
             }
         }
 */
-        async function shareClientCardProMax() {
-    const btn = document.getElementById('client-share-btn');
-    btn.innerHTML = "<i class='fa-solid fa-spinner animate-spin'></i> Downloading...";
-    btn.disabled = true;
-
-    const targetArea = document.body; 
-    
+        // 🌟 100% FOOLPROOF CLIENT CARD SHARE ENGINE
+function shareClientCardProMax() {
     try {
-        const canvas = await html2canvas(targetArea, {
-            useCORS: true,
-            allowTaint: true,
-            scale: 2, 
-            logging: false,
-            ignoreElements: (element) => element.tagName === 'BUTTON' || element.closest('.sticky')
-        });
-
-        const link = document.createElement('a');
         const businessName = document.getElementById('hero-name').innerText;
-        link.download = `${businessName.replace(/ /g, "_")}_Card.jpg`;
-        link.href = canvas.toDataURL('image/jpeg', 0.9);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const msgText = `👋 Namaskar! *${businessName}* ka digital visiting card dekhne ke liye niche diye gaye link par click karein. Yahan aapko saari services, contact aur photos milengi:\n\n🔗 Link: ${window.location.href}`;
 
-        alert("🎉 Card Photo Gallery me save ho gayi hai!\n\nAb WhatsApp par photo select karke caption link share karein.");
-
-        const msgText = `👋 Namaskar! *${businessName}* ka digital visiting card dekhne ke liye niche diye gaye link par click karein:\n\n🔗 Link: ${window.location.href}`;
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msgText)}`, '_blank');
-
-        btn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
-        btn.disabled = false;
-
-    } catch (err) {
+        if (navigator.share && !navigator.userAgent.includes("FBAN") && !navigator.userAgent.includes("FBAV")) {
+            navigator.share({
+                title: businessName,
+                text: msgText
+            }).catch(() => {
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msgText)}`, '_blank');
+            });
+        } else {
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msgText)}`, '_blank');
+        }
+    } catch(err) {
         console.error(err);
-        alert("Error generating image.");
-        btn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
-        btn.disabled = false;
+        alert("Sharing blocked by browser layout.");
     }
 }
+
 
         function bootstrapProfileView() {
             const data = singleProfileDataPayload;
