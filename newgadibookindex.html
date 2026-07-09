@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -141,6 +141,236 @@
                         <p class="text-xs text-gray-600 italic font-medium">"${card.shortTagline}"</p>
                         <button onclick="window.open('${card.slug}.html', '_blank')" class="bg-blue-700 hover:bg-blue-800 text-white font-extrabold px-3 py-2 rounded-xl text-xs w-full uppercase tracking-wider text-center shadow-sm">
                             <i class="fa-solid fa-folder-open mr-1"></i> Explore Business & Contact
+                        </button>
+                    </div>`;
+            });
+        }
+
+        function searchFilter() {
+            let val = document.getElementById('search-input').value.toLowerCase();
+            let lists = document.getElementById('directory-listings').children;
+            for (let i = 0; i < lists.length; i++) {
+                lists[i].classList.toggle('hidden', !lists[i].innerText.toLowerCase().includes(val));
+            }
+        }
+
+        renderFilterHubTabs();
+        renderCards();
+    </script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalBusiness Hub - Digital Directory</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Premium Card Styles */
+        .premium-card {
+            background: rgba(255,255,255,0.75);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-radius: 2rem;
+            box-shadow: 0 20px 40px -12px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.8);
+            border: 1px solid rgba(255,255,255,0.7);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            position: relative;
+        }
+        .premium-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+        .premium-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+            border-radius: 2rem 2rem 0 0;
+        }
+        .card-badge {
+            background: linear-gradient(135deg, #eff6ff, #dbeafe);
+            color: #1e40af;
+            font-weight: 800;
+            font-size: 0.65rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            border: 1px solid #bfdbfe;
+            letter-spacing: 0.5px;
+        }
+        .card-btn {
+            background: linear-gradient(135deg, #1e40af, #3b82f6);
+            color: white;
+            font-weight: 800;
+            padding: 0.65rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            box-shadow: 0 8px 20px -8px #3b82f6;
+            transition: all 0.25s;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        .card-btn:hover {
+            box-shadow: 0 12px 25px -8px #1e40af;
+            transform: translateY(-1px);
+        }
+        .location-dot {
+            color: #f59e0b;
+            margin-right: 2px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-gray-800 font-sans pb-10 min-h-screen">
+
+    <header class="bg-gradient-to-r from-blue-700 to-indigo-800 text-white px-4 py-3 sticky top-0 z-50 shadow-lg flex justify-between items-center backdrop-blur-sm">
+        <h1 onclick="location.reload()" class="text-xl font-black tracking-wide cursor-pointer flex items-center gap-2">
+            <span class="bg-yellow-400 text-blue-900 w-8 h-8 rounded-full flex items-center justify-center text-sm">📍</span>LocalHub
+        </h1>
+        <button onclick="window.open('newgadibookowner.html', '_blank')" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold px-4 py-2 rounded-full text-xs shadow-lg transition-all duration-200 hover:shadow-xl">
+            <i class="fa-solid fa-plus-circle mr-1"></i> Make My Card
+        </button>
+    </header>
+
+    <div class="bg-gradient-to-b from-blue-700 to-indigo-800 text-white px-4 pb-6 rounded-b-3xl shadow-xl pt-2 max-w-md mx-auto">
+        <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-blue-300"></i>
+            <input type="text" id="search-input" onkeyup="searchFilter()" placeholder="Search Plumber, Travels, Shop, Village..." class="w-full bg-white/95 backdrop-blur-sm text-gray-900 pl-11 pr-4 py-3 rounded-2xl shadow-inner focus:outline-none focus:ring-2 focus:ring-yellow-400 text-sm font-medium">
+        </div>
+    </div>
+
+    <section class="max-w-md mx-auto mt-5 px-4 space-y-3">
+        
+        <div>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-layer-group text-blue-600 mr-1"></i> 1. Profession</p>
+            <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-1" id="tab-category-box"></div>
+        </div>
+
+        <div>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-map text-blue-600 mr-1"></i> 2. State</p>
+            <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-1" id="tab-state-box"></div>
+        </div>
+
+        <div>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-location-crosshairs text-blue-600 mr-1"></i> 3. District</p>
+            <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-1" id="tab-district-box"></div>
+        </div>
+
+        <div>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1.5"><i class="fa-solid fa-map-location-dot text-blue-600 mr-1"></i> 4. Village/City</p>
+            <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-1" id="tab-village-box"></div>
+        </div>
+
+        <hr class="border-gray-200/60 my-4">
+
+        <div class="grid grid-cols-1 gap-5 pt-1" id="directory-listings"></div>
+    </section>
+
+    <script>
+        // =========================================================================
+        // 📥 INDEX DATABASE ARRAY (Your existing data - untouched)
+        // =========================================================================
+        const activeDirectoryDatabase = [
+            {
+                slug: "suresh_travels", 
+                name: "Suresh Travels",
+                category: "Wedding Car",
+                state: "Chhattisgarh",
+                district: "Dantewada",
+                village: "Mailawada",
+                colony: "Kalar Para",
+                shortTagline: "Shadi aur emergency ke liye Scorpio aur Bolero available hai."
+            },
+            {
+                slug: "mustafa_plumber",
+                name: "Mustafa Plumbing Works",
+                category: "Plumber",
+                state: "Chhattisgarh",
+                district: "Dantewada",
+                village: "Geedam",
+                colony: "Talla Para",
+                shortTagline: "Ghar ki nayi pipe fitting aur bathroom nal repair ka kaam."
+            },
+            {
+                slug: "demogmilcode",
+                name: "Hj",
+                category: "Wedding Car",
+                phone: "0989328301",
+                state: "Chhattisgarh",
+                district: "Dantewad",
+                village: "Mailawada",
+                colony: "Kalar Para",
+                shortTagline: "Fast sil ke denge",
+                description: "Gh"
+            }
+        ];
+
+        let selCat = 'All', selState = 'All', selDist = 'All', selVill = 'All';
+
+        function renderFilterHubTabs() {
+            let cats = ['All'], states = ['All'], dists = ['All'], vills = ['All'];
+            
+            activeDirectoryDatabase.forEach(b => {
+                if(!cats.includes(b.category)) cats.push(b.category);
+                if(!states.includes(b.state)) states.push(b.state);
+                if(!dists.includes(b.district)) dists.push(b.district);
+                if(!vills.includes(b.village)) vills.push(b.village);
+            });
+
+            const pillStyle = (isActive) => `px-3.5 py-1.5 text-xs font-bold rounded-full shadow-sm whitespace-nowrap transition-all duration-200 ${isActive ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md' : 'bg-white/80 backdrop-blur-sm text-gray-700 border border-gray-200 hover:shadow-md'}`;
+
+            document.getElementById('tab-category-box').innerHTML = cats.map(c => `<button onclick="selCat='${c}'; renderFilterHubTabs(); renderCards();" class="${pillStyle(c===selCat)}">${c}</button>`).join('');
+            document.getElementById('tab-state-box').innerHTML = states.map(s => `<button onclick="selState='${s}'; renderFilterHubTabs(); renderCards();" class="${pillStyle(s===selState)}">${s}</button>`).join('');
+            document.getElementById('tab-district-box').innerHTML = dists.map(d => `<button onclick="selDist='${d}'; renderFilterHubTabs(); renderCards();" class="${pillStyle(d===selDist)}">${d}</button>`).join('');
+            document.getElementById('tab-village-box').innerHTML = vills.map(v => `<button onclick="selVill='${v}'; renderFilterHubTabs(); renderCards();" class="${pillStyle(v===selVill)}">${v}</button>`).join('');
+        }
+
+        function renderCards() {
+            const container = document.getElementById('directory-listings');
+            container.innerHTML = '';
+
+            let filtered = activeDirectoryDatabase.filter(b => {
+                if(selCat !== 'All' && b.category !== selCat) return false;
+                if(selState !== 'All' && b.state !== selState) return false;
+                if(selDist !== 'All' && b.district !== selDist) return false;
+                if(selVill !== 'All' && b.village !== selVill) return false;
+                return true;
+            });
+
+            if(filtered.length === 0) {
+                container.innerHTML = `<div class="premium-card p-8 text-center"><p class="text-gray-400 py-6 text-sm font-medium">✨ No cards found in this filter selection.</p></div>`;
+                return;
+            }
+
+            filtered.forEach(card => {
+                container.innerHTML += `
+                    <div class="premium-card p-5 flex flex-col justify-between space-y-4">
+                        <div class="flex justify-between items-start border-b border-dashed border-gray-200/70 pb-3">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-md">${card.name.charAt(0)}</div>
+                                <div>
+                                    <h3 class="font-extrabold text-gray-900 text-sm tracking-tight">${card.name}</h3>
+                                    <p class="text-[11px] text-gray-500 font-medium mt-0.5"><span class="location-dot">📍</span> ${card.colony}, ${card.village}</p>
+                                </div>
+                            </div>
+                            <span class="card-badge">${card.category}</span>
+                        </div>
+                        <p class="text-xs text-gray-600 italic font-medium bg-gradient-to-r from-amber-50 to-orange-50 p-3 rounded-xl border border-amber-100/50">"${card.shortTagline}"</p>
+                        <button onclick="window.open('${card.slug}.html', '_blank')" class="card-btn">
+                            <i class="fa-solid fa-folder-open mr-2"></i> Explore Business & Contact
                         </button>
                     </div>`;
             });
