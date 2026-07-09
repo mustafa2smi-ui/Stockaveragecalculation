@@ -1084,7 +1084,7 @@ async function shareOwnerCardLink(index) {
     });
 }
 */
-        // 🌟 NATIVE CANVAS VISITING CARD IMAGE GENERATOR (NO ERROR GUARANTEE)
+    /*    // 🌟 NATIVE CANVAS VISITING CARD IMAGE GENERATOR (NO ERROR GUARANTEE)
 function shareOwnerCardLink(index) {
     try {
         const card = localCardsArr[index];
@@ -1143,6 +1143,128 @@ function shareOwnerCardLink(index) {
     } catch(e) {
         console.error(e);
         alert("Image generation failed.");
+    }
+}
+*/
+        // 🌟 ALL-IN-ONE VISITING CARD IMAGE GENERATOR (WITH OWNER & BUSINESS PHOTOS)
+function shareOwnerCardLink(index) {
+    try {
+        const card = localCardsArr[index];
+        if(!card) return alert("Card not found!");
+
+        const shareBtn = document.getElementById(`share-btn-${index}`);
+        shareBtn.innerHTML = "<i class='fa-solid fa-spinner animate-spin'></i> Rendering Image...";
+        shareBtn.disabled = true;
+
+        // Create Master Canvas Frame
+        const canvas = document.createElement('canvas');
+        canvas.width = 600;
+        canvas.height = 360;
+        const ctx = canvas.getContext('2d');
+
+        // 1. Background Frame Style (Dark Slate Premium)
+        ctx.fillStyle = "#0f172a";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 2. Neon Blue Card Border
+        ctx.strokeStyle = "#3b82f6";
+        ctx.lineWidth = 4;
+        ctx.strokeRect(12, 12, 576, 336);
+
+        // 3. Inject Text Elements Safely
+        ctx.fillStyle = "#facc15"; // Yellow Gold for Business Name
+        ctx.font = "bold 24px sans-serif";
+        ctx.fillText(card.name, 130, 55); // Left margin 130 taaki avatar ki jagah bache
+
+        ctx.fillStyle = "#3b82f6"; // Category Name
+        ctx.font = "bold 13px sans-serif";
+        ctx.fillText(`⚡ PROFESSION: ${card.category.toUpperCase()}`, 130, 85);
+
+        ctx.fillStyle = "#94a3b8"; // Tagline (Grayish Slate)
+        ctx.font = "italic 15px sans-serif";
+        ctx.fillText(`"${card.shortTagline || 'No tagline'}"`, 30, 140);
+
+        ctx.fillStyle = "#ffffff"; // General White Details
+        ctx.font = "14px sans-serif";
+        ctx.fillText(`📍 Address: ${card.colony}, ${card.village} (${card.district})`, 30, 190);
+        ctx.fillText(`📱 WhatsApp: ${card.phone}`, 30, 220);
+
+        // 4. Branding Watermark Bottom Strip
+        ctx.fillStyle = "#1e3a8a";
+        ctx.fillRect(15, 310, 570, 38);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("VISIT & CREATE: WWW.WEBSITENAME.COM", 300, 334);
+        ctx.textAlign = "left"; // Reset alignment
+
+        // 5. GRAPHICS ENGINE: Render Images Onto Canvas Array
+        let ownerImg = new Image();
+        let businessImg = new Image();
+        let imagesLoaded = 0;
+
+        function checkAndDownload() {
+            imagesLoaded++;
+            if(imagesLoaded === 2) {
+                // Dono images load hone ke baad download trigger hoga
+                const link = document.createElement('a');
+                link.download = `${card.name.replace(/ /g, "_")}_OfficialCard.png`;
+                link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+                shareBtn.disabled = false;
+                alert("🎉 Chakaachak! Photos aur text ke sath visiting card gallery me download ho gaya hai!");
+            }
+        }
+
+        // Handle Owner Avatar (Draws in a neat Circle Shape)
+        if(card.ownerPhoto && card.ownerPhoto.trim() !== "") {
+            ownerImg.onload = function() {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(70, 65, 35, 0, Math.PI * 2, true); // Circle path coordinates
+                ctx.closePath();
+                ctx.clip(); // Masking current layer to circle
+                ctx.drawImage(ownerImg, 35, 30, 70, 70); // Draw owner photo inside mask
+                ctx.restore(); // Safe release mask layout
+                checkAndDownload();
+            };
+            ownerImg.src = card.ownerPhoto;
+        } else {
+            // Default placeholder if avatar missing
+            ctx.fillStyle = "#1e293b";
+            ctx.beginPath();
+            ctx.arc(70, 65, 35, 0, Math.PI * 2, true);
+            ctx.fill();
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "24px sans-serif";
+            ctx.fillText("👨‍✈️", 53, 73);
+            checkAndDownload();
+        }
+
+        // Handle Business Collage / Banner Image (Draws on Bottom-Right Corner)
+        if(card.image64 && card.image64.trim() !== "") {
+            businessImg.onload = function() {
+                // Drawing business collage onto bottom right side layout bounding box safely
+                ctx.drawImage(businessImg, 400, 145, 170, 110);
+                checkAndDownload();
+            };
+            businessImg.src = card.image64;
+        } else {
+            ctx.fillStyle = "#1e293b";
+            ctx.fillRect(400, 145, 170, 110);
+            ctx.fillStyle = "#475569";
+            ctx.font = "12px sans-serif";
+            ctx.fillText("No Business Pic", 440, 205);
+            checkAndDownload();
+        }
+
+    } catch(e) {
+        console.error(e);
+        alert("Matrix Image composition error.");
     }
 }
 
