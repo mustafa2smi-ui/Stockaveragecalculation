@@ -1005,7 +1005,7 @@ async function shareOwnerCardLink(index) {
             let body = encodeURIComponent(`Hi Admin,\n\nMaine dashboard par apna digital card verify kar liya hai. Kripya ise live karein.\n\n👤 NAME: ${card.name}\n🛠️ CATEGORY: ${card.category}\n\n📦 COPY THIS CODE PACKAGE:\n\n${JSON.stringify(card)}\n\n`);
             window.location.href = `mailto:${ADMIN_RECEIVING_EMAIL}?subject=${subject}&body=${body}`;
         }
-
+/*
         // 🌟 FIXED SHARE BUTTON - Downloads image + falls back to WhatsApp
         async function shareOwnerCardLink(index) {
             const captureArea = document.getElementById(`card-to-share-${index}`);
@@ -1063,7 +1063,47 @@ async function shareOwnerCardLink(index) {
                 shareBtn.disabled = false;
             }
         }
+*/
+        // 🌟 WORKING SHARE - Same pattern as Dua App
+async function shareOwnerCardLink(index) {
+    const shareBtn = document.getElementById(`share-btn-${index}`);
+    const captureArea = document.getElementById(`card-to-share-${index}`);
+    
+    if(!captureArea) return alert("Card template not found!");
 
+    shareBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Generating...";
+    shareBtn.disabled = true;
+
+    try {
+        // Hide action buttons before capture (like Dua app hides ui-elements)
+        const actionButtons = captureArea.parentElement.querySelectorAll('button, .actions');
+        actionButtons.forEach(btn => btn.style.display = 'none');
+        
+        // Simple html2canvas call (like Dua app)
+        const canvas = await html2canvas(captureArea, { scale: 2 });
+        
+        // Show buttons again
+        actionButtons.forEach(btn => btn.style.display = '');
+        
+        // Download the image
+        const card = localCardsArr[index];
+        const link = document.createElement('a');
+        link.download = `${card.name.replace(/ /g, "_")}_Card.jpg`;
+        link.href = canvas.toDataURL('image/jpeg', 0.9);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        alert("🎉 Card image downloaded! Ab aap ise share kar sakte hain.");
+        
+    } catch(e) {
+        console.error(e);
+        alert("Image generation failed. Please try again.");
+    }
+    
+    shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes'></i> Share Card";
+    shareBtn.disabled = false;
+}
         // 🌟 MESSAGE ONLY BLAST ENGINE (unchanged)
         function shareOwnerCustomText(index) {
             try {
