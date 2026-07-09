@@ -166,6 +166,12 @@
     <div class="p-4 bg-white border-t flex gap-2 sticky bottom-0">
         <a id="action-call" href="#" class="flex-1 text-center bg-blue-700 hover:bg-blue-800 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wide shadow-md"><i class="fa-solid fa-phone mr-1"></i> Call Owner</a>
         <a id="action-wa" href="#" target="_blank" class="flex-1 text-center bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wide shadow-md"><i class="fa-brands fa-whatsapp text-sm mr-1"></i> WhatsApp Chat</a>
+    <button onclick="shareClientCard()" class="flex-1 text-center bg-slate-800 hover:bg-slate-700 text-white font-black py-3 rounded-xl text-xs uppercase tracking-wide shadow-md">
+    <i class="fa-solid fa-share-nodes mr-1"></i> Share Card
+</button>
+
+
+
     </div>
 
     <script>
@@ -175,6 +181,22 @@
 
         };
 
+function shareClientCard() {
+    const businessName = document.getElementById('hero-name').innerText;
+    const shareData = {
+        title: `${businessName} - Digital Card`,
+        text: `👋 Namaskar! *${businessName}* ka digital visiting card dekhne ke liye niche diye gaye link par click karein. Yahan aapko saari services aur photos milengi:\n\n`,
+        url: window.location.href
+    };
+
+    if (navigator.share) {
+        navigator.share(shareData).catch(err => console.log(err));
+    } else {
+        // Fallback agar browser share support na kare
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(shareData.text + shareData.url)}`, '_blank');
+    }
+}
+   
         function bootstrapProfileView() {
             const data = singleProfileDataPayload;
             
