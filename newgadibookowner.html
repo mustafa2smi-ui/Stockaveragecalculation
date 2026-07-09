@@ -1084,52 +1084,75 @@ async function shareOwnerCardLink(index) {
     });
 }
 */
-        // 🌟 100% ERROR-FREE DIRECT LINK ENGINE (NO CANVASES, NO SNAPSHOTS)
+        // 🌟 NATIVE CANVAS VISITING CARD IMAGE GENERATOR (NO ERROR GUARANTEE)
 function shareOwnerCardLink(index) {
-    const card = localCardsArr[index];
-    if(!card) return alert("Card not found!");
+    try {
+        const card = localCardsArr[index];
+        if(!card) return alert("Card not found!");
 
-    // Live hone ke baad ye aapka automatic URL link pakad lega
-    let livePageLink = `${window.location.origin}/${card.name.toLowerCase().replace(/ /g, "_")}.html`; 
+        // Ek background canvas generate karenge jo automatic photo banayega
+        const canvas = document.createElement('canvas');
+        canvas.width = 500;
+        canvas.height = 300;
+        const ctx = canvas.getContext('2d');
 
-    // Dynamic clean text formatting for WhatsApp
-    let msgText = `🌟 *${card.name}* 🌟\n_"${card.shortTagline || ''}"_\n\n📌 *Profession:* ${card.category}\n📍 *Location:* ${card.colony}, ${card.village}\n📱 *Contact/WhatsApp:* ${card.phone}\n\nHamara poora details aur 3-Photo Collage dekhne ke liye link open karein:\n🔗 ${livePageLink}`;
+        // Background Color (Professional Dark Blue Slate)
+        ctx.fillStyle = "#0f172a";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Direct launch WhatsApp API without browser loops or redirects
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msgText)}`, '_blank');
+        // Card Border
+        ctx.strokeStyle = "#3b82f6";
+        ctx.lineWidth = 4;
+        ctx.strokeRect(10, 10, 480, 280);
+
+        // Texts Injector Engine
+        ctx.fillStyle = "#facc15"; // Yellow Gold Color
+        ctx.font = "bold 24px sans-serif";
+        ctx.fillText(card.name, 30, 50);
+
+        ctx.fillStyle = "#3b82f6"; // Category Badge Blue
+        ctx.font = "bold 14px sans-serif";
+        ctx.fillText(`[ ${card.category.toUpperCase()} ]`, 30, 80);
+
+        ctx.fillStyle = "#ffffff"; // White text for details
+        ctx.font = "italic 16px sans-serif";
+        ctx.fillText(`"${card.shortTagline || ''}"`, 30, 120);
+
+        ctx.font = "14px sans-serif";
+        ctx.fillText(`📍 Location: ${card.colony}, ${card.village}`, 30, 170);
+        ctx.fillText(`📞 WhatsApp: ${card.phone}`, 30, 200);
+
+        // 🌟 YOUR CUSTOM WATERMARK STRIP FIXED INSIDE IMAGE
+        ctx.fillStyle = "#1e3a8a";
+        ctx.fillRect(12, 250, 476, 38);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 12px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("VISIT: WWW.WEBSITENAME.COM", 250, 274);
+
+        // Direct Download Trigger Link
+        const link = document.createElement('a');
+        link.download = `${card.name.replace(/ /g, "_")}_DigitalCard.png`;
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        alert("🎉 Mubarak Ho! Aapka Visiting Card Image mobile gallery me save ho gaya hai. Ab aap ise direct photo ki tarah share kar sakte hain!");
+
+    } catch(e) {
+        console.error(e);
+        alert("Image generation failed.");
+    }
 }
 
-// 🌟 MESSAGE ONLY BLAST ENGINE
+// MSG ONLY BUTTON
 function shareOwnerCustomText(index) {
     let card = localCardsArr[index];
-    if(!card) return alert("Card not found!");
-    
-    let customMsg = `🔥 *Bumper Service Alert!* 🔥\n\n*${card.name}* aapki seva mein hazir hai! \n📝 _"${card.description || ''}"_\n\n📍 *Address:* ${card.colony}, ${card.village}\n📞 *Direct Call/WhatsApp:* ${card.phone}\n\nKripya is message ko share karein! 🙏`;
-
-    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(customMsg)}`, '_blank');
-}
-/*
-// 🌟 DIRECT MESSAGE ONLY ENGINE
-function shareOwnerCustomText(index) {
-    let card = localCardsArr[index];
-    let customMsg = `🔥 *${card.name}* 🔥\n_"${card.shortTagline || ''}"_\n\n📍 *Address:* ${card.colony}, ${card.village}\n📞 *Call/WhatsApp:* ${card.phone}\n\nKripya share karein! 🙏`;
+    let customMsg = `🔥 *${card.name}* 🔥\n_"${card.shortTagline || ''}"_\n\n📍 *Address:* ${card.colony}, ${card.village}\n📞 *Call/WhatsApp:* ${card.phone}`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(customMsg)}`, '_blank');
 }
 
-        // 🌟 MESSAGE ONLY BLAST ENGINE (unchanged)
-        function shareOwnerCustomText(index) {
-            try {
-                let card = localCardsArr[index];
-                if(!card) return alert("Card data not found!");
-                
-                let customMsg = `🔥 *Bumper Service Alert!* 🔥\n\nKya aapko ek behtareen aur bharosemand *${card.category}* ki zarurat hai? \n\n*${card.name}* aapki seva mein hazir hai! \n📝 _"${card.description || ''}"_\n\n📍 *Address:* ${card.colony}, ${card.village} (${card.district})\n📞 *Direct Call/WhatsApp:* ${card.phone}\n\nKripya is message ko apne dosto aur groups me share karein! 🙏`;
-
-                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(customMsg)}`, '_blank');
-            } catch(e) {
-                alert("WhatsApp open nahi ho paa raha hai.");
-            }
-        }
-*/
     </script>
 </body>
 </html>
