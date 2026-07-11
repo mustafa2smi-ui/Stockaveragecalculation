@@ -1,9 +1,69 @@
 <!DOCTYPE html>
 <html lang="hi">
 <head>
+ 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-  <title>Digitalkaro • Free Business Tools</title>
+  
+  <!-- Primary SEO Meta Tags -->
+  <title>Digitalkaro – Free Digital Business Tools for Shopkeepers & Professionals</title>
+  <meta name="description" content="Digitalkaro offers simple, free digital tools for shopkeepers, small businesses, electricians, plumbers, and professionals. Manage billing, ledger, visiting cards, attendance, and trip records — all on one lightweight platform. No subscription required.">
+  <meta name="keywords" content="free business tools, online billing tools, free billing for shopkeepers, digital ledger, khata tools, attendance tools, visiting card maker, trip record app, small business management, kirana shop billing, mobile business tools, free digital utilities">
+  <meta name="author" content="Digitalkaro">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#0f2b4b">
+  
+  <!-- Canonical URL (replace with actual domain when live) -->
+  <link rel="canonical" href="https://www.digitalkaro.com/">
+  
+  <!-- Language -->
+  <meta http-equiv="Content-Language" content="hi, en">
+
+  <!-- Open Graph / Social Sharing Metadata -->
+  <meta property="og:title" content="Digitalkaro – Free Digital Business Tools for Shopkeepers & Professionals">
+  <meta property="og:description" content="Simple, free digital tools for billing, ledger, visiting cards, attendance, and trip records. Built for shopkeepers, electricians, plumbers, and small business owners.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.digitalkaro.com/">
+  <!-- Replace temporary social sharing image with final branded OG image -->
+  <meta property="og:image" content="https://www.digitalkaro.com/images/og-image-temp.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Digitalkaro">
+
+  <!-- Twitter Card Metadata -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Digitalkaro – Free Digital Business Tools">
+  <meta name="twitter:description" content="Free billing, ledger, visiting card, attendance & trip tools for shopkeepers and professionals. No subscription needed.">
+  <!-- Replace temporary social sharing image with final branded OG image -->
+  <meta name="twitter:image" content="https://www.digitalkaro.com/images/og-image-temp.png">
+
+  <!-- Temporary Favicon (toolbox concept) – Replace with final website favicon -->
+  <!-- Replace temporary favicon with final website favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230f2b4b'/%3E%3Ctext x='50' y='68' font-size='55' text-anchor='middle' fill='white'%3E🧰%3C/text%3E%3C/svg%3E">
+
+  <!-- Structured Data / Schema.org JSON-LD -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Digitalkaro",
+      "url": "https://www.digitalkaro.com/",
+      "description": "Free digital business tools for shopkeepers, small businesses, and professionals. Includes billing, ledger, visiting card maker, attendance tracker, and trip timeline recorder.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "Digitalkaro"
+      }
+    }
+  </script>
+
+    <title>Digitalkaro • Free Business Tools</title>
   <style>
     * {
       margin: 0;
@@ -412,13 +472,63 @@
       color: #64748b;
       font-size: 0.75rem;
     }
+    /* Floating Share Button */
+.floating-share {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #0f2b4b;
+  color: white;
+  border: none;
+  box-shadow: 0 8px 22px rgba(0,32,64,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  cursor: pointer;
+  z-index: 50;
+  transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+  touch-action: manipulation;
+}
+.floating-share:hover {
+  background: #1a3f5f;
+  transform: scale(1.05);
+  box-shadow: 0 12px 26px rgba(0,32,64,0.3);
+}
+.floating-share:active {
+  transform: scale(0.94);
+}
+.toast-message {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  background: #1e293b;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+  z-index: 60;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.25s, transform 0.25s;
+  pointer-events: none;
+}
+.toast-message.show {
+  opacity: 1;
+  transform: translateY(0);
+}
   </style>
 </head>
 <body>
   <div class="container">
     <!-- Header -->
     <header class="header">
-      <div class="logo">Digitalkaro</div>
+      <h1 class="logo" style="font-size:1.8rem; font-weight:700; margin:0;">Digitalkaro</h1>
       <button class="hamburger" id="menuToggle" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
@@ -437,7 +547,8 @@
 
     <!-- Hero -->
     <div class="hero">
-      <div class="image-box">📱</div>
+      <!--<div class="image-box">📱</div>-->
+      <div class="image-box" role="img" aria-label="Digital business tools illustration – mobile phone with tools">📱</div>
       <div class="intro-text">
         <div class="short-text">
           <strong>Apne business ko digital karein — wo bhi bilkul free!</strong>
@@ -507,8 +618,14 @@
       <a href="#">Contact</a>
       <a href="#">Privacy</a>
       <a href="#">Terms</a>
+      <a href="#">Disclaimer</a>
       <div class="copyright">© 2026 Digitalkaro · Light & Free</div>
     </footer>
+    <!-- Floating Share Button -->
+<button class="floating-share" id="floatingShareBtn" aria-label="Share this page" title="Share">
+  <span>📤</span>
+</button>
+<div class="toast-message" id="toastMsg">Link copied!</div>
   </div>
 
   <script>
@@ -657,6 +774,42 @@
 
       // For demo: if you want to test, uncomment next line with a placeholder.
       // setAdvertisement('https://placehold.co/400x120/e2e8f0/1e293b?text=Your+Ad+Here', '#');
+      // Floating share button
+const shareBtn = document.getElementById('floatingShareBtn');
+const toastMsg = document.getElementById('toastMsg');
+
+shareBtn.addEventListener('click', async () => {
+  const shareData = {
+    title: 'Digitalkaro – Free Digital Business Tools',
+    text: 'Apne business ke liye free digital tools: billing, ledger, visiting card, attendance aur trip recorder. Try karein!',
+    url: window.location.href
+  };
+  
+  if (navigator.share) {
+    try {
+      await navigator.share(shareData);
+    } catch (err) {
+      // User cancelled or error
+    }
+  } else {
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      toastMsg.classList.add('show');
+      setTimeout(() => {
+        toastMsg.classList.remove('show');
+      }, 1800);
+    } catch (err) {
+      // Clipboard failed
+      toastMsg.textContent = 'Could not copy link';
+      toastMsg.classList.add('show');
+      setTimeout(() => {
+        toastMsg.classList.remove('show');
+        toastMsg.textContent = 'Link copied!';
+      }, 1800);
+    }
+  }
+});
     })();
   </script>
 </body>
