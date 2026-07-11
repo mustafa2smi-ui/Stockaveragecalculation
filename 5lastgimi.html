@@ -154,8 +154,27 @@
           <input type="number" id="pRetail" placeholder="Retail" style="width:45px; padding: 6px;">
           <input type="number" id="pWholesale" placeholder="W'sale" style="width:45px; padding: 6px;">
         </div>
-
-        <!-- 🚀 SINGLE LINE BUTTON ALIGNMENT LAYER -->
+<!--New Chillar layout-->
+                <!-- 🚀 ULTRA SINGLE ROW: SAVE, CLEAR, DROPDOWN & CHILLAR INPUT GRID -->
+        <div id="pricingModeBar" style="display: flex; gap: 4px; align-items: center; padding: 2px 0 0 0; margin: 0; width:100%; justify-content: space-between;">
+          <div style="display:flex; gap:3px;">
+            <button onclick="addNewMasterItem()" style="background:var(--wa-green); color:white; padding: 6px 10px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;">💾 Save</button>
+                  </div>
+          
+          <select id="billingPriceTier" class="pricing-select" onchange="renderList()" style="padding: 5px; font-weight: bold; border-radius: 4px; border: 1px solid var(--wa-green); color: var(--wa-green); font-size: 12px; width: auto; outline: none; height: 28px;">
+            <option value="retail">🛒 Retail</option>
+            <option value="wholesale" selected>📦 Wholesale</option>
+          </select>
+<button class="bg-clear" onclick="clearBill()" style="border: none; color: white; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size:12px;">🧹 Clear</button>
+    
+          <!-- 🔥 CHILLAR / OTHER QUICK ADD INPUT GROUP (RIGHT ALIGNED) -->
+          <div style="display: flex; gap: 2px; align-items: center;">
+            <input type="number" id="chillarAmount" placeholder="₹ Other" style="width:65px; padding:5px; font-size:12px; border:1px solid #ff9800; border-radius:4px; height:28px; font-weight:bold; text-align:center; outline:none;">
+            <button onclick="addChillarToInvoice()" type="button" style="background:#ff9800; color:white; border:none; height:28px; padding:0 8px; font-size:11px; font-weight:bold; border-radius:4px; cursor:pointer;">➕</button>
+          </div>
+        </div>
+<!--
+        <!-- 🚀 SINGLE LINE BUTTON ALIGNMENT LAYER --
         <div id="pricingModeBar" style="display: flex; gap: 6px; align-items: center; padding: 2px 0 0 0; margin: 0;">
           <button onclick="addNewMasterItem()" style="background:var(--wa-green); color:white; padding: 6px 12px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;">💾 Save</button>
           
@@ -166,6 +185,7 @@
           <button class="bg-clear" onclick="clearBill()" style="border: none; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size:12px;">🧹 Clear</button>
           
         </div>
+        -->
       </div>
     </div>
 
@@ -508,6 +528,8 @@ async function addNewMasterItem() {
   renderList(); calculateInvoiceSheet();
 }
 
+    
+
 function editMasterItem(code, origin) {
   let item = origin === 'online' ? sheetItems.find(i => i.Code == code) : localItems.find(i => i.Code == code);
   if(item) {
@@ -587,7 +609,7 @@ function generateRandomProductCode() {
           const bubble = document.createElement('div'); bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
           let clickHandler = currentMode === 'bill' ? `onclick="addItemToBillDirect('${item.Code}')"` : '';
           let isControlDisabled = currentMode === 'entry' ? 'disabled' : '';
-          bubble.innerHTML = `
+       /*   bubble.innerHTML = `
             <div class="item-info ${currentMode === 'bill' ? 'clickable' : ''}" ${clickHandler}>
               <div class="item-name">${item.ItemNameEn} (${item.ItemNameHi || ''})</div>
               <div class="item-sub">Code: ${item.Code} | Unit: ${item.Unit} | Retail: <span class="bold-price">₹${item.Retail}</span></div>
@@ -599,10 +621,47 @@ function generateRandomProductCode() {
               ${currentMode === 'entry' ? `<button onclick="editMasterItem('${item.Code}', '${originType}')" style="background:none; border:none; color:blue; margin-left:4px;">✏️</button><button class="del-btn" onclick="deleteMasterItem('${item.Code}', '${originType}')">X</button>` : ''}
             </div>
           `;
+          */
+          bubble.innerHTML = `
+  <div class="item-info ${currentMode === 'bill' ? 'clickable' : ''}" ${clickHandler}>
+    <div class="item-name">${item.ItemNameEn} (${item.ItemNameHi || ''})</div>
+    <div class="item-sub" style="margin-top:2px;">
+      Code: ${item.Code} | Unit: ${item.Unit} | 
+      R: <span class="bold-price">₹${item.Retail}</span> | 
+      W: <span class="bold-price" style="color:var(--hardware-color);">₹${item.Wholesale}</span>
+      ${qty > 0 ? `<br><span style='color:green; font-weight:bold;'>Cart: ${qty} ${item.Unit} @ ₹${activeRate}</span>` : ''}
+    </div>
+  </div>
+  <div class="item-actions" onclick="event.stopPropagation();" style="gap:4px;">
+    <!-- 🔥 LIVE IN-LINE RATE OVERRIDE FIELD -->
+    ${qty > 0 ? `
+      <input type="number" class="edit-input" style="width:55px; border:1px solid #ff9800; background:#fffdf0; font-weight:bold;" 
+        value="${activeRate}" placeholder="Rate" onchange="directRateOverride('${item.Code}', this.value)">
+    ` : ''}
+    
+    <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', -1)">-</button>
+    <input type="number" class="edit-input" ${isControlDisabled} value="${qty}" onchange="directQty('${item.Code}', this.value)">
+    <button class="qty-btn" ${isControlDisabled} onclick="updateQty('${item.Code}', 1)">+</button>
+    
+    ${currentMode === 'entry' ? `
+      <button onclick="editMasterItem('${item.Code}', '${originType}')" style="background:none; border:none; color:blue; font-size:15px; margin-left:2px;">✏️</button>
+      <button class="del-btn" onclick="deleteMasterItem('${item.Code}', '${originType}')">X</button>
+    ` : ''}
+  </div>
+`;
+
           container.appendChild(bubble);
         });
       });
     }
+function directRateOverride(code, newRate) {
+  let parsedRate = parseFloat(newRate);
+  if(!isNaN(parsedRate) && parsedRate >= 0 && currentBill[code]) {
+    currentBill[code].rate = parsedRate;
+    calculateInvoiceSheet();
+    renderList();
+  }
+}
 
     function renderSavedBillsLogBucket(container) {
       const titleDiv = document.createElement('div'); titleDiv.className = `section-title saved-logs`; titleDiv.innerText = `📂 Saved Invoices Log`; container.appendChild(titleDiv);
@@ -634,7 +693,7 @@ function generateRandomProductCode() {
       calculateInvoiceSheet();
       setTimeout(() => { const pane = document.getElementById('billInvoiceSection'); if(pane) { pane.scrollTop = 0; } window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }, 100);
     }
-
+/*
     function addItemToBillDirect(code) {
       let activeItems = isOnlineMode ? sheetItems : localItems;
       let item = activeItems.find(i => i.Code.toString().trim() === code.toString().trim()); if(!item) return;
@@ -644,6 +703,61 @@ function generateRandomProductCode() {
       else { currentBill[item.Code].qty += 1; currentBill[item.Code].rate = targetRate; }
       document.getElementById('countBadge').innerText = billOrderKeys.length; renderList(); calculateInvoiceSheet(); scrollBillToBottom();
     }
+*/
+    function addItemToBillDirect(code) {
+  let activeItems = isOnlineMode ? sheetItems : localItems;
+  let item = activeItems.find(i => i.Code.toString().trim() === code.toString().trim()); 
+  if(!item) return;
+  
+  let selectEl = document.getElementById('billingPriceTier'); 
+  let selectedPricingMode = selectEl ? selectEl.value : 'retail';
+  let targetRate = (selectedPricingMode === 'wholesale') ? item.Wholesale : item.Retail;
+  
+  if(!currentBill[item.Code]) { 
+    currentBill[item.Code] = { ...item, qty: 1, rate: targetRate }; 
+    billOrderKeys.push(item.Code); 
+  } else { 
+    currentBill[item.Code].qty += 1; 
+    currentBill[item.Code].rate = targetRate; 
+  }
+  
+  document.getElementById('countBadge').innerText = billOrderKeys.length;
+  
+  // 🔥 AUTO-CLEAR SEARCH & CODE BOX LOGIC LAYER
+  if(document.getElementById('pNameEn')) document.getElementById('pNameEn').value = '';
+  if(document.getElementById('pCode')) document.getElementById('pCode').value = '';
+  
+  renderList(); 
+  calculateInvoiceSheet(); 
+  scrollBillToBottom();
+}
+    function addChillarToInvoice() {
+  let amtInput = document.getElementById('chillarAmount');
+  let amt = parseFloat(amtInput?.value);
+  if(isNaN(amt) || amt <= 0) return alert("Pehle valid Other Amount enter karein!");
+  
+  // Unique dynamic execution ID verification matching layers
+  let chillarCode = "CHILLAR-" + Date.now().toString().slice(-4);
+  let chillarItem = {
+    Code: chillarCode,
+    ItemNameEn: "Other Item",
+    ItemNameHi: "विविध सामान",
+    Unit: "Pc",
+    Retail: amt,
+    Wholesale: amt,
+    qty: 1,
+    rate: amt
+  };
+  
+  currentBill[chillarCode] = chillarItem;
+  billOrderKeys.push(chillarCode);
+  
+  document.getElementById('countBadge').innerText = billOrderKeys.length;
+  amtInput.value = ''; // Reset cell box instantly
+  
+  calculateInvoiceSheet();
+  scrollBillToBottom();
+}
 
     function updateQty(code, change) {
       if(currentMode === 'entry') return; 
