@@ -285,18 +285,38 @@
     }
 
     .full-text {
-      overflow: hidden;
-      max-height: 0;
-      opacity: 0;
-      transition: max-height 0.4s ease, opacity 0.3s, margin 0.3s;
-      margin-top: 0;
-    }
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.4s ease, opacity 0.3s, margin 0.3s;
+  margin-top: 0;
+}
 
-    .full-text.expanded {
-      max-height: 200px;
-      opacity: 1;
-      margin-top: 12px;
-    }
+.full-text.expanded {
+  max-height: 180px;
+  opacity: 1;
+  margin-top: 12px;
+  overflow-y: auto;
+  padding-right: 6px;
+  padding-bottom: 16px;
+  /* Subtle scrollbar for mobile */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+/* Webkit scrollbar styling */
+.full-text.expanded::-webkit-scrollbar {
+  width: 4px;
+}
+.full-text.expanded::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 10px;
+}
+.full-text.expanded::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
 
     .read-more-btn {
       background: none;
@@ -801,10 +821,6 @@
   if (expanded) {
     fullText.classList.add('expanded');
     readMoreBtn.innerHTML = 'Show Less ↑';
-    // Smooth scroll to show expanded content
-    setTimeout(() => {
-      fullText.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }, 100);
   } else {
     fullText.classList.remove('expanded');
     readMoreBtn.innerHTML = 'Read More ↓';
