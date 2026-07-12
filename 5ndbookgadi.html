@@ -220,18 +220,58 @@
       gap: 16px;
     }
 
-    .image-box {
-      width: 130px;
-      height: 130px;
-      background: linear-gradient(145deg, #eef2ff, #ffffff);
-      border-radius: 28px;
-      box-shadow: 0 18px 28px -10px rgba(0,32,64,0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3.5rem;
-      color: #1e3b5a;
-    }
+    /* Hero Slider Container */
+.hero-slider-wrapper {
+  width: 150px;
+  height: 150px;
+  border-radius: 28px;
+  box-shadow: 0 18px 28px -10px rgba(0,32,64,0.12);
+  overflow: hidden;
+  position: relative;
+  background: #f1f5f9;
+  flex-shrink: 0;
+}
+.hero-slider {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1.2);
+  will-change: transform;
+}
+.hero-slide {
+  min-width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.hero-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 28px;
+}
+/* Slider Dots */
+.slider-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.slider-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cbd5e1;
+  transition: background 0.3s, transform 0.3s;
+  cursor: pointer;
+}
+.slider-dot.active-dot {
+  background: #0f2b4b;
+  transform: scale(1.3);
+}
 
     .intro-text {
       font-size: 0.98rem;
@@ -312,7 +352,12 @@
       box-shadow: 0 14px 22px rgba(0,32,64,0.08);
       background: #f9fafc;
     }
-
+.category-card.active-card {
+  border: 2px solid #b9a089;
+  background: #fdfaf7;
+  box-shadow: 0 8px 22px rgba(139, 107, 78, 0.12);
+  transform: translateY(-2px);
+}
     .cat-icon {
       font-size: 2rem;
       margin-bottom: 6px;
@@ -522,6 +567,71 @@
   opacity: 1;
   transform: translateY(0);
 }
+   /* Feedback Box */
+.feedback-section {
+  margin: 16px 0 10px;
+  background: #f9fafc;
+  border-radius: 20px;
+  padding: 16px 14px;
+  border: 1px solid #eef2f6;
+}
+.feedback-title {
+  font-weight: 650;
+  font-size: 0.95rem;
+  color: #1e293b;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.feedback-input {
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 0.9rem;
+  resize: none;
+  background: #ffffff;
+  color: #1e293b;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.feedback-input:focus {
+  border-color: #b9a089;
+  box-shadow: 0 0 0 3px rgba(139, 107, 78, 0.08);
+}
+.feedback-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  gap: 10px;
+}
+.word-count {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+.send-feedback-btn {
+  background: #0f2b4b;
+  color: white;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 30px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  white-space: nowrap;
+}
+.send-feedback-btn:hover {
+  background: #1a3f5f;
+}
+.send-feedback-btn:active {
+  transform: scale(0.96);
+}
   </style>
 </head>
 <body>
@@ -548,8 +658,32 @@
     <!-- Hero -->
     <div class="hero">
       <!--<div class="image-box">📱</div>-->
-      <div class="image-box" role="img" aria-label="Digital business tools illustration – mobile phone with tools">📱</div>
-      <div class="intro-text">
+    <!--  <div class="image-box" role="img" aria-label="Digital business tools illustration – mobile phone with tools">📱</div>
+     -->
+     <!-- Hero Tool Slider -->
+<div class="hero-slider-wrapper" id="heroSliderWrapper">
+  <div class="hero-slider" id="heroSlider">
+    <!-- SLIDE 1: Billing Tool -->
+    <div class="hero-slide" data-tool-url="tools/billing/" aria-label="Billing Tool">
+      <img src="https://placehold.co/300x300/e8f0fe/1e3b5a?text=Billing+Tool" alt="Billing Tool" loading="eager">
+    </div>
+    <!-- SLIDE 2: Ledger Tool -->
+    <div class="hero-slide" data-tool-url="tools/ledger/" aria-label="Ledger Tool">
+      <img src="https://placehold.co/300x300/f0fdf4/166534?text=Ledger+Tool" alt="Ledger Tool" loading="lazy">
+    </div>
+    <!-- SLIDE 3: Visiting Card Tool -->
+    <div class="hero-slide" data-tool-url="tools/visiting-card/" aria-label="Visiting Card Tool">
+      <img src="https://placehold.co/300x300/fef3c7/92400e?text=Visiting+Card" alt="Visiting Card Tool" loading="lazy">
+    </div>
+    <!-- SLIDE 4: Attendance Tool -->
+    <div class="hero-slide" data-tool-url="tools/attendance/" aria-label="Attendance Tool">
+      <img src="https://placehold.co/300x300/fce7f3/9d174d?text=Attendance" alt="Attendance Tool" loading="lazy">
+    </div>
+  </div>
+</div>
+<!-- Slider Dots -->
+<div class="slider-dots" id="sliderDots"></div>
+     <div class="intro-text">
         <div class="short-text">
           <strong>Apne business ko digital karein — wo bhi bilkul free!</strong>
         </div>
@@ -611,7 +745,15 @@
         <img src="" alt="Advertisement" id="adImage">
       </a>
     </div>
-
+<!-- Feedback Box -->
+<div class="feedback-section">
+  <div class="feedback-title">💬 Ask a Question / Feedback</div>
+  <textarea class="feedback-input" id="feedbackText" rows="3" maxlength="600" placeholder="Apna question ya suggestion yahan likhein... (max 100 words)"></textarea>
+  <div class="feedback-row">
+    <span class="word-count" id="wordCount">0 / 100 words</span>
+    <button class="send-feedback-btn" id="sendFeedbackBtn">Send ✉️</button>
+  </div>
+</div>
     <!-- Footer -->
     <footer class="footer">
       <a href="#">About Us</a>
@@ -655,15 +797,19 @@
       let expanded = false;
 
       readMoreBtn.addEventListener('click', () => {
-        expanded = !expanded;
-        if (expanded) {
-          fullText.classList.add('expanded');
-          readMoreBtn.innerHTML = 'Show Less ↑';
-        } else {
-          fullText.classList.remove('expanded');
-          readMoreBtn.innerHTML = 'Read More ↓';
-        }
-      });
+  expanded = !expanded;
+  if (expanded) {
+    fullText.classList.add('expanded');
+    readMoreBtn.innerHTML = 'Show Less ↑';
+    // Smooth scroll to show expanded content
+    setTimeout(() => {
+      fullText.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 100);
+  } else {
+    fullText.classList.remove('expanded');
+    readMoreBtn.innerHTML = 'Read More ↓';
+  }
+});
 
       // Tools data
       const toolsData = {
@@ -677,7 +823,7 @@
       const categoryCards = document.querySelectorAll('.category-card');
       const toolsExpandArea = document.getElementById('toolsExpandArea');
       const toolPillsContainer = document.getElementById('toolPillsContainer');
-      let activeCategory = null;
+    /*  let activeCategory = null;
 
       function renderTools(category) {
         const tools = toolsData[category] || [];
@@ -733,7 +879,76 @@
           }
         }
       });
+*/
+     let activeCategory = null;
+let activeCardElement = null;
 
+function renderTools(category) {
+  const tools = toolsData[category] || [];
+  toolPillsContainer.innerHTML = '';
+  tools.forEach(tool => {
+    const pill = document.createElement('span');
+    pill.className = 'tool-pill';
+    pill.textContent = tool;
+    pill.addEventListener('click', (e) => {
+      e.stopPropagation();
+      alert(`Opening: ${tool} (category: ${category})`);
+    });
+    toolPillsContainer.appendChild(pill);
+  });
+}
+
+function closeExpandArea() {
+  toolsExpandArea.classList.remove('active');
+  // Remove highlight from active card
+  if (activeCardElement) {
+    activeCardElement.classList.remove('active-card');
+    activeCardElement = null;
+  }
+  activeCategory = null;
+}
+
+function openCategory(category, cardElement) {
+  if (activeCategory === category) {
+    // Same card clicked again — close it
+    closeExpandArea();
+    return;
+  }
+  // Close previous if any
+  closeExpandArea();
+  
+  // Open new
+  renderTools(category);
+  toolsExpandArea.classList.add('active');
+  activeCategory = category;
+  
+  // Highlight the clicked card
+  cardElement.classList.add('active-card');
+  activeCardElement = cardElement;
+  
+  // Smooth scroll the expanded tools area into view
+  setTimeout(() => {
+    toolsExpandArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 100);
+}
+
+categoryCards.forEach(card => {
+  card.addEventListener('click', (e) => {
+    const category = card.dataset.category;
+    if (category) {
+      openCategory(category, card);
+    }
+  });
+});
+
+// Close expand area if clicking completely outside category cards and tools area
+document.addEventListener('click', function(event) {
+  if (!event.target.closest('.category-card') && !event.target.closest('#toolsExpandArea')) {
+    if (toolsExpandArea.classList.contains('active')) {
+      closeExpandArea();
+    }
+  }
+});
       // Tutorial video lazy load
       const videoThumb = document.getElementById('videoThumb');
       const youtubePlayerDiv = document.getElementById('youtubePlayer');
@@ -770,8 +985,12 @@
 
       // Example: set to empty (hide), or provide a PNG/JPG.
       // Change the line below to show an ad: setAdvertisement('your-image.png', 'https://example.com');
-      setAdvertisement('', '');  // Currently hidden. Replace with actual image path.
-
+    /*  setAdvertisement('', '');  */// Currently hidden. Replace with actual image path.
+// 👇 DEMO ADVERTISEMENT — Replace with actual advertiser image and link
+setAdvertisement(
+  'https://placehold.co/400x120/1e293b/f8fafc?text=Your+Advertisement+Here&font=raleway',
+  'https://example.com/advertiser-landing-page'
+);
       // For demo: if you want to test, uncomment next line with a placeholder.
       // setAdvertisement('https://placehold.co/400x120/e2e8f0/1e293b?text=Your+Ad+Here', '#');
       // Floating share button
@@ -810,6 +1029,115 @@ shareBtn.addEventListener('click', async () => {
     }
   }
 });
+     // Feedback box logic
+const feedbackText = document.getElementById('feedbackText');
+const wordCount = document.getElementById('wordCount');
+const sendFeedbackBtn = document.getElementById('sendFeedbackBtn');
+
+feedbackText.addEventListener('input', () => {
+  const text = feedbackText.value.trim();
+  const words = text.length > 0 ? text.split(/\s+/) : [];
+  const count = words.length;
+  wordCount.textContent = `${count} / 100 words`;
+  
+  if (count > 100) {
+    wordCount.style.color = '#dc2626';
+  } else {
+    wordCount.style.color = '#94a3b8';
+  }
+});
+
+sendFeedbackBtn.addEventListener('click', () => {
+  const text = feedbackText.value.trim();
+  if (text.length === 0) {
+    alert('Please write your feedback or question.');
+    return;
+  }
+  const words = text.split(/\s+/);
+  if (words.length > 100) {
+    alert('Please limit your message to 100 words.');
+    return;
+  }
+  // Open email client with feedback
+  const subject = encodeURIComponent('Digitalkaro – Feedback / Question');
+  const body = encodeURIComponent(text);
+  window.location.href = `mailto:feedback@digitalkaro.com?subject=${subject}&body=${body}`;
+});
+     // Hero Slider Logic
+const heroSlider = document.getElementById('heroSlider');
+const slides = document.querySelectorAll('.hero-slide');
+const dotsContainer = document.getElementById('sliderDots');
+const totalSlides = slides.length;
+let currentSlide = 0;
+let autoPlayInterval;
+let isPaused = false;
+
+// Create dots
+for (let i = 0; i < totalSlides; i++) {
+  const dot = document.createElement('span');
+  dot.className = 'slider-dot' + (i === 0 ? ' active-dot' : '');
+  dot.dataset.index = i;
+  dot.addEventListener('click', () => goToSlide(i));
+  dotsContainer.appendChild(dot);
+}
+const allDots = document.querySelectorAll('.slider-dot');
+
+function updateSlider() {
+  heroSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+  allDots.forEach((dot, idx) => {
+    dot.classList.toggle('active-dot', idx === currentSlide);
+  });
+}
+
+function goToSlide(index) {
+  currentSlide = index;
+  updateSlider();
+  resetAutoPlay();
+}
+
+function nextSlide() {
+  currentSlide = (currentSlide + 1) % totalSlides;
+  updateSlider();
+}
+
+function resetAutoPlay() {
+  clearInterval(autoPlayInterval);
+  if (!isPaused) {
+    autoPlayInterval = setInterval(nextSlide, 3000);
+  }
+}
+
+function startAutoPlay() {
+  isPaused = false;
+  resetAutoPlay();
+}
+
+function pauseAutoPlay() {
+  isPaused = true;
+  clearInterval(autoPlayInterval);
+}
+
+// Touch / interaction pause
+const sliderWrapper = document.getElementById('heroSliderWrapper');
+sliderWrapper.addEventListener('mouseenter', pauseAutoPlay);
+sliderWrapper.addEventListener('mouseleave', startAutoPlay);
+sliderWrapper.addEventListener('touchstart', pauseAutoPlay, { passive: true });
+sliderWrapper.addEventListener('touchend', () => {
+  setTimeout(startAutoPlay, 2000);
+});
+
+// Slide click navigation
+slides.forEach(slide => {
+  slide.addEventListener('click', () => {
+    const url = slide.dataset.toolUrl;
+    if (url) {
+      window.location.href = url;
+    }
+  });
+});
+
+// Start autoplay
+startAutoPlay();
     })();
   </script>
 </body>
