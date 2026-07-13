@@ -606,7 +606,12 @@ function generateRandomProductCode() {
         const catHeader = document.createElement('div'); catHeader.className = 'category-group-title'; catHeader.innerText = `📁 ${catName.toUpperCase()}`; container.appendChild(catHeader);
         categories[catName].forEach(item => {
           const inBill = currentBill[item.Code]; const qty = inBill ? inBill.qty : 0; const activeRate = inBill ? inBill.rate : 0;
-          const bubble = document.createElement('div'); bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
+         /* const bubble = document.createElement('div'); bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;*/
+          // renderSectionBucket function ke andar bubble variable ko aise update karein:
+const bubble = document.createElement('div');
+bubble.id = `bubble-${item.Code}`; // 🔥 Unique ID de di
+bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
+
           let clickHandler = currentMode === 'bill' ? `onclick="addItemToBillDirect('${item.Code}')"` : '';
           let isControlDisabled = currentMode === 'entry' ? 'disabled' : '';
        /*   bubble.innerHTML = `
@@ -704,6 +709,7 @@ function directRateOverride(code, newRate) {
       document.getElementById('countBadge').innerText = billOrderKeys.length; renderList(); calculateInvoiceSheet(); scrollBillToBottom();
     }
 */
+    /*
     function addItemToBillDirect(code) {
   let activeItems = isOnlineMode ? sheetItems : localItems;
   let item = activeItems.find(i => i.Code.toString().trim() === code.toString().trim()); 
@@ -731,6 +737,40 @@ function directRateOverride(code, newRate) {
   calculateInvoiceSheet(); 
   scrollBillToBottom();
 }
+    */
+    function addItemToBillDirect(code) {
+  let activeItems = isOnlineMode ? sheetItems : localItems;
+  let item = activeItems.find(i => i.Code.toString().trim() === code.toString().trim()); 
+  if(!item) return;
+  
+  // ... (aapka purana logic: bill me add karne ka) ...
+  let selectEl = document.getElementById('billingPriceTier'); 
+  let selectedPricingMode = selectEl ? selectEl.value : 'retail';
+  let targetRate = (selectedPricingMode === 'wholesale') ? item.Wholesale : item.Retail;
+  
+  if(!currentBill[item.Code]) { 
+    currentBill[item.Code] = { ...item, qty: 1, rate: targetRate }; 
+    billOrderKeys.push(item.Code); 
+  } else { 
+    currentBill[item.Code].qty += 1; 
+  }
+  
+  // Search box clear
+  if(document.getElementById('pNameEn')) document.getElementById('pNameEn').value = '';
+  if(document.getElementById('pCode')) document.getElementById('pCode').value = '';
+  
+  renderList(); // List rebuild ho gayi
+  calculateInvoiceSheet(); 
+  
+  // 🔥 AUTO-SCROLL LOGIC: List refresh hone ke 50ms baad wahan scroll karo
+  setTimeout(() => {
+    const targetBubble = document.getElementById(`bubble-${code}`);
+    if (targetBubble) {
+      targetBubble.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, 50);
+}
+
     function addChillarToInvoice() {
   let amtInput = document.getElementById('chillarAmount');
   let amt = parseFloat(amtInput?.value);
