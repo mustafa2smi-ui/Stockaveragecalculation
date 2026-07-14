@@ -271,6 +271,7 @@
             window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
         }
 */
+        /*
        function shareOwnerCardLink(index) {
     try {
         const card = localCardsArr[index];
@@ -391,7 +392,256 @@
         alert("Matrix Image composition error.");
     }
 }
+*/
+        // 🌟 PREMIUM COFFEE-BORDER VISITING CARD IMAGE GENERATOR
+function shareOwnerCardLink(index) {
+    try {
+        const card = localCardsArr[index];
+        if(!card) return alert("Card not found!");
 
+        const shareBtn = document.getElementById(`share-btn-${index}`);
+        shareBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Rendering...";
+        shareBtn.disabled = true;
+
+        // Create Master Canvas Frame
+        const canvas = document.createElement('canvas');
+        canvas.width = 600;
+        canvas.height = 380;
+        const ctx = canvas.getContext('2d');
+
+        // 1. Outer Background (Soft gradient)
+        const bgGradient = ctx.createLinearGradient(0, 0, 600, 380);
+        bgGradient.addColorStop(0, "#f8fafc");
+        bgGradient.addColorStop(1, "#e2e8f0");
+        ctx.fillStyle = bgGradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 2. ☕ COFFEE BORDER (Main Card Frame)
+        ctx.strokeStyle = "#6F4E37";
+        ctx.lineWidth = 5;
+        ctx.fillStyle = "#ffffff";
+        // Rounded rect simulation with shadow
+        ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 8;
+        ctx.fillRect(15, 15, 570, 350);
+        ctx.shadowColor = "transparent"; // Reset shadow
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.strokeRect(15, 15, 570, 350);
+
+        // 3. 🔥 RED GLOW OUTER BORDER (Hover effect simulation)
+        ctx.strokeStyle = "rgba(239, 68, 68, 0.6)";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([8, 4]);
+        ctx.strokeRect(10, 10, 580, 360);
+        ctx.setLineDash([]); // Reset dash
+
+        // 4. Top Strip (Coffee-colored header bar)
+        ctx.fillStyle = "#6F4E37";
+        ctx.fillRect(15, 15, 570, 80);
+        
+        // Business Name on header
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 22px 'Segoe UI', sans-serif";
+        ctx.fillText(card.name || "Business Name", 130, 50);
+        
+        // Category Badge (top-right)
+        ctx.fillStyle = "#ef4444";
+        ctx.font = "bold 11px 'Segoe UI', sans-serif";
+        const catText = (card.category || "Service").toUpperCase();
+        const catWidth = ctx.measureText(catText).width + 20;
+        ctx.fillRect(570 - catWidth, 38, catWidth, 24);
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText(catText, 580 - catWidth + 10, 55);
+
+        // 5. Location below header
+        ctx.fillStyle = "#64748b";
+        ctx.font = "13px 'Segoe UI', sans-serif";
+        ctx.fillText("📍 " + (card.colony || 'N/A') + ", " + (card.village || 'N/A'), 130, 75);
+
+        // 6. Tagline Box
+        ctx.fillStyle = "#fef3c7";
+        ctx.fillRect(30, 110, 540, 45);
+        ctx.strokeStyle = "#fde68a";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(30, 110, 540, 45);
+        ctx.fillStyle = "#475569";
+        ctx.font = "italic 14px 'Segoe UI', sans-serif";
+        ctx.fillText('"' + (card.shortTagline || 'Quality service available.') + '"', 45, 138);
+
+        // 7. Contact Details
+        ctx.fillStyle = "#1e293b";
+        ctx.font = "bold 14px 'Segoe UI', sans-serif";
+        ctx.fillText("📞 " + (card.phone || 'N/A'), 130, 185);
+        
+        ctx.fillStyle = "#64748b";
+        ctx.font = "13px 'Segoe UI', sans-serif";
+        ctx.fillText("District: " + (card.district || 'N/A') + " • State: " + (card.state || 'N/A'), 30, 220);
+
+        // 8. Description Box
+        if(card.description) {
+            ctx.fillStyle = "#f1f5f9";
+            ctx.fillRect(30, 240, 540, 50);
+            ctx.fillStyle = "#334155";
+            ctx.font = "12px 'Segoe UI', sans-serif";
+            // Word wrap for description
+            const words = card.description.split(' ');
+            let line = '';
+            let y = 260;
+            for(let w of words) {
+                const testLine = line + w + ' ';
+                if(ctx.measureText(testLine).width > 520) {
+                    ctx.fillText(line, 40, y);
+                    line = w + ' ';
+                    y += 18;
+                } else {
+                    line = testLine;
+                }
+            }
+            ctx.fillText(line, 40, y);
+        }
+
+        // 9. ☕ Coffee Branding Footer
+        ctx.fillStyle = "#6F4E37";
+        ctx.fillRect(15, 325, 570, 40);
+        ctx.fillStyle = "#fbbf24";
+        ctx.font = "bold 11px 'Segoe UI', sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("🌐 VISIT & CREATE YOUR CARD AT: WWW.LOCALHUB.COM", 300, 350);
+        ctx.textAlign = "left";
+
+        // 10. IMAGE ENGINE: Owner Photo + Business Photo
+        let ownerImg = new Image();
+        let businessImg = new Image();
+        let imagesToLoad = 0;
+        let imagesLoaded = 0;
+
+        function checkAndDownload() {
+            imagesLoaded++;
+            if(imagesLoaded === imagesToLoad) {
+                const link = document.createElement('a');
+                link.download = `${(card.name || 'Card').replace(/ /g, "_")}_PremiumCard.png`;
+                link.href = canvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+                shareBtn.disabled = false;
+                alert("🎉 Premium visiting card with coffee border downloaded successfully!");
+            }
+        }
+
+        // Draw Owner Avatar (Circular, overlapping header)
+        if(card.ownerPhoto && card.ownerPhoto.trim() !== "") {
+            imagesToLoad++;
+            ownerImg.onload = function() {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(60, 55, 32, 0, Math.PI * 2, true);
+                ctx.closePath();
+                ctx.clip();
+                ctx.drawImage(ownerImg, 28, 23, 64, 64);
+                ctx.restore();
+                
+                // White border around avatar
+                ctx.beginPath();
+                ctx.arc(60, 55, 32, 0, Math.PI * 2, true);
+                ctx.strokeStyle = "#ffffff";
+                ctx.lineWidth = 3;
+                ctx.stroke();
+                
+                checkAndDownload();
+            };
+            ownerImg.src = card.ownerPhoto;
+        } else {
+            // Placeholder avatar
+            ctx.fillStyle = "#6F4E37";
+            ctx.beginPath();
+            ctx.arc(60, 55, 32, 0, Math.PI * 2, true);
+            ctx.fill();
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "22px 'Segoe UI', sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("👨‍✈️", 60, 63);
+            ctx.textAlign = "left";
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(60, 55, 32, 0, Math.PI * 2, true);
+            ctx.stroke();
+        }
+
+        // Draw Business Photo (Bottom-Right Corner)
+        if(card.image64 && card.image64.trim() !== "") {
+            imagesToLoad++;
+            businessImg.onload = function() {
+                // Rounded rectangle for business photo
+                ctx.save();
+                ctx.beginPath();
+                const bx = 400, by = 185, bw = 170, bh = 100, br = 12;
+                ctx.moveTo(bx + br, by);
+                ctx.lineTo(bx + bw - br, by);
+                ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + br);
+                ctx.lineTo(bx + bw, by + bh - br);
+                ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw - br, by + bh);
+                ctx.lineTo(bx + br, by + bh);
+                ctx.quadraticCurveTo(bx, by + bh, bx, by + bh - br);
+                ctx.lineTo(bx, by + br);
+                ctx.quadraticCurveTo(bx, by, bx + br, by);
+                ctx.closePath();
+                ctx.clip();
+                ctx.drawImage(businessImg, bx, by, bw, bh);
+                ctx.restore();
+                
+                // Border around business photo
+                ctx.strokeStyle = "#6F4E37";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                checkAndDownload();
+            };
+            businessImg.src = card.image64;
+        } else {
+            // Placeholder for business photo
+            ctx.fillStyle = "#e2e8f0";
+            ctx.fillRect(400, 185, 170, 100);
+            ctx.strokeStyle = "#6F4E37";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(400, 185, 170, 100);
+            ctx.fillStyle = "#64748b";
+            ctx.font = "11px 'Segoe UI', sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("📸 No Business Photo", 485, 240);
+            ctx.textAlign = "left";
+        }
+
+        // If no images to load, download immediately
+        if(imagesToLoad === 0) {
+            const link = document.createElement('a');
+            link.download = `${(card.name || 'Card').replace(/ /g, "_")}_PremiumCard.png`;
+            link.href = canvas.toDataURL('image/png');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+            shareBtn.disabled = false;
+            alert("🎉 Card downloaded successfully!");
+        }
+
+    } catch(e) {
+        console.error(e);
+        alert("Image generation error. Please try again.");
+        const shareBtn = document.getElementById(`share-btn-${index}`);
+        if(shareBtn) {
+            shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+            shareBtn.disabled = false;
+        }
+    }
+}
 // MSG ONLY BUTTON
 function shareOwnerCustomText(index) {
     let card = localCardsArr[index];
