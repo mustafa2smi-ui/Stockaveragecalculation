@@ -704,7 +704,7 @@
         // =========================================================================
         // 🔥 PIXEL-PERFECT REAL HTMl2CANVAS SCREENSHOT LOGIC (Jaisa Dikhega, Waisa Hi Khichega!)
         // =========================================================================
-        async function shareOwnerCardLink(index) {
+       /* async function shareOwnerCardLink(index) {
             const captureArea = document.getElementById(`card-to-share-${index}`);
             const shareBtn = document.getElementById(`share-btn-${index}`);
             if(!captureArea) return alert("Card not found!");
@@ -739,7 +739,7 @@
                 alert("Screenshot rendering error.");
             }
         }
-
+*/
         function shareOwnerCustomText(index) {
             let card = localCardsArr[index];
             let customMsg = `🔥 *${card.name}* 🔥\n_"${card.shortTagline || ''}"_\n\n📍 *Address:* ${card.colony}, ${card.village}\n📞 *Call/WhatsApp:* ${card.phone}`;
@@ -747,7 +747,7 @@
         }
 
         // CLIENT SINGLE VIEW REAL SCREENSHOT CAPTURE MATRIX
-        async function shareClientCardProMax() {
+     /*   async function shareClientCardProMax() {
             const btn = document.getElementById('client-share-btn');
             const captureArea = document.getElementById('view-explore-profile');
             btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> ...";
@@ -777,6 +777,91 @@
                 btn.disabled = false;
             }
         }
+*/
+        // =========================================================================
+// 🔥 BULLETPROOF PIXEL-PERFECT REAL HTML2CANVAS SCREENSHOT LOGIC
+// =========================================================================
+async function shareOwnerCardLink(index) {
+    const captureArea = document.getElementById(`card-to-share-${index}`);
+    const shareBtn = document.getElementById(`share-btn-${index}`);
+    if(!captureArea) return alert("Card template area nahi mila!");
+
+    shareBtn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Processing...";
+    shareBtn.disabled = true;
+
+    try {
+        // Sabhi images ko check karna ki wo sahi se load ho chuki hain
+        const images = captureArea.getElementsByTagName('img');
+        const imagePromises = Array.from(images).map(img => {
+            if (img.complete) return Promise.resolve();
+            return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+        });
+        await Promise.all(imagePromises);
+
+        // Advanced configuration jo error aane se rokega
+        const canvas = await html2canvas(captureArea, {
+            scale: 2, // High clarity
+            useCORS: true, // External domain images allow karne ke liye
+            allowTaint: false, // Security block बाईपास करने के लिए
+            backgroundColor: "#ffffff", // Solid background transparency error se bachne ke liye
+            logging: false,
+            removeContainer: true
+        });
+
+        const card = localCardsArr[index];
+        const link = document.createElement('a');
+        link.download = `${card.name.replace(/ /g, "_")}_PremiumCard.png`;
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+        shareBtn.disabled = false;
+        alert("🎉 Premium Card HD Photo kamiyabi se Gallery me save ho gaya!");
+    } catch(err) {
+        console.error("Rendering Error Details:", err);
+        shareBtn.innerHTML = "<i class='fa-solid fa-share-nodes mr-1'></i> Share Card";
+        shareBtn.disabled = false;
+        alert("⚠️ Image format ya network security ki wajah se error aaya. Kripya normal screenshot lelein ya bina external image ke try karein.");
+    }
+}
+
+// CLIENT EXPLORE PAGE KA BULLETPROOF SNAPSHOT
+async function shareClientCardProMax() {
+    const btn = document.getElementById('client-share-btn');
+    const captureArea = document.getElementById('view-explore-profile');
+    if(!captureArea) return;
+    
+    btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> ...";
+    btn.disabled = true;
+
+    try {
+        const canvas = await html2canvas(captureArea, {
+            scale: 2,
+            useCORS: true,
+            allowTaint: false,
+            backgroundColor: "#f3f4f6",
+            ignoreElements: (element) => element.tagName === 'BUTTON' || element.closest('.sticky') || element.id === 'client-share-btn'
+        });
+
+        const businessName = document.getElementById('hero-name').innerText;
+        const link = document.createElement('a');
+        link.download = `${businessName.replace(/ /g, "_")}_LiveView.png`;
+        link.href = canvas.toDataURL('image/png');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        btn.innerHTML = "<i class='fa-solid fa-share-nodes'></i> Share";
+        btn.disabled = false;
+    } catch (err) {
+        console.error("Client View Render Error:", err);
+        btn.innerHTML = "<i class='fa-solid fa-share-nodes'></i> Share";
+        btn.disabled = false;
+        alert("Snapshot render error! Normal screenshot use karein.");
+    }
+}
 
         function searchFilter() {
             let val = document.getElementById('search-input').value.toLowerCase();
