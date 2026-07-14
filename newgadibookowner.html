@@ -394,6 +394,7 @@
 }
 */
         // 🌟 PREMIUM COFFEE-BORDER VISITING CARD IMAGE GENERATOR
+ // 🌟 PREMIUM COFFEE-BORDER VISITING CARD IMAGE GENERATOR (WHITE BACKGROUND)
 function shareOwnerCardLink(index) {
     try {
         const card = localCardsArr[index];
@@ -409,110 +410,141 @@ function shareOwnerCardLink(index) {
         canvas.height = 380;
         const ctx = canvas.getContext('2d');
 
-        // 1. Outer Background (Soft gradient)
-        const bgGradient = ctx.createLinearGradient(0, 0, 600, 380);
-        bgGradient.addColorStop(0, "#f8fafc");
-        bgGradient.addColorStop(1, "#e2e8f0");
+        // 1. Soft White-Light Gradient Background
+        const bgGradient = ctx.createLinearGradient(0, 0, 0, 380);
+        bgGradient.addColorStop(0, "#ffffff");
+        bgGradient.addColorStop(0.5, "#fafbfc");
+        bgGradient.addColorStop(1, "#f1f5f9");
         ctx.fillStyle = bgGradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 2. ☕ COFFEE BORDER (Main Card Frame)
-        ctx.strokeStyle = "#6F4E37";
-        ctx.lineWidth = 5;
-        ctx.fillStyle = "#ffffff";
-        // Rounded rect simulation with shadow
-        ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
-        ctx.shadowBlur = 20;
+        // 2. ☕ COFFEE BORDER (Main Card Frame) with subtle shadow
+        ctx.shadowColor = "rgba(111, 78, 55, 0.3)";
+        ctx.shadowBlur = 15;
         ctx.shadowOffsetX = 0;
-        ctx.shadowOffsetY = 8;
+        ctx.shadowOffsetY = 5;
+        ctx.fillStyle = "#ffffff";
         ctx.fillRect(15, 15, 570, 350);
-        ctx.shadowColor = "transparent"; // Reset shadow
+        ctx.shadowColor = "transparent";
         ctx.shadowBlur = 0;
         ctx.shadowOffsetY = 0;
+        
+        // Main Coffee Border
+        ctx.strokeStyle = "#6F4E37";
+        ctx.lineWidth = 4;
         ctx.strokeRect(15, 15, 570, 350);
 
-        // 3. 🔥 RED GLOW OUTER BORDER (Hover effect simulation)
-        ctx.strokeStyle = "rgba(239, 68, 68, 0.6)";
+        // 3. 🔥 RED GLOW OUTER BORDER (subtle)
+        ctx.strokeStyle = "rgba(239, 68, 68, 0.4)";
         ctx.lineWidth = 2;
-        ctx.setLineDash([8, 4]);
+        ctx.setLineDash([6, 4]);
         ctx.strokeRect(10, 10, 580, 360);
-        ctx.setLineDash([]); // Reset dash
+        ctx.setLineDash([]);
 
-        // 4. Top Strip (Coffee-colored header bar)
-        ctx.fillStyle = "#6F4E37";
-        ctx.fillRect(15, 15, 570, 80);
-        
-        // Business Name on header
-        ctx.fillStyle = "#ffffff";
+        // 4. ☕ Top Decorative Coffee Line (thin)
+        ctx.strokeStyle = "#6F4E37";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 6]);
+        ctx.beginPath();
+        ctx.moveTo(25, 80);
+        ctx.lineTo(575, 80);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 5. Business Name (Dark, clear text)
+        ctx.fillStyle = "#1e293b";
         ctx.font = "bold 22px 'Segoe UI', sans-serif";
-        ctx.fillText(card.name || "Business Name", 130, 50);
+        ctx.fillText(card.name || "Business Name", 125, 50);
         
-        // Category Badge (top-right)
-        ctx.fillStyle = "#ef4444";
-        ctx.font = "bold 11px 'Segoe UI', sans-serif";
+        // 6. Category Badge (top-right corner)
         const catText = (card.category || "Service").toUpperCase();
-        const catWidth = ctx.measureText(catText).width + 20;
-        ctx.fillRect(570 - catWidth, 38, catWidth, 24);
+        ctx.font = "bold 10px 'Segoe UI', sans-serif";
+        const catWidth = ctx.measureText(catText).width + 24;
+        // Badge background
+        ctx.fillStyle = "#6F4E37";
+        ctx.beginPath();
+        const badgeX = 555 - catWidth;
+        const badgeY = 28;
+        ctx.roundRect(badgeX, badgeY, catWidth, 24, 12);
+        ctx.fill();
+        // Badge text
         ctx.fillStyle = "#ffffff";
-        ctx.fillText(catText, 580 - catWidth + 10, 55);
+        ctx.fillText(catText, badgeX + 12, badgeY + 16);
 
-        // 5. Location below header
+        // 7. Location below name
         ctx.fillStyle = "#64748b";
         ctx.font = "13px 'Segoe UI', sans-serif";
-        ctx.fillText("📍 " + (card.colony || 'N/A') + ", " + (card.village || 'N/A'), 130, 75);
+        ctx.fillText("📍 " + (card.colony || 'N/A') + ", " + (card.village || 'N/A'), 125, 70);
 
-        // 6. Tagline Box
-        ctx.fillStyle = "#fef3c7";
-        ctx.fillRect(30, 110, 540, 45);
+        // 8. Tagline in Light Amber Box
+        ctx.fillStyle = "#fffbeb";
+        ctx.beginPath();
+        ctx.roundRect(30, 98, 540, 44, 10);
+        ctx.fill();
         ctx.strokeStyle = "#fde68a";
         ctx.lineWidth = 1;
-        ctx.strokeRect(30, 110, 540, 45);
+        ctx.beginPath();
+        ctx.roundRect(30, 98, 540, 44, 10);
+        ctx.stroke();
+        
         ctx.fillStyle = "#475569";
         ctx.font = "italic 14px 'Segoe UI', sans-serif";
-        ctx.fillText('"' + (card.shortTagline || 'Quality service available.') + '"', 45, 138);
+        ctx.fillText('"' + (card.shortTagline || 'Quality service available.') + '"', 50, 126);
 
-        // 7. Contact Details
+        // 9. Contact Details
         ctx.fillStyle = "#1e293b";
         ctx.font = "bold 14px 'Segoe UI', sans-serif";
-        ctx.fillText("📞 " + (card.phone || 'N/A'), 130, 185);
+        ctx.fillText("📞 " + (card.phone || 'N/A'), 125, 170);
         
+        // District & State
         ctx.fillStyle = "#64748b";
         ctx.font = "13px 'Segoe UI', sans-serif";
-        ctx.fillText("District: " + (card.district || 'N/A') + " • State: " + (card.state || 'N/A'), 30, 220);
+        ctx.fillText("🏛️ " + (card.district || 'N/A') + " • " + (card.state || 'N/A'), 30, 198);
 
-        // 8. Description Box
+        // 10. Description Area (if exists)
         if(card.description) {
-            ctx.fillStyle = "#f1f5f9";
-            ctx.fillRect(30, 240, 540, 50);
+            ctx.fillStyle = "#f8fafc";
+            ctx.beginPath();
+            ctx.roundRect(30, 215, 540, 55, 10);
+            ctx.fill();
+            ctx.strokeStyle = "#e2e8f0";
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(30, 215, 540, 55, 10);
+            ctx.stroke();
+            
             ctx.fillStyle = "#334155";
-            ctx.font = "12px 'Segoe UI', sans-serif";
-            // Word wrap for description
+            ctx.font = "11px 'Segoe UI', sans-serif";
+            // Word wrap
             const words = card.description.split(' ');
             let line = '';
-            let y = 260;
+            let y = 235;
             for(let w of words) {
                 const testLine = line + w + ' ';
-                if(ctx.measureText(testLine).width > 520) {
-                    ctx.fillText(line, 40, y);
+                if(ctx.measureText(testLine).width > 500) {
+                    ctx.fillText(line, 45, y);
                     line = w + ' ';
-                    y += 18;
+                    y += 16;
+                    if(y > 260) break;
                 } else {
                     line = testLine;
                 }
             }
-            ctx.fillText(line, 40, y);
+            if(y <= 260) ctx.fillText(line, 45, y);
         }
 
-        // 9. ☕ Coffee Branding Footer
+        // 11. ☕ Coffee Footer Bar (Bottom)
         ctx.fillStyle = "#6F4E37";
-        ctx.fillRect(15, 325, 570, 40);
+        ctx.beginPath();
+        ctx.roundRect(15, 330, 570, 35, [0, 0, 8, 8]);
+        ctx.fill();
         ctx.fillStyle = "#fbbf24";
-        ctx.font = "bold 11px 'Segoe UI', sans-serif";
+        ctx.font = "bold 10px 'Segoe UI', sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText("🌐 VISIT & CREATE YOUR CARD AT: WWW.LOCALHUB.COM", 300, 350);
+        ctx.fillText("🌐 VISIT & CREATE YOUR CARD AT: WWW.LOCALHUB.COM", 300, 353);
         ctx.textAlign = "left";
 
-        // 10. IMAGE ENGINE: Owner Photo + Business Photo
+        // 12. IMAGE ENGINE: Owner Photo + Business Photo
         let ownerImg = new Image();
         let businessImg = new Image();
         let imagesToLoad = 0;
@@ -534,23 +566,30 @@ function shareOwnerCardLink(index) {
             }
         }
 
-        // Draw Owner Avatar (Circular, overlapping header)
+        // Draw Owner Avatar (Circular, top-left area)
         if(card.ownerPhoto && card.ownerPhoto.trim() !== "") {
             imagesToLoad++;
             ownerImg.onload = function() {
+                // White circle background
+                ctx.fillStyle = "#ffffff";
+                ctx.beginPath();
+                ctx.arc(58, 52, 34, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Clip and draw photo
                 ctx.save();
                 ctx.beginPath();
-                ctx.arc(60, 55, 32, 0, Math.PI * 2, true);
+                ctx.arc(58, 52, 30, 0, Math.PI * 2, true);
                 ctx.closePath();
                 ctx.clip();
-                ctx.drawImage(ownerImg, 28, 23, 64, 64);
+                ctx.drawImage(ownerImg, 28, 22, 60, 60);
                 ctx.restore();
                 
-                // White border around avatar
-                ctx.beginPath();
-                ctx.arc(60, 55, 32, 0, Math.PI * 2, true);
-                ctx.strokeStyle = "#ffffff";
+                // Coffee border around avatar
+                ctx.strokeStyle = "#6F4E37";
                 ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(58, 52, 31, 0, Math.PI * 2);
                 ctx.stroke();
                 
                 checkAndDownload();
@@ -560,17 +599,17 @@ function shareOwnerCardLink(index) {
             // Placeholder avatar
             ctx.fillStyle = "#6F4E37";
             ctx.beginPath();
-            ctx.arc(60, 55, 32, 0, Math.PI * 2, true);
+            ctx.arc(58, 52, 30, 0, Math.PI * 2, true);
             ctx.fill();
             ctx.fillStyle = "#ffffff";
-            ctx.font = "22px 'Segoe UI', sans-serif";
+            ctx.font = "20px 'Segoe UI', sans-serif";
             ctx.textAlign = "center";
-            ctx.fillText("👨‍✈️", 60, 63);
+            ctx.fillText("👤", 58, 59);
             ctx.textAlign = "left";
-            ctx.strokeStyle = "#ffffff";
+            ctx.strokeStyle = "#6F4E37";
             ctx.lineWidth = 3;
             ctx.beginPath();
-            ctx.arc(60, 55, 32, 0, Math.PI * 2, true);
+            ctx.arc(58, 52, 31, 0, Math.PI * 2);
             ctx.stroke();
         }
 
@@ -580,8 +619,8 @@ function shareOwnerCardLink(index) {
             businessImg.onload = function() {
                 // Rounded rectangle for business photo
                 ctx.save();
+                const bx = 400, by = 155, bw = 170, bh = 95, br = 10;
                 ctx.beginPath();
-                const bx = 400, by = 185, bw = 170, bh = 100, br = 12;
                 ctx.moveTo(bx + br, by);
                 ctx.lineTo(bx + bw - br, by);
                 ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + br);
@@ -596,25 +635,32 @@ function shareOwnerCardLink(index) {
                 ctx.drawImage(businessImg, bx, by, bw, bh);
                 ctx.restore();
                 
-                // Border around business photo
+                // Coffee border around business photo
                 ctx.strokeStyle = "#6F4E37";
                 ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(bx, by, bw, bh, br);
                 ctx.stroke();
                 
                 checkAndDownload();
             };
             businessImg.src = card.image64;
         } else {
-            // Placeholder for business photo
-            ctx.fillStyle = "#e2e8f0";
-            ctx.fillRect(400, 185, 170, 100);
+            // Placeholder
+            ctx.fillStyle = "#f1f5f9";
+            const bx = 400, by = 155, bw = 170, bh = 95;
+            ctx.beginPath();
+            ctx.roundRect(bx, by, bw, bh, 10);
+            ctx.fill();
             ctx.strokeStyle = "#6F4E37";
             ctx.lineWidth = 2;
-            ctx.strokeRect(400, 185, 170, 100);
-            ctx.fillStyle = "#64748b";
+            ctx.beginPath();
+            ctx.roundRect(bx, by, bw, bh, 10);
+            ctx.stroke();
+            ctx.fillStyle = "#94a3b8";
             ctx.font = "11px 'Segoe UI', sans-serif";
             ctx.textAlign = "center";
-            ctx.fillText("📸 No Business Photo", 485, 240);
+            ctx.fillText("📸 No Photo", bx + bw/2, by + bh/2 + 4);
             ctx.textAlign = "left";
         }
 
@@ -642,6 +688,7 @@ function shareOwnerCardLink(index) {
         }
     }
 }
+                
 // MSG ONLY BUTTON
 function shareOwnerCustomText(index) {
     let card = localCardsArr[index];
