@@ -812,8 +812,13 @@ function saveLocalBillsLogToStorage() {
     return matchName && matchCode;
   });
       
-      filtered.sort((a, b) => a.ItemNameEn.localeCompare(b.ItemNameEn));
-      
+     /* filtered.sort((a, b) => a.ItemNameEn.localeCompare(b.ItemNameEn));*/
+      filtered.sort((a, b) => {
+  const aInBill = AppState.currentBill[a.Code] ? 1 : 0;
+  const bInBill = AppState.currentBill[b.Code] ? 1 : 0;
+  if (aInBill !== bInBill) return bInBill - aInBill;
+  return a.ItemNameEn.localeCompare(b.ItemNameEn);
+});
       if(filtered.length === 0) {
         const emptyMsg = document.createElement('p');
         emptyMsg.style.cssText = 'padding: 20px; text-align: center; color: #888;';
