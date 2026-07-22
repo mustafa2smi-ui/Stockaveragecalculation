@@ -348,7 +348,7 @@
     <input type="text" id="pCategory" placeholder="Category" style="flex:2; min-width: 65px; padding: 6px; border:1px solid #ccc; border-radius:4px; font-size:13px;">
    <input type="text" id="pCode" placeholder="Code 🎯" style="flex:1; min-width: 60px; padding: 6px; border:1px solid #ccc; border-radius:4px; font-size:13px;">
     <button onclick="generateRandomProductCode()" type="button" style="background:#9b59b6; color:white; padding:6px 8px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px; white-space:nowrap;">🎲 Auto</button>
- <input type="text" id="pUnit" placeholder="Unit" style="width:45px; padding: 6px; border:1px solid #ccc; border-radius:4px; font-size:13px;" value="Kg">
+ <input type="text" id="pUnit" placeholder="Unit" style="width:45px; padding: 6px; border:1px solid #ccc; border-radius:4px; font-size:13px;" value="@">
     <button id="btnCamToggle" onclick="toggleCameraUI()" style="background:#3498db; color:white; padding:6px 10px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px; white-space:nowrap;">📷 Cam</button>
       </div>
   
@@ -645,7 +645,7 @@ function saveLocalBillsLogToStorage() {
   }
 }
     // ==================== MASTER ITEM MANAGEMENT ====================
-    function addNewMasterItem() {
+ /*   function addNewMasterItem() {
       const code = DOM.pCode.value.toString().trim();
       const nameEn = DOM.pNameEn.value.trim();
       const cat = DOM.pCategory.value.trim() || 'General';
@@ -664,7 +664,7 @@ function saveLocalBillsLogToStorage() {
         Unit: unit,
         Price: price
       };
-      */
+      *\
       const newItem = {
   Code: code,
   ItemNameEn: nameEn,
@@ -711,7 +711,106 @@ function saveLocalBillsLogToStorage() {
       if (AppState.currentMode === 'bill' && !AppState.editingOldCodeIndicator) {
         addItemToBillDirect(code);
       }
-      
+      */
+    function generateUniqueCode() {
+  let uniqueCode = "";
+  let isDuplicate = true;
+  let attempts = 0;
+  const maxAttempts = 100;
+  
+  while (isDuplicate && attempts < maxAttempts) {
+    // Generate 3-digit code (100-999)
+    uniqueCode = Math.floor(100 + Math.random() * 900).toString();
+    isDuplicate = AppState.localItems.some(item => item.Code.toString().trim() === uniqueCode);
+    attempts++;
+  }
+  
+  // If still duplicate after max attempts, use timestamp-based code
+  if (isDuplicate) {
+    uniqueCode = Date.now().toString().slice(-4);
+  }
+  
+  return uniqueCode;
+}
+    function addNewMasterItem() {
+  let code = DOM.pCode.value.toString().trim();
+  const nameEn = DOM.pNameEn.value.trim();
+  const cat = DOM.pCategory.value.trim() || 'General';
+  const unit = DOM.pUnit.value.trim() || '@';
+  const price = sanitizeNumber(DOM.pPrice.value);
+  
+  if(!nameEn) {
+    showToast("Item Name zaroori hai!", 'warning');
+    return;
+  }
+  
+  // 🔥 AUTO-GENERATE CODE if empty
+  if (!code) {
+    code = generateUniqueCode();
+    DOM.pCode.value = code;
+  }
+  
+  const newItem = {
+    Code: code,
+    ItemNameEn: nameEn,
+    Category: cat,
+    Unit: unit,
+    Price: price,
+    Retail: price,
+    Wholesale: price
+  };
+  
+  // Handle code changes for editing
+  let idx = -1;
+  if (AppState.editingOldCodeIndicator) {
+    idx = AppState.localItems.findIndex(i => i.Code.toString().trim() === AppState.editingOldCodeIndicator.toString().trim());
+  } else {
+    idx = AppState.localItems.findIndex(i => i.Code.toString().trim() === code.toString().trim());
+  }
+  
+  if(idx > -1) {
+    AppState.localItems[idx] = newItem;
+  } else {
+    AppState.localItems.push(newItem);
+  }
+  saveLocalItemsToStorage();
+  
+  // Update bill if code changed
+  if (AppState.editingOldCodeIndicator && AppState.editingOldCodeIndicator !== code) {
+    if (AppState.currentBill[AppState.editingOldCodeIndicator]) {
+      AppState.currentBill[code] = {
+        ...newItem,
+        qty: AppState.currentBill[AppState.editingOldCodeIndicator].qty,
+        rate: price
+      };
+      delete AppState.currentBill[AppState.editingOldCodeIndicator];
+      AppState.billOrderKeys = AppState.billOrderKeys.map(k => k === AppState.editingOldCodeIndicator ? code : k);
+    }
+  } else if(AppState.currentBill[code]) {
+    AppState.currentBill[code] = {
+      ...newItem,
+      qty: AppState.currentBill[code].qty,
+      rate: price
+    };
+  }
+  
+  if (AppState.currentMode === 'bill' && !AppState.editingOldCodeIndicator) {
+    addItemToBillDirect(code);
+  }
+  
+  // Reset form
+  AppState.editingOldCodeIndicator = null;
+  DOM.pCode.value = '';
+  DOM.pNameEn.value = '';
+  DOM.pCategory.value = '';
+  DOM.pPrice.value = '';
+  // Reset Qty to 1
+  if (DOM.billModeQty) DOM.billModeQty.value = '1';
+  
+  renderList();
+  calculateInvoiceSheet();
+  showToast("Item saved successfully! ✅", 'success');
+}
       // Reset form
       AppState.editingOldCodeIndicator = null;
       DOM.pCode.value = '';
@@ -738,16 +837,9 @@ function saveLocalBillsLogToStorage() {
     }
     
     function generateRandomProductCode() {
-      let uniqueCode = "";
-      let isDuplicate = true;
-      
-      while (isDuplicate) {
-        uniqueCode = Math.floor(100 + Math.random() * 900).toString();
-        isDuplicate = AppState.localItems.some(item => item.Code.toString().trim() === uniqueCode);
-      }
-      
-      DOM.pCode.value = uniqueCode;
-    }
+  const uniqueCode = generateUniqueCode();
+  DOM.pCode.value = uniqueCode;
+}
     
     function deleteMasterItem(code) {
       if(!confirm("Master database se delete karein?")) return;
