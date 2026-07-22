@@ -785,7 +785,7 @@
         }
       }, CONFIG.DEBOUNCE_DELAY);
     }
-    
+    /*
     function performSearch() {
       const query = DOM.pNameEn.value.toLowerCase().trim();
       const searchContainer = DOM.searchResultsContainer;
@@ -835,7 +835,39 @@
       // Also show filtered results in main list
       renderFilteredList(filtered);
     }
-    
+    */
+    function performSearch() {
+  const query = DOM.pNameEn.value.toLowerCase().trim();
+  const searchContainer = DOM.searchResultsContainer;
+  
+  if (!query) {
+    // 🔥 FIX: Clear search results and show all items
+    clearSearchResults();
+    renderList();
+    return;
+  }
+  
+  const filtered = AppState.localItems.filter(item => {
+    return item.ItemNameEn.toLowerCase().includes(query) ||
+           item.Code.toString().includes(query);
+  });
+  
+  // Show dropdown
+  showSearchDropdown(filtered);
+  
+  // Also update the main list with filtered items
+  const container = DOM.masterList;
+  container.innerHTML = '';
+  
+  if (filtered.length > 0) {
+    renderSectionBucket(container, filtered, `Search Results (${filtered.length})`, 'local');
+  } else {
+    const emptyMsg = document.createElement('p');
+    emptyMsg.style.cssText = 'padding: 20px; text-align: center; color: #888;';
+    emptyMsg.textContent = 'No matching items found.';
+    container.appendChild(emptyMsg);
+  }
+}
     function renderFilteredList(filteredItems) {
       const container = DOM.masterList;
       container.innerHTML = '';
@@ -851,12 +883,52 @@
         renderItemBubble(container, item, 'local');
       });
     }
+    function showSearchDropdown(filtered) {
+  const searchContainer = DOM.searchResultsContainer;
+  
+  if (filtered.length === 0) {
+    clearSearchResults();
+    return;
+  }
+  
+  searchContainer.innerHTML = '';
+  searchContainer.style.display = 'block';
+  
+  filtered.forEach(item => {
+    const resultItem = document.createElement('div');
+    resultItem.className = 'search-result-item';
     
+    // Safely create elements
+    const nameSpan = document.createElement('span');
+    nameSpan.innerHTML = `
+      <span class="search-result-name">${escapeHtml(item.ItemNameEn)}</span>
+      <span style="font-size:12px; color:#666;">(${escapeHtml(item.Code)})</span>
+    `;
+    
+    const priceSpan = document.createElement('span');
+    priceSpan.className = 'search-result-price';
+    priceSpan.textContent = `₹${item.Price.toFixed(CONFIG.PRICE_DECIMALS)}`;
+    
+    resultItem.appendChild(nameSpan);
+    resultItem.appendChild(priceSpan);
+    
+    resultItem.addEventListener('click', () => {
+      addItemToBillDirect(item.Code);
+      clearSearchResults();
+      DOM.pNameEn.value = '';
+      DOM.pCode.value = '';
+      // 🔥 FIX: Refresh full list after adding
+      renderList();
+    });
+    
+    searchContainer.appendChild(resultItem);
+  });
+}
     function clearSearchResults() {
       DOM.searchResultsContainer.innerHTML = '';
       DOM.searchResultsContainer.style.display = 'none';
     }
-    
+    /*
     // ==================== RENDERING ====================
     function renderList() {
       const container = DOM.masterList;
@@ -878,7 +950,58 @@
       
       renderSectionBucket(container, activeItems, 'Local Stock', 'local');
     }
+    */
+    function renderList() {
+  const container = DOM.masterList;
+  container.innerHTML = '';
+  
+  // Show saved bills log in entry mode
+  if(AppState.currentMode === 'entry' && AppState.savedLocalBills.length > 0) {
+    renderSavedBillsLogBucket(container);
+  }
+  
+  const activeItems = AppState.localItems;
+  if(!activeItems || activeItems.length === 0) {
+    const emptyMsg = document.createElement('p');
+    emptyMsg.style.cssText = 'padding: 20px; text-align: center; color: #888; font-weight: bold;';
+    emptyMsg.textContent = 'No Items Found.';
+    container.appendChild(emptyMsg);
+    calculateInvoiceSheet();
+    return;
+  }
+  
+  // 🔥 FIX: Only filter for search if we're actually searching
+  // Check if search input has actual text
+  const searchQuery = DOM.pNameEn.value.trim();
+  const codeQuery = DOM.pCode.value.trim();
+  
+  if (searchQuery || codeQuery) {
+    // User is searching - show filtered results
+    const filtered = activeItems.filter(item => {
+      const matchName = !searchQuery || item.ItemNameEn.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchCode = !codeQuery || item.Code.toString().toLowerCase().includes(codeQuery.toLowerCase());
+      return matchName && matchCode;
+    });
     
+    if (filtered.length > 0) {
+      renderSectionBucket(container, filtered, `Search Results (${filtered.length})`, 'local');
+      // Also show search dropdown if in bill mode
+      if (AppState.currentMode === 'bill') {
+        showSearchDropdown(filtered);
+      }
+    } else {
+      const emptyMsg = document.createElement('p');
+      emptyMsg.style.cssText = 'padding: 20px; text-align: center; color: #888;';
+      emptyMsg.textContent = 'No matching items found.';
+      container.appendChild(emptyMsg);
+      clearSearchResults();
+    }
+  } else {
+    // 🔥 FIX: No search active - show ALL items normally
+    clearSearchResults();
+    renderSectionBucket(container, activeItems, 'Local Stock', 'local');
+  }
+}
     function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
       const query = DOM.pNameEn.value.toLowerCase();
       const codeQuery = DOM.pCode.value.toLowerCase();
