@@ -831,103 +831,127 @@
     }
     
     function renderItemBubble(container, item, originType) {
-      const inBill = AppState.currentBill[item.Code];
-      const qty = inBill ? inBill.qty : 0;
-      const activeRate = inBill ? inBill.rate : 0;
-      
-      const bubble = document.createElement('div');
-      bubble.id = `bubble-${item.Code}`;
-      bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
-      
-      const isControlDisabled = AppState.currentMode === 'entry' ? 'disabled' : '';
-      const clickHandler = AppState.currentMode === 'bill' ? `onclick="addItemToBillDirect('${item.Code}')"` : '';
-      
-      // Build HTML safely
-      const itemInfo = document.createElement('div');
-      itemInfo.className = `item-info ${AppState.currentMode === 'bill' ? 'clickable' : ''}`;
-      if (clickHandler && AppState.currentMode === 'bill') {
-  itemInfo.setAttribute('onclick', clickHandler);
-  itemInfo.style.cursor = 'pointer';
+  const inBill = AppState.currentBill[item.Code];
+  const qty = inBill ? inBill.qty : 0;
+  const activeRate = inBill ? inBill.rate : 0;
+  
+  const bubble = document.createElement('div');
+  bubble.id = `bubble-${item.Code}`;
+  bubble.className = `chat-bubble ${qty > 0 ? 'in-bill' : ''}`;
+  
+  const isControlDisabled = AppState.currentMode === 'entry';
+  
+  // Build item info with click handler
+  const itemInfo = document.createElement('div');
+  itemInfo.className = `item-info ${AppState.currentMode === 'bill' ? 'clickable' : ''}`;
+  
+  // Fix: Use addEventListener for proper click handling
+  if (AppState.currentMode === 'bill') {
+    itemInfo.style.cursor = 'pointer';
+    itemInfo.addEventListener('click', function() {
+      addItemToBillDirect(item.Code);
+    });
+  }
+  
+  const nameDiv = document.createElement('div');
+  nameDiv.className = 'item-name';
+  nameDiv.textContent = item.ItemNameEn;
+  itemInfo.appendChild(nameDiv);
+  
+  const subDiv = document.createElement('div');
+  subDiv.className = 'item-sub';
+  subDiv.style.marginTop = '2px';
+  
+  const itemPrice = item.Price || item.Retail || item.Wholesale || 0;
+  let subHTML = `Code: ${escapeHtml(item.Code)} | Unit: ${escapeHtml(item.Unit)} | Price: <span class="bold-price">₹${parseFloat(itemPrice).toFixed(CONFIG.PRICE_DECIMALS)}</span>`;
+  if (qty > 0) {
+    subHTML += `<br><span style="color:green; font-weight:bold;">Cart: ${qty} ${escapeHtml(item.Unit)} @ ₹${activeRate.toFixed(CONFIG.PRICE_DECIMALS)}</span>`;
+  }
+  subDiv.innerHTML = subHTML;
+  itemInfo.appendChild(subDiv);
+  
+  bubble.appendChild(itemInfo);
+  
+  // Actions div
+  const actionsDiv = document.createElement('div');
+  actionsDiv.className = 'item-actions';
+  actionsDiv.style.gap = '4px';
+  
+  // Fix: Use addEventListener to properly stop propagation
+  actionsDiv.addEventListener('click', function(event) {
+    event.stopPropagation();
+  });
+  
+  if (qty > 0) {
+    const rateInput = document.createElement('input');
+    rateInput.type = 'number';
+    rateInput.className = 'edit-input';
+    rateInput.style.cssText = 'width:55px; border:1px solid #ff9800; background:#fffdf0; font-weight:bold;';
+    rateInput.value = activeRate;
+    rateInput.placeholder = 'Rate';
+    rateInput.addEventListener('change', function() {
+      directRateOverride(item.Code, this.value);
+    });
+    actionsDiv.appendChild(rateInput);
+  }
+  
+  const minusBtn = document.createElement('button');
+  minusBtn.className = 'qty-btn';
+  minusBtn.textContent = '-';
+  if (isControlDisabled) minusBtn.disabled = true;
+  minusBtn.addEventListener('click', function(event) {
+    event.stopPropagation();
+    updateQty(item.Code, -1);
+  });
+  actionsDiv.appendChild(minusBtn);
+  
+  const qtyInput = document.createElement('input');
+  qtyInput.type = 'number';
+  qtyInput.className = 'edit-input';
+  qtyInput.value = qty;
+  if (isControlDisabled) qtyInput.disabled = true;
+  qtyInput.addEventListener('change', function() {
+    directQty(item.Code, this.value);
+  });
+  qtyInput.addEventListener('click', function(event) {
+    event.stopPropagation();
+  });
+  actionsDiv.appendChild(qtyInput);
+  
+  const plusBtn = document.createElement('button');
+  plusBtn.className = 'qty-btn';
+  plusBtn.textContent = '+';
+  if (isControlDisabled) plusBtn.disabled = true;
+  plusBtn.addEventListener('click', function(event) {
+    event.stopPropagation();
+    updateQty(item.Code, 1);
+  });
+  actionsDiv.appendChild(plusBtn);
+  
+  if (AppState.currentMode === 'entry') {
+    const editBtn = document.createElement('button');
+    editBtn.style.cssText = 'background:none; border:none; color:blue; font-size:15px; margin-left:2px; cursor:pointer;';
+    editBtn.textContent = '✏️';
+    editBtn.addEventListener('click', function(event) {
+      event.stopPropagation();
+      editMasterItem(item.Code);
+    });
+    actionsDiv.appendChild(editBtn);
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'del-btn';
+    deleteBtn.textContent = 'X';
+    deleteBtn.addEventListener('click', function(event) {
+      event.stopPropagation();
+      deleteMasterItem(item.Code);
+    });
+    actionsDiv.appendChild(deleteBtn);
+  }
+  
+  bubble.appendChild(actionsDiv);
+  container.appendChild(bubble);
 }
       
-      const nameDiv = document.createElement('div');
-      nameDiv.className = 'item-name';
-      nameDiv.textContent = item.ItemNameEn;
-      itemInfo.appendChild(nameDiv);
-      
-      const subDiv = document.createElement('div');
-      subDiv.className = 'item-sub';
-      subDiv.style.marginTop = '2px';
-      const itemPrice = item.Price || item.Retail || item.Wholesale || 0;
-let subHTML = `Code: ${escapeHtml(item.Code)} | Unit: ${escapeHtml(item.Unit)} | Price: <span class="bold-price">₹${parseFloat(itemPrice).toFixed(CONFIG.PRICE_DECIMALS)}</span>`;
-      if (qty > 0) {
-        subHTML += `<br><span style="color:green; font-weight:bold;">Cart: ${qty} ${escapeHtml(item.Unit)} @ ₹${activeRate.toFixed(CONFIG.PRICE_DECIMALS)}</span>`;
-      }
-      subDiv.innerHTML = subHTML;
-      itemInfo.appendChild(subDiv);
-      
-      bubble.appendChild(itemInfo);
-      
-      // Actions
-      const actionsDiv = document.createElement('div');
-      actionsDiv.className = 'item-actions';
-      actionsDiv.style.gap = '4px';
-      actionsDiv.setAttribute('onclick', 'event.stopPropagation();');
-      
-      if (qty > 0) {
-        const rateInput = document.createElement('input');
-        rateInput.type = 'number';
-        rateInput.className = 'edit-input';
-        rateInput.style.cssText = 'width:55px; border:1px solid #ff9800; background:#fffdf0; font-weight:bold;';
-        rateInput.value = activeRate;
-        rateInput.placeholder = 'Rate';
-        rateInput.addEventListener('change', function() {
-          directRateOverride(item.Code, this.value);
-        });
-        actionsDiv.appendChild(rateInput);
-      }
-      
-      const minusBtn = document.createElement('button');
-      minusBtn.className = 'qty-btn';
-      minusBtn.textContent = '-';
-      if (isControlDisabled) minusBtn.disabled = true;
-      minusBtn.addEventListener('click', () => updateQty(item.Code, -1));
-      actionsDiv.appendChild(minusBtn);
-      
-      const qtyInput = document.createElement('input');
-      qtyInput.type = 'number';
-      qtyInput.className = 'edit-input';
-      qtyInput.value = qty;
-      if (isControlDisabled) qtyInput.disabled = true;
-      qtyInput.addEventListener('change', function() {
-        directQty(item.Code, this.value);
-      });
-      actionsDiv.appendChild(qtyInput);
-      
-      const plusBtn = document.createElement('button');
-      plusBtn.className = 'qty-btn';
-      plusBtn.textContent = '+';
-      if (isControlDisabled) plusBtn.disabled = true;
-      plusBtn.addEventListener('click', () => updateQty(item.Code, 1));
-      actionsDiv.appendChild(plusBtn);
-      
-      if (AppState.currentMode === 'entry') {
-        const editBtn = document.createElement('button');
-        editBtn.style.cssText = 'background:none; border:none; color:blue; font-size:15px; margin-left:2px; cursor:pointer;';
-        editBtn.textContent = '✏️';
-        editBtn.addEventListener('click', () => editMasterItem(item.Code));
-        actionsDiv.appendChild(editBtn);
-        
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'del-btn';
-        deleteBtn.textContent = 'X';
-        deleteBtn.addEventListener('click', () => deleteMasterItem(item.Code));
-        actionsDiv.appendChild(deleteBtn);
-      }
-      
-      bubble.appendChild(actionsDiv);
-      container.appendChild(bubble);
-    }
     
     function renderSavedBillsLogBucket(container) {
       const titleDiv = document.createElement('div');
