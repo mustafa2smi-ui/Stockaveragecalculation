@@ -355,13 +355,13 @@
   <!-- ROW 2: Code, Auto, Item, Unit, Price, Qty -->
   <div style="display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-bottom: 4px;">
     
-    <input type="text" id="pNameEn" placeholder="Item Name / Search 🔎" style="flex:3; min-width: 90px; padding: 4px; border:1px solid #ccc; border-radius:4px; font-size:13px;" oninput="renderList()">
-   <input type="number" id="pPrice" placeholder="Price" style="width:55px; padding: 6px; border:1px solid #ccc; border-radius:4px; font-size:13px;"> 
-    <input type="number" id="billModeQty" placeholder="Qty" value="1" min="0.01" step="0.01" style="width:50px; padding: 6px; border:2px solid var(--wa-green); border-radius:4px; font-size:13px; font-weight:bold; text-align:center;">
-  <button class="bg-clear" onclick="clearBill()" style="border: none; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size:12px; white-space:nowrap;">🧹 Clear</button>
-    <input type="number" id="chillarAmount" placeholder="₹ Other" style="width:70px; padding:6px; font-size:12px; border:1px solid #ff9800; border-radius:4px; font-weight:bold; text-align:center; outline:none;">
+    <input type="text" id="pNameEn" placeholder="Item Name / Search 🔎" style="flex:3; min-width: 75px; padding: 6px; border:1px solid #ccc; border-radius:4px; font-size:13px;" oninput="renderList()">
+  <input type="number" id="billModeQty" placeholder="Qty" value="1" min="0.01" step="0.01" style="width:50px; padding: 6px; border:2px solid var(--wa-green); border-radius:4px; font-size:13px; font-weight:bold; text-align:center;">
+    <input type="number" id="pPrice" placeholder="Price" style="width:55px; padding: 6px; border:1px solid #ccc; border-radius:4px; font-size:13px;"> 
+        <input type="number" id="chillarAmount" placeholder="₹ Other" style="width:70px; padding:6px; font-size:12px; border:1px solid #ff9800; border-radius:4px; font-weight:bold; text-align:center; outline:none;">
     <button onclick="addChillarToInvoice()" type="button" style="background:#ff9800; color:white; border:none; padding:6px 10px; font-size:12px; font-weight:bold; border-radius:4px; cursor:pointer;">➕</button>
-<!-- ROW 3: Save button only -->
+    <button class="bg-clear" onclick="clearBill()" style="border: none; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size:12px; white-space:nowrap;">🧹 Clear</button>
+    <!-- ROW 3: Save button only -->
   <div style="display: flex; gap: 4px; align-items: center; padding: 2px 0 0 0;">
     <button onclick="addNewMasterItem()" style="background:var(--wa-green); color:white; padding: 8px 16px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; font-size:13px; width:100%;">💾 Save Item</button>
   </div>
