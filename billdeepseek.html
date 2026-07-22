@@ -558,11 +558,31 @@
     }
     
     function initializeApp() {
-      loadLocalItems();
-      loadSavedLocalBills();
-      setMode('bill');
-      switchDukanMode(AppState.activeDukan);
-    }
+  loadLocalItems();
+  loadSavedLocalBills();
+  
+  // Set initial mode without triggering full switch
+  AppState.currentMode = 'bill';
+  if (DOM.btnEntry) DOM.btnEntry.classList.remove('active');
+  if (DOM.btnBill) DOM.btnBill.classList.add('active');
+  if (DOM.billModeQtyBar) {
+    DOM.billModeQtyBar.style.display = 'flex';
+  }
+  
+  // Update header buttons
+  if (DOM.btnDukanG) { 
+    DOM.btnDukanG.style.background = "#27ae60"; 
+    DOM.btnDukanG.style.color = "white"; 
+  }
+  if (DOM.btnDukanH) { 
+    DOM.btnDukanH.style.background = "transparent"; 
+    DOM.btnDukanH.style.color = "white"; 
+  }
+  if (DOM.shopHeaderName) DOM.shopHeaderName.textContent = "My Grocery Dukan";
+  
+  // Render the list with loaded items
+  renderList();
+}
     
     // ==================== DUKAN MANAGEMENT ====================
     function switchDukanMode(mode) {
@@ -610,11 +630,15 @@
     // ==================== MODE MANAGEMENT ====================
     function setMode(mode) {
   AppState.currentMode = mode;
-  DOM.btnEntry.classList.toggle('active', mode === 'entry');
-  DOM.btnBill.classList.toggle('active', mode === 'bill');
+  
+  // Fix: Check if elements exist before manipulating
+  if (DOM.btnEntry) DOM.btnEntry.classList.toggle('active', mode === 'entry');
+  if (DOM.btnBill) DOM.btnBill.classList.toggle('active', mode === 'bill');
   
   // Show/hide bill mode qty input
-  DOM.billModeQtyBar.style.display = (mode === 'bill') ? 'flex' : 'none';
+  if (DOM.billModeQtyBar) {
+    DOM.billModeQtyBar.style.display = (mode === 'bill') ? 'flex' : 'none';
+  }
   
   renderList();
 }
@@ -631,7 +655,7 @@
         showToast("Code aur Item Name zaroori hai! Aap '🎲 Auto' button ka use kar sakte hain.", 'warning');
         return;
       }
-      
+      /*
       const newItem = {
         Code: code,
         ItemNameEn: nameEn,
@@ -639,7 +663,16 @@
         Unit: unit,
         Price: price
       };
-      
+      */
+      const newItem = {
+  Code: code,
+  ItemNameEn: nameEn,
+  Category: cat,
+  Unit: unit,
+  Price: price,
+  Retail: price,  // For backward compatibility
+  Wholesale: price  // For backward compatibility
+};
       // Handle code changes for editing
       let idx = -1;
       if (AppState.editingOldCodeIndicator) {
@@ -812,7 +845,10 @@
       // Build HTML safely
       const itemInfo = document.createElement('div');
       itemInfo.className = `item-info ${AppState.currentMode === 'bill' ? 'clickable' : ''}`;
-      if (clickHandler) itemInfo.setAttribute('onclick', clickHandler);
+      if (clickHandler && AppState.currentMode === 'bill') {
+  itemInfo.setAttribute('onclick', clickHandler);
+  itemInfo.style.cursor = 'pointer';
+}
       
       const nameDiv = document.createElement('div');
       nameDiv.className = 'item-name';
@@ -822,8 +858,8 @@
       const subDiv = document.createElement('div');
       subDiv.className = 'item-sub';
       subDiv.style.marginTop = '2px';
-      
-      let subHTML = `Code: ${escapeHtml(item.Code)} | Unit: ${escapeHtml(item.Unit)} | Price: <span class="bold-price">₹${item.Price.toFixed(CONFIG.PRICE_DECIMALS)}</span>`;
+      const itemPrice = item.Price || item.Retail || item.Wholesale || 0;
+let subHTML = `Code: ${escapeHtml(item.Code)} | Unit: ${escapeHtml(item.Unit)} | Price: <span class="bold-price">₹${parseFloat(itemPrice).toFixed(CONFIG.PRICE_DECIMALS)}</span>`;
       if (qty > 0) {
         subHTML += `<br><span style="color:green; font-weight:bold;">Cart: ${qty} ${escapeHtml(item.Unit)} @ ₹${activeRate.toFixed(CONFIG.PRICE_DECIMALS)}</span>`;
       }
