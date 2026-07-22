@@ -787,14 +787,14 @@
 }
     
     function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
-      const query = DOM.pNameEn.value.toLowerCase();
-      const codeQuery = DOM.pCode.value.toLowerCase();
-      
-      let filtered = itemsList.filter(item => {
-        const matchName = !query || item.ItemNameEn.toLowerCase().includes(query);
-        const matchCode = !codeQuery || item.Code.toString().toLowerCase().includes(codeQuery);
-        return matchName && matchCode;
-      });
+  const query = DOM.pNameEn.value.toLowerCase();
+  const codeQuery = DOM.pCode.value.toLowerCase();
+  
+  let filtered = itemsList.filter(item => {
+    const matchName = !query || item.ItemNameEn.toLowerCase().includes(query);
+    const matchCode = !codeQuery || item.Code.toString().toLowerCase().includes(codeQuery);
+    return matchName && matchCode;
+  });
       
       filtered.sort((a, b) => a.ItemNameEn.localeCompare(b.ItemNameEn));
       
@@ -1016,28 +1016,44 @@
     AppState.currentBill[item.Code] = {
       ...item,
       qty: qtyToAdd,
-      rate: item.Price
+      rate: item.Price || item.Retail || item.Wholesale || 0
     };
     AppState.billOrderKeys.push(item.Code);
   } else {
     AppState.currentBill[item.Code].qty += qtyToAdd;
   }
   
-  // Clear search inputs
-  DOM.pNameEn.value = '';
-  DOM.pCode.value = '';
+  // Clear search inputs WITHOUT triggering oninput events
+  if(DOM.pNameEn) {
+    DOM.pNameEn.value = '';
+    // Remove the oninput temporarily to prevent double render
+    const originalOnInput = DOM.pNameEn.getAttribute('oninput');
+    DOM.pNameEn.removeAttribute('oninput');
+    DOM.pNameEn.value = '';
+    // Restore after render
+    setTimeout(() => {
+      if(originalOnInput) {
+        DOM.pNameEn.setAttribute('oninput', originalOnInput);
+      }
+    }, 100);
+  }
+  if(DOM.pCode) {
+    DOM.pCode.value = '';
+  }
   
   if(DOM.countBadge) DOM.countBadge.textContent = AppState.billOrderKeys.length;
+  
+  // Render the list fresh
   renderList();
   calculateInvoiceSheet();
   
-  // Auto-scroll to the item in the bill (original behavior)
+  // Auto-scroll to the item in the bill
   setTimeout(() => {
-    const targetBubble = document.getElementById(`bubble-${code}`);
+    const targetBubble = document.getElementById(`bubble-${item.Code}`);
     if (targetBubble) {
       targetBubble.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, 50);
+  }, 150);
 }
     
     function updateQty(code, change) {
