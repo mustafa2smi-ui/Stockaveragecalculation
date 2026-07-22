@@ -645,73 +645,6 @@ function saveLocalBillsLogToStorage() {
   }
 }
     // ==================== MASTER ITEM MANAGEMENT ====================
- /*   function addNewMasterItem() {
-      const code = DOM.pCode.value.toString().trim();
-      const nameEn = DOM.pNameEn.value.trim();
-      const cat = DOM.pCategory.value.trim() || 'General';
-      const unit = DOM.pUnit.value.trim() || 'Kg';
-      const price = sanitizeNumber(DOM.pPrice.value);
-      
-      if(!code || !nameEn) {
-        showToast("Code aur Item Name zaroori hai! Aap '🎲 Auto' button ka use kar sakte hain.", 'warning');
-        return;
-      }
-      /*
-      const newItem = {
-        Code: code,
-        ItemNameEn: nameEn,
-        Category: cat,
-        Unit: unit,
-        Price: price
-      };
-      *\
-      const newItem = {
-  Code: code,
-  ItemNameEn: nameEn,
-  Category: cat,
-  Unit: unit,
-  Price: price,
-  Retail: price,  // For backward compatibility
-  Wholesale: price  // For backward compatibility
-};
-      // Handle code changes for editing
-      let idx = -1;
-      if (AppState.editingOldCodeIndicator) {
-        idx = AppState.localItems.findIndex(i => i.Code.toString().trim() === AppState.editingOldCodeIndicator.toString().trim());
-      } else {
-        idx = AppState.localItems.findIndex(i => i.Code.toString().trim() === code.toString().trim());
-      }
-      
-      if(idx > -1) {
-        AppState.localItems[idx] = newItem;
-      } else {
-        AppState.localItems.push(newItem);
-      }
-      saveLocalItemsToStorage();
-      
-      // Update bill if code changed
-      if (AppState.editingOldCodeIndicator && AppState.editingOldCodeIndicator !== code) {
-        if (AppState.currentBill[AppState.editingOldCodeIndicator]) {
-          AppState.currentBill[code] = {
-            ...newItem,
-            qty: AppState.currentBill[AppState.editingOldCodeIndicator].qty,
-            rate: price
-          };
-          delete AppState.currentBill[AppState.editingOldCodeIndicator];
-          AppState.billOrderKeys = AppState.billOrderKeys.map(k => k === AppState.editingOldCodeIndicator ? code : k);
-        }
-      } else if(AppState.currentBill[code]) {
-        AppState.currentBill[code] = {
-          ...newItem,
-          qty: AppState.currentBill[code].qty,
-          rate: price
-        };
-      }
-      
-      if (AppState.currentMode === 'bill' && !AppState.editingOldCodeIndicator) {
-        addItemToBillDirect(code);
-      }
-      */
     function generateUniqueCode() {
   let uniqueCode = "";
   let isDuplicate = true;
@@ -732,7 +665,8 @@ function saveLocalBillsLogToStorage() {
   
   return uniqueCode;
 }
-    function addNewMasterItem() {
+    
+  function addNewMasterItem() {
   let code = DOM.pCode.value.toString().trim();
   const nameEn = DOM.pNameEn.value.trim();
   const cat = DOM.pCategory.value.trim() || 'General';
@@ -744,7 +678,7 @@ function saveLocalBillsLogToStorage() {
     return;
   }
   
-  // 🔥 AUTO-GENERATE CODE if empty
+  // AUTO-GENERATE CODE if empty
   if (!code) {
     code = generateUniqueCode();
     DOM.pCode.value = code;
@@ -811,17 +745,6 @@ function saveLocalBillsLogToStorage() {
   calculateInvoiceSheet();
   showToast("Item saved successfully! ✅", 'success');
 }
-      // Reset form
-      AppState.editingOldCodeIndicator = null;
-      DOM.pCode.value = '';
-      DOM.pNameEn.value = '';
-      DOM.pCategory.value = '';
-      DOM.pPrice.value = '';
-      
-      renderList();
-      calculateInvoiceSheet();
-      showToast("Item saved successfully! ✅", 'success');
-    }
     
     function editMasterItem(code) {
       const item = AppState.localItems.find(i => i.Code == code);
