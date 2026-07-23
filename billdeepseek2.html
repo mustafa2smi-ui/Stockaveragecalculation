@@ -425,18 +425,20 @@
     
     // ==================== STATE MANAGEMENT ====================
     const AppState = {
-      
-      localItems: [],
-      currentBill: {},
-      billOrderKeys: [],
-      savedLocalBills: [],
-      currentMode: 'entry',
-      editingBillId: null,
-      editingOldCodeIndicator: null,
-      isScannerRunning: false,
-      isProcessingScan: false,
-      lastScannedCode: ''
-    };
+  localItems: [],
+  currentBill: {},
+  billOrderKeys: [],
+  savedLocalBills: [],
+  currentMode: 'entry',
+  editingBillId: null,
+  editingOldCodeIndicator: null,
+  isScannerRunning: false,
+  isProcessingScan: false,
+  lastScannedCode: '',
+  undoCustName: '',
+  undoBill: null,
+  undoOrderKeys: []
+};
     
     // ==================== DOM CACHE ====================
     const DOM = {
@@ -463,6 +465,7 @@
       get btnResumeCamUI() { return document.getElementById('btnResumeCamUI'); },
       get shopHeaderName() { return document.getElementById('shopHeaderName'); },
       get toastContainer() { return document.getElementById('toastContainer'); }
+      get btnUndo() { return document.getElementById('btnUndo'); },
     };
     
     let html5QrCode = null;
@@ -1182,7 +1185,11 @@ Object.keys(categories).sort().forEach(catName => {
   }
   
   if(DOM.countBadge) DOM.countBadge.textContent = AppState.billOrderKeys.length;
-  
+  // Clear undo when new items are added
+AppState.undoBill = null;
+AppState.undoOrderKeys = [];
+AppState.undoCustName = '';
+if (DOM.btnUndo) DOM.btnUndo.style.display = 'none';
   // Render the list fresh
   renderList();
   calculateInvoiceSheet();
@@ -1270,6 +1277,16 @@ Object.keys(categories).sort().forEach(catName => {
     }
     
     function clearBill() {
+  // Save current bill for undo BEFORE clearing
+  if (AppState.billOrderKeys.length > 0) {
+    AppState.undoCustName = DOM.custName ? DOM.custName.value : '';
+    AppState.undoBill = JSON.parse(JSON.stringify(AppState.currentBill));
+    AppState.undoOrderKeys = [...AppState.billOrderKeys];
+    
+    // Show undo button
+    if (DOM.btnUndo) DOM.btnUndo.style.display = 'inline-block';
+  }
+  
   AppState.currentBill = {};
   AppState.billOrderKeys = [];
   AppState.editingBillId = null;
@@ -1286,7 +1303,39 @@ Object.keys(categories).sort().forEach(catName => {
   renderList();
   calculateInvoiceSheet();
 }
-    
+    function undoClear() {
+  if (!AppState.undoBill || AppState.undoOrderKeys.length === 0) {
+    showToast("Nothing to undo!", 'warning');
+    return;
+  }
+  
+  // Restore the bill
+  AppState.currentBill = JSON.parse(JSON.stringify(AppState.undoBill));
+  AppState.billOrderKeys = [...AppState.undoOrderKeys];
+  
+  // Restore customer name
+  if (DOM.custName) DOM.custName.value = AppState.undoCustName || '';
+  
+  // Update UI
+  if (DOM.countBadge) DOM.countBadge.textContent = AppState.billOrderKeys.length;
+  if (DOM.activeBillIdDisplay) {
+    DOM.activeBillIdDisplay.textContent = 'New Bill';
+    DOM.activeBillIdDisplay.style.color = 'blue';
+  }
+  
+  // Clear undo storage
+  AppState.undoBill = null;
+  AppState.undoOrderKeys = [];
+  AppState.undoCustName = '';
+  
+  // Hide undo button
+  if (DOM.btnUndo) DOM.btnUndo.style.display = 'none';
+  
+  setMode('bill');
+  renderList();
+  calculateInvoiceSheet();
+  showToast("Bill restored! ↩️", 'success');
+}
     function loadBillForEditing(billId) {
       const billRecord = AppState.savedLocalBills.find(b => b.billId === billId);
       if(!billRecord) {
@@ -1356,6 +1405,11 @@ Object.keys(categories).sort().forEach(catName => {
       }
       
       saveLocalBillsLogToStorage();
+      // Clear undo on save
+AppState.undoBill = null;
+AppState.undoOrderKeys = [];
+AppState.undoCustName = '';
+if (DOM.btnUndo) DOM.btnUndo.style.display = 'none';
       clearBill();
     }
     
