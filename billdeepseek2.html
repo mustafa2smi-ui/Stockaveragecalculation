@@ -564,7 +564,7 @@
       <!-- Search Results Container -->
       
 
-    <<div class="workspace-split">
+    <div class="workspace-split">
   <!-- Export/Import Bar (Entry Mode only) -->
   <div id="exportImportBar" style="display:none; padding:4px 8px; background:white; border-bottom:1px solid #ddd; display:flex; gap:6px; align-items:center;">
     <button onclick="exportItems()" style="background:#007bff; color:white; border:none; padding:5px 12px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">📤 Export</button>
@@ -651,7 +651,7 @@
       get scannerWrapperZone() { return document.getElementById('scannerWrapperZone'); },
       get btnResumeCamUI() { return document.getElementById('btnResumeCamUI'); },
       get shopHeaderName() { return document.getElementById('shopHeaderName'); },
-      get toastContainer() { return document.getElementById('toastContainer'); }
+      get toastContainer() { return document.getElementById('toastContainer'); },
       get btnUndo() { return document.getElementById('btnUndo'); },
     };
     
@@ -787,41 +787,24 @@ function goHome() {
       const dateEl = document.getElementById('dateDisplay');
       if(dateEl) dateEl.textContent = `Date: ${dd}/${mm}/${yyyy}`;
     }
-    /*
-    function initializeApp() {
-  loadLocalItems();
-  loadSavedLocalBills();
-  
-  // Set initial mode
-  AppState.currentMode = 'bill';
-  if (DOM.btnEntry) DOM.btnEntry.classList.remove('active');
-  if (DOM.btnBill) DOM.btnBill.classList.add('active');
-  if (DOM.billModeQtyBar) {
-    DOM.billModeQtyBar.style.display = 'flex';
-  }
-  
-  // Load shop name from localStorage or set default
-  const savedShopName = localStorage.getItem('shop_name');
-  if (DOM.shopHeaderName) {
-    DOM.shopHeaderName.textContent = savedShopName || 'Meri Dukan ✏️';
-  }
-  
-  renderList();
-}
-    */
+    
+        // ==================== SEARCH FUNCTIONALITY ====================
     function initializeApp() {
   loadLocalItems();
   loadSavedLocalBills();
   
   AppState.currentMode = 'bill';
-/*  if (DOM.btnEntry) DOM.btnEntry.classList.remove('active');
-  if (DOM.btnBill) DOM.btnBill.classList.add('active');*/
   if (DOM.btnEntry) DOM.btnEntry.className = 'header-mode-btn';
-if (DOM.btnBill) DOM.btnBill.className = 'header-mode-btn active';
+  if (DOM.btnBill) DOM.btnBill.className = 'header-mode-btn active';
+  
   const savedShopName = localStorage.getItem('shop_name');
   if (DOM.shopHeaderName) {
     DOM.shopHeaderName.textContent = savedShopName || 'Meri Dukan ✏️';
   }
+  
+  // Hide export bar initially
+  const exportBar = document.getElementById('exportImportBar');
+  if (exportBar) exportBar.style.display = 'none';
   
   renderList();
 }
@@ -913,7 +896,26 @@ function saveLocalBillsLogToStorage() {
   
   return uniqueCode;
 }
-    
+    function renderList() {
+  const container = DOM.masterList;
+  container.innerHTML = '';
+  
+  if(AppState.currentMode === 'entry' && AppState.savedLocalBills.length > 0) {
+    renderSavedBillsLogBucket(container);
+  }
+  
+  const activeItems = AppState.localItems;
+  if(!activeItems || activeItems.length === 0) {
+    const emptyMsg = document.createElement('p');
+    emptyMsg.style.cssText = 'padding: 20px; text-align: center; color: #888; font-weight: bold;';
+    emptyMsg.textContent = 'No Items Found.';
+    container.appendChild(emptyMsg);
+    calculateInvoiceSheet();
+    return;
+  }
+  
+  renderSectionBucket(container, activeItems, 'Local Stock', 'local');
+}
   function addNewMasterItem() {
   let code = DOM.pCode.value.toString().trim();
   const nameEn = DOM.pNameEn.value.trim();
@@ -1029,25 +1031,7 @@ function saveLocalBillsLogToStorage() {
     }
     
     // ==================== SEARCH FUNCTIONALITY ====================
-    function initializeApp() {
-  loadLocalItems();
-  loadSavedLocalBills();
-  
-  AppState.currentMode = 'bill';
-  if (DOM.btnEntry) DOM.btnEntry.className = 'header-mode-btn';
-  if (DOM.btnBill) DOM.btnBill.className = 'header-mode-btn active';
-  
-  const savedShopName = localStorage.getItem('shop_name');
-  if (DOM.shopHeaderName) {
-    DOM.shopHeaderName.textContent = savedShopName || 'Meri Dukan ✏️';
-  }
-  
-  // Hide export bar initially
-  const exportBar = document.getElementById('exportImportBar');
-  if (exportBar) exportBar.style.display = 'none';
-  
-  renderList();
-}
+    
     // ==================== EXPORT / IMPORT ====================
 function exportItems() {
   if (AppState.localItems.length === 0) {
