@@ -841,7 +841,7 @@ if (DOM.btnBill) {
         container.appendChild(emptyMsg);
         return;
       }
-      /*
+      
       const titleDiv = document.createElement('div');
       titleDiv.className = `section-title ${originType}`;
       titleDiv.textContent = `${titleText} (${filtered.length})`;
@@ -865,7 +865,7 @@ if (DOM.btnBill) {
         });
       });
     }
-    */
+    /*
       // Compact title bar with category pills
 const titleBar = document.createElement('div');
 titleBar.style.cssText = 'display:flex; align-items:center; gap:6px; padding:2px 8px; margin:0 0 2px 0; background:#cfe2ff; border-radius:3px; flex-wrap:wrap;';
@@ -902,6 +902,7 @@ Object.keys(categories).sort().forEach(catName => {
     renderItemBubble(container, item, originType);
   });
 });
+      */
     function renderItemBubble(container, item, originType) {
   const inBill = AppState.currentBill[item.Code];
   const qty = inBill ? inBill.qty : 0;
