@@ -841,12 +841,12 @@ if (DOM.btnBill) {
         container.appendChild(emptyMsg);
         return;
       }
-      
+      /*
       const titleDiv = document.createElement('div');
       titleDiv.className = `section-title ${originType}`;
       titleDiv.textContent = `${titleText} (${filtered.length})`;
       container.appendChild(titleDiv);
-      /*
+      
       const categories = {};
       filtered.forEach(item => {
         const cat = item.Category || 'General';
