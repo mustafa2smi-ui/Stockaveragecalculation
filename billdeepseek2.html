@@ -218,7 +218,7 @@
 .section-title { background: #ddd; padding: 2px 8px; font-size: 11px; font-weight: bold; color: #333; margin: 0 0 2px 0; border-radius: 3px; }
 .section-title.local { background: #cfe2ff; color: #084298; }
 .section-title.saved-logs { background: #fff3cd; color: #664d03; }
-.category-group-title { background: #e2e3e5; color: #383d41; padding: 2px 6px; font-size: 10px; font-weight: bold; margin: 4px 0 2px 0; border-radius: 3px; display: inline-block; }
+/*.category-group-title { background: #e2e3e5; color: #383d41; padding: 2px 6px; font-size: 10px; font-weight: bold; margin: 4px 0 2px 0; border-radius: 3px; display: inline-block; }*/
     .chat-bubble { background: white; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
     .chat-bubble.in-bill { background: var(--wa-light-green); border-left: 5px solid var(--wa-green); }
     .item-info { flex: 2; }
@@ -277,6 +277,8 @@
     .footer-bar button { flex: 1; padding: 8px 2px; border: none; border-radius: 4px; color: white; font-weight: bold; font-size: 12px; cursor: pointer; min-width: 50px; text-align: center; }
     .bg-print { background: #007bff; } .bg-csv { background: #28a745; } .bg-share { background: #25D366; } 
     .bg-clear { background: #dc3545; font-weight: bold !important; } .bg-save { background: #28a745; } .bg-local-save { background: #17a2b8; } .bg-home { background: var(--accent-orange); }
+ .header-mode-btn { border: none; padding: 3px 6px; font-size: 10px; font-weight: bold; border-radius: 4px; cursor: pointer; color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.15); transition: 0.2s; white-space: nowrap; }
+.header-mode-btn.active { background: rgba(255,255,255,0.35); color: white; }
   </style>
 </head>
 <body>
@@ -311,20 +313,33 @@
 
   <div id="appContent" style="display:none;">
     
-   
+   <!--
       <header>
   <div class="header-title-stack" style="flex:1; min-width:0;">
     <span id="shopHeaderName" style="font-size: 14px; font-weight: bold; letter-spacing: 0.3px; cursor: pointer; white-space: nowrap;" onclick="editShopName()" title="Tap to edit shop name">Meri Dukan ✏️</span>
     <span id="dateDisplay" style="font-size: 10px; font-style: italic; color: #ff6b6b; font-weight: bold;">Date: --/--/----</span>
   </div>
   <div style="display: flex; gap: 4px; align-items: center;">
-    <input type="text" id="custName" placeholder="Customer" style="width:80px; padding:4px 6px; border:1px solid rgba(255,255,255,0.3); border-radius:4px; font-size:11px; background:rgba(255,255,255,0.15); color:white; outline:none;">
-    <button class="mini-toggle-btn active" id="btnEntry" onclick="setMode('entry')" style="font-size:10px; padding:3px 6px;">📝</button>
-    <button class="mini-toggle-btn" id="btnBill" onclick="setMode('bill')" style="font-size:10px; padding:3px 6px;">💸 <span id="countBadge">0</span></button>
+    <input type="text" id="custName" placeholder="Customer" style="width:80px; padding:4px 6px; border:1px solid rgba(255,255,255,0.5); border-radius:4px; font-size:11px; background:rgba(255,255,255,0.25); color:white; outline:none;" onfocus="this.style.background='rgba(255,255,255,0.4)'" onblur="this.style.background='rgba(255,255,255,0.25)'">
+   <!-- <button class="mini-toggle-btn active" id="btnEntry" onclick="setMode('entry')" style="font-size:10px; padding:3px 6px;">📝</button>
+    <button class="mini-toggle-btn" id="btnBill" onclick="setMode('bill')" style="font-size:10px; padding:3px 6px;">💸 <span id="countBadge">0</span></button>--
+  <button class="header-mode-btn active" id="btnEntry" onclick="setMode('entry')">📝</button>
+<button class="header-mode-btn" id="btnBill" onclick="setMode('bill')">💸 <span id="countBadge">0</span></button>
   </div>
 </header>
-
-    
+-->
+    <header>
+  <div class="header-title-stack" style="flex:1; min-width:0;">
+    <span id="shopHeaderName" style="font-size: 14px; font-weight: bold; letter-spacing: 0.3px; cursor: pointer; white-space: nowrap;" onclick="editShopName()" title="Tap to edit shop name">Meri Dukan ✏️</span>
+    <span id="dateDisplay" style="font-size: 10px; font-style: italic; color: #ff6b6b; font-weight: bold;">Date: --/--/----</span>
+  </div>
+  <div style="display: flex; gap: 4px; align-items: center;">
+    <button id="btnUndo" onclick="undoClear()" style="display:none; background:#ffc107; color:#333; border:none; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">↩️ Undo</button>
+    <input type="text" id="custName" placeholder="Customer" style="width:80px; padding:4px 6px; border:1px solid rgba(255,255,255,0.5); border-radius:4px; font-size:11px; background:rgba(255,255,255,0.25); color:white; outline:none;" onfocus="this.style.background='rgba(255,255,255,0.4)'" onblur="this.style.background='rgba(255,255,255,0.25)'">
+    <button class="header-mode-btn active" id="btnEntry" onclick="setMode('entry')">📝</button>
+    <button class="header-mode-btn" id="btnBill" onclick="setMode('bill')">💸 <span id="countBadge">0</span></button>
+  </div>
+</header>
 
     <div class="controls-wrapper">
       <div class="scanner-section" id="scannerWrapperZone">
@@ -571,9 +586,10 @@
   loadSavedLocalBills();
   
   AppState.currentMode = 'bill';
-  if (DOM.btnEntry) DOM.btnEntry.classList.remove('active');
-  if (DOM.btnBill) DOM.btnBill.classList.add('active');
-  
+/*  if (DOM.btnEntry) DOM.btnEntry.classList.remove('active');
+  if (DOM.btnBill) DOM.btnBill.classList.add('active');*/
+  if (DOM.btnEntry) DOM.btnEntry.className = 'header-mode-btn';
+if (DOM.btnBill) DOM.btnBill.className = 'header-mode-btn active';
   const savedShopName = localStorage.getItem('shop_name');
   if (DOM.shopHeaderName) {
     DOM.shopHeaderName.textContent = savedShopName || 'Meri Dukan ✏️';
@@ -623,9 +639,14 @@ function saveLocalBillsLogToStorage() {
     function setMode(mode) {
   AppState.currentMode = mode;
   
-  if (DOM.btnEntry) DOM.btnEntry.classList.toggle('active', mode === 'entry');
-  if (DOM.btnBill) DOM.btnBill.classList.toggle('active', mode === 'bill');
-  
+ /* if (DOM.btnEntry) DOM.btnEntry.classList.toggle('active', mode === 'entry');
+  if (DOM.btnBill) DOM.btnBill.classList.toggle('active', mode === 'bill');*/
+  if (DOM.btnEntry) {
+  DOM.btnEntry.className = mode === 'entry' ? 'header-mode-btn active' : 'header-mode-btn';
+}
+if (DOM.btnBill) {
+  DOM.btnBill.className = mode === 'bill' ? 'header-mode-btn active' : 'header-mode-btn';
+}
   renderList();
 }
     function editShopName() {
@@ -825,7 +846,7 @@ function saveLocalBillsLogToStorage() {
       titleDiv.className = `section-title ${originType}`;
       titleDiv.textContent = `${titleText} (${filtered.length})`;
       container.appendChild(titleDiv);
-      
+      /*
       const categories = {};
       filtered.forEach(item => {
         const cat = item.Category || 'General';
@@ -844,7 +865,43 @@ function saveLocalBillsLogToStorage() {
         });
       });
     }
-    
+    */
+      // Compact title bar with category pills
+const titleBar = document.createElement('div');
+titleBar.style.cssText = 'display:flex; align-items:center; gap:6px; padding:2px 8px; margin:0 0 2px 0; background:#cfe2ff; border-radius:3px; flex-wrap:wrap;';
+
+const titleSpan = document.createElement('span');
+titleSpan.style.cssText = 'font-size:11px; font-weight:bold; color:#084298;';
+titleSpan.textContent = `${titleText} (${filtered.length})`;
+titleBar.appendChild(titleSpan);
+
+// Add category pills
+const categories = {};
+filtered.forEach(item => {
+  const cat = item.Category || 'General';
+  if(!categories[cat]) categories[cat] = [];
+  categories[cat].push(item);
+});
+
+Object.keys(categories).sort().forEach(catName => {
+  const catPill = document.createElement('span');
+  catPill.style.cssText = 'background:#e2e3e5; color:#383d41; padding:1px 6px; font-size:10px; font-weight:bold; border-radius:3px; cursor:pointer;';
+  catPill.textContent = `📁 ${catName.toUpperCase()} (${categories[catName].length})`;
+  catPill.addEventListener('click', () => {
+    document.getElementById('pCategory').value = catName;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  titleBar.appendChild(catPill);
+});
+
+container.appendChild(titleBar);
+
+// Render items by category
+Object.keys(categories).sort().forEach(catName => {
+  categories[catName].forEach(item => {
+    renderItemBubble(container, item, originType);
+  });
+});
     function renderItemBubble(container, item, originType) {
   const inBill = AppState.currentBill[item.Code];
   const qty = inBill ? inBill.qty : 0;
@@ -967,7 +1024,7 @@ function saveLocalBillsLogToStorage() {
   container.appendChild(bubble);
 }
       
-    
+    /*
     function renderSavedBillsLogBucket(container) {
       const titleDiv = document.createElement('div');
       titleDiv.className = 'section-title saved-logs';
@@ -1014,7 +1071,74 @@ function saveLocalBillsLogToStorage() {
         container.appendChild(bubble);
       });
     }
+    */
+      function renderSavedBillsLogBucket(container) {
+  const titleDiv = document.createElement('div');
+  titleDiv.className = 'section-title saved-logs';
+  titleDiv.textContent = '📂 Saved Invoices Log';
+  container.appendChild(titleDiv);
+  
+  // Sort bills by date (newest first)
+  const sortedBills = [...AppState.savedLocalBills].sort((a, b) => {
+    return (b.timestamp || 0) - (a.timestamp || 0);
+  });
+  
+  // Group by date
+  let currentDate = '';
+  sortedBills.forEach(b => {
+    const billDate = new Date(b.timestamp || Date.now()).toLocaleDateString('en-IN', {
+      day: '2-digit', month: 'short', year: 'numeric'
+    });
     
+    // Date separator
+    if (billDate !== currentDate) {
+      currentDate = billDate;
+      const dateHeader = document.createElement('div');
+      dateHeader.style.cssText = 'font-size:11px; font-weight:bold; color:#856404; padding:4px 8px; margin:4px 0 2px 0; background:#fff3cd; border-radius:3px;';
+      dateHeader.textContent = `📅 ${billDate}`;
+      container.appendChild(dateHeader);
+    }
+    
+    const bubble = document.createElement('div');
+    bubble.className = 'chat-bubble';
+    bubble.style.background = '#fffdf5';
+    
+    const itemInfo = document.createElement('div');
+    itemInfo.className = 'item-info';
+    
+    const nameDiv = document.createElement('div');
+    nameDiv.className = 'item-name';
+    nameDiv.textContent = `👤 ${b.customerName}`;
+    itemInfo.appendChild(nameDiv);
+    
+    const subDiv = document.createElement('div');
+    subDiv.className = 'item-sub';
+    const itemCount = b.billOrderKeys ? b.billOrderKeys.length : 0;
+    subDiv.innerHTML = `🆔 ${escapeHtml(b.billId)} | 📦 ${itemCount} items | 💰 <span class="bold-price" style="color:red;">₹${b.grandTotal.toFixed(CONFIG.PRICE_DECIMALS)}</span>`;
+    itemInfo.appendChild(subDiv);
+    
+    bubble.appendChild(itemInfo);
+    
+    const actionsDiv = document.createElement('div');
+    actionsDiv.className = 'item-actions';
+    
+    const editBtn = document.createElement('button');
+    editBtn.style.cssText = 'background:var(--accent-orange); color:white; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; font-size:11px; cursor:pointer;';
+    editBtn.textContent = '✏️';
+    editBtn.addEventListener('click', () => loadBillForEditing(b.billId));
+    actionsDiv.appendChild(editBtn);
+    
+    const deleteBtn = document.createElement('button');
+    deleteBtn.className = 'del-btn';
+    deleteBtn.style.padding = '4px 8px';
+    deleteBtn.textContent = 'X';
+    deleteBtn.addEventListener('click', () => deleteSavedLocalBill(b.billId));
+    actionsDiv.appendChild(deleteBtn);
+    
+    bubble.appendChild(actionsDiv);
+    container.appendChild(bubble);
+  });
+}
     // ==================== BILL MANAGEMENT ====================
     function addItemToBillDirect(code) {
   const item = AppState.localItems.find(i => i.Code.toString().trim() === code.toString().trim());
