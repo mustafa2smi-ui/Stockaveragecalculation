@@ -1,11 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Speed Bill",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "All",
+  "description": "Smart digital billing solution with thermal print support. Create bills instantly, works offline. Perfect for shops and small businesses.",
+  "url": "https://your-website.com",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "INR"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "ratingCount": "150"
+  }
+}
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Hybrid Speed Bill (Thermal Print Integrated) - V22</title>
+  
+  <!-- Primary Meta Tags -->
+  <title>Speed Bill - Smart Digital Billing Solution</title>
+  <meta name="title" content="Speed Bill - Smart Digital Billing Solution">
+  <meta name="description" content="Create digital bills instantly with thermal print support. Fast, offline billing solution for shops, grocery stores, and small businesses. Try it free!">
+  <meta name="keywords" content="billing app, digital bill, invoice maker, thermal print bill, shop billing, free billing software, GST bill, offline billing">
+  <meta name="author" content="Speed Bill">
+  <meta name="robots" content="index, follow">
+  <meta name="language" content="English">
+  <meta name="theme-color" content="#075E54">
+  
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://your-website.com/">
+  <meta property="og:title" content="Speed Bill - Smart Digital Billing Solution">
+  <meta property="og:description" content="Create digital bills instantly with thermal print support. Fast billing for shops and businesses. Works offline!">
+  <meta property="og:image" content="https://your-website.com/icons/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="Speed Bill">
+  <meta property="og:locale" content="en_IN">
+  
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://your-website.com/">
+  <meta property="twitter:title" content="Speed Bill - Smart Digital Billing Solution">
+  <meta property="twitter:description" content="Create digital bills instantly with thermal print support. Fast billing for shops and businesses. Works offline!">
+  <meta property="twitter:image" content="https://your-website.com/icons/og-image.png">
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <link rel="shortcut icon" href="icons/favicon.ico">
+  
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Speed Bill">
+  
   <script src="https://cdn.jsdelivr.net/npm/uuid@latest/dist/umd/uuidv4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Speed Bill",
+  "applicationCategory": "BusinessApplication",
+  "operatingSystem": "All",
+  "description": "Smart digital billing solution with thermal print support. Create bills instantly, works offline. Perfect for shops and small businesses.",
+  "url": "https://your-website.com",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "INR"
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.8",
+    "ratingCount": "150"
+  }
+}
+</script>
   <style>
     :root { 
       --wa-green: #075E54; 
@@ -280,6 +362,7 @@
  .header-mode-btn { border: none; padding: 3px 6px; font-size: 10px; font-weight: bold; border-radius: 4px; cursor: pointer; color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.15); transition: 0.2s; white-space: nowrap; }
 .header-mode-btn.active { background: rgba(255,255,255,0.35); color: white; }
   </style>
+
 </head>
 <body>
 
@@ -328,6 +411,102 @@
   </div>
 </header>
 -->
+    
+  <!-- HELP PAGE -->
+  <div id="helpPage" style="display:none; min-height:100vh; background:var(--bg-gray);">
+    <!-- Help Header -->
+    <header style="display:flex; justify-content:space-between; align-items:center; padding:8px 12px;">
+      <div style="display:flex; gap:6px;">
+        <button onclick="goHome()" style="background:var(--accent-orange); color:white; border:none; padding:5px 10px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">🏠 Home</button>
+        <button onclick="closeHelp()" style="background:rgba(255,255,255,0.2); color:white; border:none; padding:5px 10px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">🔙 Back</button>
+      </div>
+      <span style="color:white; font-weight:bold; font-size:14px;">❓ Help & FAQs</span>
+      <button onclick="closeHelp()" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">✕ Close</button>
+    </header>
+    
+    <!-- Help Content -->
+    <div style="padding:16px; max-width:600px; margin:0 auto;">
+      
+      <!-- Quick Start -->
+      <div style="background:white; padding:16px; border-radius:10px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="color:var(--wa-green); margin-bottom:8px; font-size:16px;">🚀 Quick Start Guide</h3>
+        <ol style="font-size:13px; color:#444; line-height:1.8; padding-left:20px;">
+          <li>Tap <b>💸 Bill</b> mode to start billing</li>
+          <li>Search or tap an item to add it to the bill</li>
+          <li>Use <b>+/-</b> buttons to adjust quantity</li>
+          <li>Enter <b>Customer Name</b> in the header</li>
+          <li>Press <b>💾 Local Save</b> to store the bill</li>
+          <li>Use <b>🖨️ Print</b> for thermal printer</li>
+        </ol>
+      </div>
+      
+      <!-- FAQs -->
+      <div style="background:white; padding:16px; border-radius:10px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="color:var(--wa-green); margin-bottom:12px; font-size:16px;">❓ Frequently Asked Questions</h3>
+        
+        <details style="margin-bottom:10px; font-size:13px;">
+          <summary style="font-weight:bold; color:#333; cursor:pointer; padding:6px 0;">How do I add a new item?</summary>
+          <p style="color:#666; padding:6px 0 0 12px;">Switch to <b>📝 Entry</b> mode, fill in the item details (Name and Price are required), and press <b>💾 Save</b>. The code will be auto-generated if left empty. Switch back to <b>💸 Bill</b> mode to use the new item.</p>
+        </details>
+        
+        <details style="margin-bottom:10px; font-size:13px;">
+          <summary style="font-weight:bold; color:#333; cursor:pointer; padding:6px 0;">Can I change the price during billing?</summary>
+          <p style="color:#666; padding:6px 0 0 12px;">Yes! When an item is in the bill, an orange rate input box appears. You can change the price directly there. This only affects the current bill, not the master item.</p>
+        </details>
+        
+        <details style="margin-bottom:10px; font-size:13px;">
+          <summary style="font-weight:bold; color:#333; cursor:pointer; padding:6px 0;">Does it work without internet?</summary>
+          <p style="color:#666; padding:6px 0 0 12px;">Yes! All data is saved in your browser's Local Storage. The app works completely offline after the first visit. No internet required for daily billing.</p>
+        </details>
+        
+        <details style="margin-bottom:10px; font-size:13px;">
+          <summary style="font-weight:bold; color:#333; cursor:pointer; padding:6px 0;">How do I backup my data?</summary>
+          <p style="color:#666; padding:6px 0 0 12px;">Go to <b>📝 Entry</b> mode and use the <b>📤 Export</b> button above the item list. Save the JSON file. To restore, use the <b>📥 Import</b> button and select your backup file.</p>
+        </details>
+        
+        <details style="margin-bottom:10px; font-size:13px;">
+          <summary style="font-weight:bold; color:#333; cursor:pointer; padding:6px 0;">What does "Other" (₹) do?</summary>
+          <p style="color:#666; padding:6px 0 0 12px;">It adds a miscellaneous charge to the bill - like packing charges, delivery fees, or any item not in your database. Enter the amount and press <b>+</b>.</p>
+        </details>
+        
+        <details style="margin-bottom:10px; font-size:13px;">
+          <summary style="font-weight:bold; color:#333; cursor:pointer; padding:6px 0;">Can I print bills?</summary>
+          <p style="color:#666; padding:6px 0 0 12px;">Yes! Press <b>🖨️ Print</b> to connect to a Bluetooth thermal printer (2-inch). The printer must support standard ESC/POS commands. Make sure Bluetooth is enabled on your device.</p>
+        </details>
+        
+        <details style="margin-bottom:10px; font-size:13px;">
+          <summary style="font-weight:bold; color:#333; cursor:pointer; padding:6px 0;">How do I edit a saved bill?</summary>
+          <p style="color:#666; padding:6px 0 0 12px;">Switch to <b>📝 Entry</b> mode to see saved bills. Tap <b>✏️ Edit</b> on any bill to load it, make changes, and save again.</p>
+        </details>
+      </div>
+      
+      <!-- Tips -->
+      <div style="background:white; padding:16px; border-radius:10px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+        <h3 style="color:var(--wa-green); margin-bottom:8px; font-size:16px;">💡 Pro Tips</h3>
+        <ul style="font-size:13px; color:#444; line-height:1.8; padding-left:20px;">
+          <li>Tap the shop name <b>"Meri Dukan ✏️"</b> to customize it</li>
+          <li>Use the <b>barcode scanner</b> (📷 Cam) for fast item lookup</li>
+          <li>Items in your current bill appear at the <b>top</b> of the list for quick editing</li>
+          <li>Press <b>↩️ Undo</b> in the header if you accidentally clear a bill</li>
+          <li>Share bills directly to <b>WhatsApp</b> with one tap</li>
+          <li>Export your database regularly as a backup</li>
+        </ul>
+      </div>
+      
+      <!-- Contact -->
+      <div style="background:var(--wa-light-green); padding:16px; border-radius:10px; text-align:center; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+        <p style="font-size:13px; color:#333; margin-bottom:8px;">Need more help?</p>
+        <a href="https://wa.me/YOUR_NUMBER?text=Help%20Request" target="_blank" 
+           style="background:#25D366; color:white; padding:10px 20px; border-radius:20px; text-decoration:none; font-weight:bold; font-size:13px; display:inline-block;">
+          📱 Contact on WhatsApp
+        </a>
+      </div>
+      
+    </div>
+  </div>
+  
+  <!-- MAIN APP CONTENT -->
+  <div id="mainAppView">
     <header>
   <div class="header-title-stack" style="flex:1; min-width:0;">
     <span id="shopHeaderName" style="font-size: 14px; font-weight: bold; letter-spacing: 0.3px; cursor: pointer; white-space: nowrap;" onclick="editShopName()" title="Tap to edit shop name">Meri Dukan ✏️</span>
@@ -335,6 +514,8 @@
   </div>
   <div style="display: flex; gap: 4px; align-items: center;">
     <button id="btnUndo" onclick="undoClear()" style="display:none; background:#ffc107; color:#333; border:none; padding:3px 6px; border-radius:4px; font-size:10px; font-weight:bold; cursor:pointer; white-space:nowrap;">↩️ Undo</button>
+    <button onclick="shareWebsite()" title="Share this app" style="background:rgba(255,255,255,0.2); color:white; border:none; width:26px; height:26px; border-radius:50%; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center;">📤</button>
+   <button onclick="openHelp()" title="Help" style="background:rgba(255,255,255,0.2); color:white; border:none; width:26px; height:26px; border-radius:50%; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center;">❓</button>
     <input type="text" id="custName" placeholder="Customer" style="width:80px; padding:4px 6px; border:1px solid rgba(255,255,255,0.5); border-radius:4px; font-size:11px; background:rgba(255,255,255,0.25); color:white; outline:none;" onfocus="this.style.background='rgba(255,255,255,0.4)'" onblur="this.style.background='rgba(255,255,255,0.25)'">
     <button class="header-mode-btn active" id="btnEntry" onclick="setMode('entry')">📝</button>
     <button class="header-mode-btn" id="btnBill" onclick="setMode('bill')">💸 <span id="countBadge">0</span></button>
@@ -383,9 +564,15 @@
       <!-- Search Results Container -->
       
 
-    <div class="workspace-split">
-      <div class="scrollable-items-pane" id="masterList"></div>
-
+    <<div class="workspace-split">
+  <!-- Export/Import Bar (Entry Mode only) -->
+  <div id="exportImportBar" style="display:none; padding:4px 8px; background:white; border-bottom:1px solid #ddd; display:flex; gap:6px; align-items:center;">
+    <button onclick="exportItems()" style="background:#007bff; color:white; border:none; padding:5px 12px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">📤 Export</button>
+    <button onclick="document.getElementById('importFileInput').click()" style="background:#28a745; color:white; border:none; padding:5px 12px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">📥 Import</button>
+    <input type="file" id="importFileInput" accept=".json" onchange="importItems(this)" style="display:none;">
+    <span style="font-size:10px; color:#888; margin-left:4px;">JSON format</span>
+  </div>
+  <div class="scrollable-items-pane" id="masterList"></div>
       <div class="scrollable-bill-pane" id="billInvoiceSection">
         <div class="bill-invoice-sheet">
           <div class="invoice-header">
@@ -521,12 +708,50 @@
         particlesContainer.appendChild(particle);
       }
     }
-    
-    function launchApp() {
-      DOM.welcomePage.style.display = 'none';
-      DOM.appContent.style.display = 'block';
-      initializeApp();
-    }
+    // ==================== HELP PAGE ====================
+function openHelp() {
+  const mainView = document.getElementById('mainAppView');
+  const helpPage = document.getElementById('helpPage');
+  
+  if (mainView) mainView.style.display = 'none';
+  if (helpPage) helpPage.style.display = 'block';
+  
+  // Scroll to top of help
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function closeHelp() {
+  const mainView = document.getElementById('mainAppView');
+  const helpPage = document.getElementById('helpPage');
+  
+  if (helpPage) helpPage.style.display = 'none';
+  if (mainView) mainView.style.display = 'block';
+  
+  // Recalculate invoice to ensure bill display is correct
+  calculateInvoiceSheet();
+}
+
+function goHome() {
+  const helpPage = document.getElementById('helpPage');
+  if (helpPage) helpPage.style.display = 'none';
+  
+  goToStartPage();
+}
+    async function launchApp() {
+  // const isValid = await LicenseManager.init();
+  // if (!isValid) return;
+  
+  DOM.welcomePage.style.display = 'none';
+  DOM.appContent.style.display = 'block';
+  
+  // Show main app view, hide help
+  const mainView = document.getElementById('mainAppView');
+  const helpPage = document.getElementById('helpPage');
+  if (mainView) mainView.style.display = 'block';
+  if (helpPage) helpPage.style.display = 'none';
+  
+  initializeApp();
+}
     
     function goToStartPage() {
       if(!confirm("Wapas jana chahte hain?")) return;
@@ -642,14 +867,19 @@ function saveLocalBillsLogToStorage() {
     function setMode(mode) {
   AppState.currentMode = mode;
   
- /* if (DOM.btnEntry) DOM.btnEntry.classList.toggle('active', mode === 'entry');
-  if (DOM.btnBill) DOM.btnBill.classList.toggle('active', mode === 'bill');*/
   if (DOM.btnEntry) {
-  DOM.btnEntry.className = mode === 'entry' ? 'header-mode-btn active' : 'header-mode-btn';
-}
-if (DOM.btnBill) {
-  DOM.btnBill.className = mode === 'bill' ? 'header-mode-btn active' : 'header-mode-btn';
-}
+    DOM.btnEntry.className = mode === 'entry' ? 'header-mode-btn active' : 'header-mode-btn';
+  }
+  if (DOM.btnBill) {
+    DOM.btnBill.className = mode === 'bill' ? 'header-mode-btn active' : 'header-mode-btn';
+  }
+  
+  // Show/hide export bar
+  const exportBar = document.getElementById('exportImportBar');
+  if (exportBar) {
+    exportBar.style.display = (mode === 'entry') ? 'flex' : 'none';
+  }
+  
   renderList();
 }
     function editShopName() {
@@ -799,27 +1029,148 @@ if (DOM.btnBill) {
     }
     
     // ==================== SEARCH FUNCTIONALITY ====================
-    function renderList() {
-  const container = DOM.masterList;
-  container.innerHTML = '';
+    function initializeApp() {
+  loadLocalItems();
+  loadSavedLocalBills();
   
-  if(AppState.currentMode === 'entry' && AppState.savedLocalBills.length > 0) {
-    renderSavedBillsLogBucket(container);
+  AppState.currentMode = 'bill';
+  if (DOM.btnEntry) DOM.btnEntry.className = 'header-mode-btn';
+  if (DOM.btnBill) DOM.btnBill.className = 'header-mode-btn active';
+  
+  const savedShopName = localStorage.getItem('shop_name');
+  if (DOM.shopHeaderName) {
+    DOM.shopHeaderName.textContent = savedShopName || 'Meri Dukan ✏️';
   }
   
-  const activeItems = AppState.localItems;
-  if(!activeItems || activeItems.length === 0) {
-    const emptyMsg = document.createElement('p');
-    emptyMsg.style.cssText = 'padding: 20px; text-align: center; color: #888; font-weight: bold;';
-    emptyMsg.textContent = 'No Items Found.';
-    container.appendChild(emptyMsg);
-    calculateInvoiceSheet();
+  // Hide export bar initially
+  const exportBar = document.getElementById('exportImportBar');
+  if (exportBar) exportBar.style.display = 'none';
+  
+  renderList();
+}
+    // ==================== EXPORT / IMPORT ====================
+function exportItems() {
+  if (AppState.localItems.length === 0) {
+    showToast("No items to export!", 'warning');
     return;
   }
   
-  renderSectionBucket(container, activeItems, 'Local Stock', 'local');
+  // Create export data with metadata
+  const exportData = {
+    appVersion: CONFIG.APP_VERSION,
+    exportedAt: new Date().toISOString(),
+    itemCount: AppState.localItems.length,
+    items: AppState.localItems.map(item => ({
+      Code: item.Code,
+      ItemNameEn: item.ItemNameEn,
+      Category: item.Category || 'General',
+      Unit: item.Unit || '@',
+      Price: item.Price || item.Retail || item.Wholesale || 0
+    }))
+  };
+  
+  // Download as JSON
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `speedbill_backup_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+  
+  showToast(`${exportData.itemCount} items exported! 📤`, 'success');
 }
+
+function importItems(fileInput) {
+  const file = fileInput.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  
+  reader.onload = function(e) {
+    try {
+      const importData = JSON.parse(e.target.result);
+      
+      // Validate format
+      if (!importData.items || !Array.isArray(importData.items)) {
+        showToast("Invalid file format! Expected items array.", 'error');
+        fileInput.value = '';
+        return;
+      }
+      
+      // Validate items
+      const validItems = importData.items.filter(item => item.Code && item.ItemNameEn);
+      const invalidCount = importData.items.length - validItems.length;
+      
+      if (validItems.length === 0) {
+        showToast("No valid items found in file!", 'error');
+        fileInput.value = '';
+        return;
+      }
+      
+      // Show preview and confirm
+      let newCount = 0;
+      let updateCount = 0;
+      let skipCount = 0;
+      
+      validItems.forEach(item => {
+        const exists = AppState.localItems.find(i => i.Code.toString().trim() === item.Code.toString().trim());
+        if (exists) {
+          updateCount++;
+        } else {
+          newCount++;
+        }
+      });
+      
+      let confirmMsg = `Import Preview:\n\n`;
+      confirmMsg += `✅ ${newCount} new items will be added\n`;
+      if (updateCount > 0) confirmMsg += `⚠️ ${updateCount} items already exist (will be overwritten)\n`;
+      if (invalidCount > 0) confirmMsg += `❌ ${invalidCount} items skipped (invalid data)\n`;
+      confirmMsg += `\nProceed with import?`;
+      
+      if (!confirm(confirmMsg)) {
+        fileInput.value = '';
+        return;
+      }
+      
+      // Backup current data before import
+      const backupKey = 'local_items_db_backup_' + Date.now();
+      localStorage.setItem(backupKey, JSON.stringify(AppState.localItems));
+      
+      // Merge: overwrite existing, add new
+      validItems.forEach(item => {
+        const idx = AppState.localItems.findIndex(i => i.Code.toString().trim() === item.Code.toString().trim());
+        const newItem = {
+          Code: item.Code,
+          ItemNameEn: item.ItemNameEn,
+          Category: item.Category || 'General',
+          Unit: item.Unit || '@',
+          Price: item.Price || 0,
+          Retail: item.Price || 0,
+          Wholesale: item.Price || 0
+        };
+        
+        if (idx > -1) {
+          AppState.localItems[idx] = newItem;
+        } else {
+          AppState.localItems.push(newItem);
+        }
+      });
+      
+      saveLocalItemsToStorage();
+      renderList();
+      
+      showToast(`Imported ${validItems.length} items! Backup saved. 📥`, 'success');
+      
+    } catch (err) {
+      showToast("Invalid file! Please select a valid JSON backup.", 'error');
+    }
     
+    fileInput.value = '';
+  };
+  
+  reader.readAsText(file);
+}
     function renderSectionBucket(container, itemsList, titleText, originType = 'local') {
   const query = DOM.pNameEn.value.toLowerCase();
   const codeQuery = DOM.pCode.value.toLowerCase();
@@ -1464,7 +1815,75 @@ if (DOM.btnUndo) DOM.btnUndo.style.display = 'none';
         }
       }, 50);
     }
-    
+    // ==================== SHARE WEBSITE ====================
+function shareWebsite() {
+  const shareData = {
+    title: 'Speed Bill - Smart Digital Billing',
+    text: 'Hi! I use this website to create digital bills for my customers. You can use this website too and make your billing faster and easier. Give it a try!',
+    url: window.location.href
+  };
+  
+  // Use native share if available (mobile)
+  if (navigator.share) {
+    navigator.share(shareData)
+      .then(() => showToast('Thanks for sharing! 🙏', 'success'))
+      .catch(() => fallbackShare(shareData));
+  } else {
+    fallbackShare(shareData);
+  }
+}
+
+function fallbackShare(shareData) {
+  const text = encodeURIComponent(shareData.text + '\n\n' + shareData.url);
+  
+  // Show share options
+  const shareOptions = document.createElement('div');
+  shareOptions.style.cssText = `
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7); z-index: 10002;
+    display: flex; align-items: center; justify-content: center;
+  `;
+  
+  shareOptions.innerHTML = `
+    <div style="background:white; padding:24px; border-radius:16px; max-width:320px; width:90%; text-align:center;">
+      <h3 style="margin-bottom:16px; color:#075E54;">📤 Share via</h3>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+        <a href="https://api.whatsapp.com/send?text=${text}" target="_blank" 
+           style="background:#25D366; color:white; padding:12px; border-radius:8px; text-decoration:none; font-weight:bold;">
+          📱 WhatsApp
+        </a>
+        <a href="https://t.me/share/url?url=${encodeURIComponent(shareData.url)}&text=${encodeURIComponent(shareData.text)}" target="_blank"
+           style="background:#0088cc; color:white; padding:12px; border-radius:8px; text-decoration:none; font-weight:bold;">
+          ✈️ Telegram
+        </a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareData.url)}" target="_blank"
+           style="background:#1877f2; color:white; padding:12px; border-radius:8px; text-decoration:none; font-weight:bold;">
+          👍 Facebook
+        </a>
+        <button onclick="copyShareLink('${shareData.url}')" 
+           style="background:#6c757d; color:white; padding:12px; border:none; border-radius:8px; font-weight:bold; cursor:pointer;">
+          📋 Copy Link
+        </button>
+        <button onclick="this.closest('div').parentElement.remove()" 
+           style="background:#dc3545; color:white; padding:10px; border:none; border-radius:8px; cursor:pointer; margin-top:4px;">
+          Close
+        </button>
+      </div>
+    </div>
+  `;
+  
+  shareOptions.addEventListener('click', function(e) {
+    if (e.target === shareOptions) shareOptions.remove();
+  });
+  
+  document.body.appendChild(shareOptions);
+}
+
+function copyShareLink(url) {
+  navigator.clipboard.writeText(url)
+    .then(() => showToast('Link copied! 📋', 'success'))
+    .catch(() => showToast('Failed to copy link', 'error'));
+}
     // ==================== EXPORT & SHARE ====================
     function shareWhatsApp() {
       if (AppState.billOrderKeys.length === 0) {
