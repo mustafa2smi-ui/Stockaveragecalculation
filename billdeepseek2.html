@@ -555,6 +555,7 @@
   <div style="display: flex; gap: 4px; align-items: center; padding: 2px 0 0 0;">
     <button onclick="addNewMasterItem()" style="background:var(--wa-green); color:white; padding: 8px 16px; border:none; border-radius:4px; font-weight:bold; cursor:pointer; font-size:13px; width:100%;">💾 Save Item</button>
   </div>
+    <input type="text" id="pCalc" placeholder="Calc (e.g., 5+5+5)" style="flex:2; min-width:80px; padding:6px; border:1px dashed #ff9800; border-radius:4px; font-size:12px; font-family:monospace; outline:none;" onkeydown="handleCalcKey(event)">
   </div>
   
   
@@ -1854,7 +1855,111 @@ if (DOM.btnUndo) DOM.btnUndo.style.display = 'none';
       renderList();
       showToast("Bill deleted successfully", 'info');
     }
+    // ==================== CALCULATOR ====================
+function handleCalcKey(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    evaluateAndAdd();
+  }
+}
+
+function evaluateAndAdd() {
+  const calcInput = document.getElementById('pCalc');
+  const expression = calcInput.value.trim();
+  
+  if (!expression) return;
+  
+  // Sanitize: replace × with *, allow only safe characters
+  const sanitized = expression
+    .replace(/×/g, '*')
+    .replace(/[^0-9+\-*/.()\s]/g, '');
+  
+  if (!sanitized) {
+    showToast('Invalid expression', 'warning');
+    return;
+  }
+  
+  try {
+    // Evaluate safely using Function
+    const result = new Function('return (' + sanitized + ')')();
     
+    if (isNaN(result) || result <= 0 || !isFinite(result)) {
+      showToast('Invalid calculation result', 'warning');
+      return;
+    }
+    
+    const roundedResult = Math.round(result * 100) / 100;
+    
+    // Set price
+    DOM.pPrice.value = roundedResult;
+    
+    // Get item details
+    const nameEn = DOM.pNameEn.value.trim() || 'Item';
+    const qty = sanitizeNumber(DOM.billModeQty.value, 1);
+    
+    // Auto-generate code if needed
+    let code = DOM.pCode.value.trim();
+    if (!code) {
+      code = generateUniqueCode();
+      DOM.pCode.value = code;
+    }
+    
+    // Save item and add to bill with expression
+    const newItem = {
+      Code: code,
+      ItemNameEn: nameEn,
+      Category: DOM.pCategory.value.trim() || 'General',
+      Unit: DOM.pUnit.value.trim() || '@',
+      Price: roundedResult,
+      Retail: roundedResult,
+      Wholesale: roundedResult
+    };
+    
+    // Save to database
+    const idx = AppState.localItems.findIndex(i => i.Code === code);
+    if (idx > -1) {
+      AppState.localItems[idx] = newItem;
+    } else {
+      AppState.localItems.push(newItem);
+    }
+    saveLocalItemsToStorage();
+    
+    // Add to bill with calc expression
+    if (!AppState.currentBill[code]) {
+      AppState.currentBill[code] = {
+        ...newItem,
+        qty: qty,
+        rate: roundedResult,
+        calcExpression: expression  // Store the expression
+      };
+      AppState.billOrderKeys.push(code);
+    } else {
+      AppState.currentBill[code].qty += qty;
+      AppState.currentBill[code].calcExpression = expression;
+    }
+    
+    // Clear inputs
+    calcInput.value = '';
+    DOM.pNameEn.value = '';
+    DOM.pCode.value = '';
+    DOM.billModeQty.value = '1';
+    
+    if (DOM.countBadge) DOM.countBadge.textContent = AppState.billOrderKeys.length;
+    
+    // Clear undo
+    AppState.undoBill = null;
+    AppState.undoOrderKeys = [];
+    AppState.undoCustName = '';
+    if (DOM.btnUndo) DOM.btnUndo.style.display = 'none';
+    
+    renderList();
+    calculateInvoiceSheet();
+    showToast(`${expression} = ₹${roundedResult.toFixed(2)} added! 🧮`, 'success');
+    
+  } catch (e) {
+    showToast('Invalid expression. Use: 5+5+5 or 45*2', 'warning');
+  }
+}
     function calculateInvoiceSheet() {
       const rowsBox = DOM.invoiceItemsRows;
       if(!rowsBox) return;
@@ -1873,7 +1978,7 @@ if (DOM.btnUndo) DOM.btnUndo.style.display = 'none';
           row.className = 'invoice-row';
           row.innerHTML = `
             <span><strong>${serialNo}.</strong></span>
-            <span class="invoice-item-desc">${escapeHtml(item.ItemNameEn)} (${item.qty} @ ₹${item.rate.toFixed(CONFIG.PRICE_DECIMALS)})</span>
+            <span class="invoice-item-desc">${escapeHtml(item.ItemNameEn)} (${item.qty} @ ${item.calcExpression ? '₹' + item.calcExpression + ' = ' : ''}₹${item.rate.toFixed(CONFIG.PRICE_DECIMALS)})</span>
             <strong>₹${sub.toFixed(CONFIG.PRICE_DECIMALS)}</strong>
           `;
           rowsBox.appendChild(row);
