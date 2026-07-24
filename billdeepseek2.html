@@ -792,7 +792,7 @@ function goHome() {
     function initializeApp() {
   loadLocalItems();
   loadSavedLocalBills();
-  
+  ensureOtherItemExists();
   AppState.currentMode = 'bill';
   if (DOM.btnEntry) DOM.btnEntry.className = 'header-mode-btn';
   if (DOM.btnBill) DOM.btnBill.className = 'header-mode-btn active';
@@ -923,10 +923,11 @@ function saveLocalBillsLogToStorage() {
   const unit = DOM.pUnit.value.trim() || '@';
   const price = sanitizeNumber(DOM.pPrice.value);
   
-  if(!nameEn) {
-    showToast("Item Name zaroori hai!", 'warning');
-    return;
-  }
+  // Auto-generate item name if empty
+if (!nameEn) {
+  nameEn = 'Item-' + (code || generateUniqueCode());
+  DOM.pNameEn.value = nameEn;
+}
   
   // AUTO-GENERATE CODE if empty
   if (!code) {
@@ -1263,7 +1264,7 @@ Object.keys(categories).sort().forEach(catName => {
       addItemToBillDirect(item.Code);
     });
   }
-  
+  /*
   const nameDiv = document.createElement('div');
   nameDiv.className = 'item-name';
   nameDiv.textContent = item.ItemNameEn;
@@ -1305,7 +1306,48 @@ Object.keys(categories).sort().forEach(catName => {
     });
     actionsDiv.appendChild(rateInput);
   }
+  */
+      const nameDiv = document.createElement('div');
+nameDiv.className = 'item-name';
+
+// In Bill Mode, make name editable (only affects current bill)
+if (AppState.currentMode === 'bill' && qty > 0) {
+  nameDiv.contentEditable = true;
+  nameDiv.style.outline = 'none';
+  nameDiv.style.borderBottom = '1px dashed transparent';
+  nameDiv.style.transition = 'border-color 0.2s';
+  nameDiv.textContent = item.ItemNameEn;
   
+  nameDiv.addEventListener('focus', function() {
+    this.style.borderBottom = '1px dashed #ff9800';
+    this.style.background = '#fffdf0';
+  });
+  
+  nameDiv.addEventListener('blur', function() {
+    this.style.borderBottom = '1px dashed transparent';
+    this.style.background = 'transparent';
+    const newName = this.textContent.trim();
+    if (newName && newName !== item.ItemNameEn && AppState.currentBill[item.Code]) {
+      AppState.currentBill[item.Code].ItemNameEn = newName;
+      calculateInvoiceSheet();
+      showToast('Name updated for this bill only', 'info');
+    } else if (!newName) {
+      this.textContent = item.ItemNameEn;
+    }
+  });
+  
+  nameDiv.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      this.blur();
+    }
+  });
+} else {
+  nameDiv.textContent = item.ItemNameEn;
+}
+
+itemInfo.appendChild(nameDiv);
+    }
   const minusBtn = document.createElement('button');
   minusBtn.className = 'qty-btn';
   minusBtn.textContent = '-';
@@ -1411,6 +1453,24 @@ Object.keys(categories).sort().forEach(catName => {
       });
     }
     */
+    function ensureOtherItemExists() {
+  const otherCode = 'OTHER-AMT';
+  const exists = AppState.localItems.find(i => i.Code === otherCode);
+  
+  if (!exists) {
+    const otherItem = {
+      Code: otherCode,
+      ItemNameEn: 'Other Amount',
+      Category: 'Misc',
+      Unit: '@',
+      Price: 0,
+      Retail: 0,
+      Wholesale: 0
+    };
+    AppState.localItems.unshift(otherItem);
+    saveLocalItemsToStorage();
+  }
+}
       function renderSavedBillsLogBucket(container) {
   const titleDiv = document.createElement('div');
   titleDiv.className = 'section-title saved-logs';
@@ -1581,7 +1641,7 @@ if (DOM.btnUndo) DOM.btnUndo.style.display = 'none';
         renderList();
       }
     }
-    
+    /*
     function addChillarToInvoice() {
       const amtInput = document.getElementById('chillarAmount');
       const amt = sanitizeNumber(amtInput?.value, -1);
@@ -1610,7 +1670,45 @@ if (DOM.btnUndo) DOM.btnUndo.style.display = 'none';
       scrollBillToBottom();
       showToast("Other item added to bill", 'success');
     }
-    
+    */
+    function addChillarToInvoice() {
+  const amtInput = document.getElementById('chillarAmount');
+  const amt = sanitizeNumber(amtInput?.value, -1);
+  if(amt <= 0) {
+    showToast("Pehle valid Other Amount enter karein!", 'warning');
+    return;
+  }
+  
+  const otherCode = 'OTHER-AMT';
+  const otherItem = AppState.localItems.find(i => i.Code === otherCode);
+  
+  if (!otherItem) {
+    showToast("System error. Please reload.", 'error');
+    return;
+  }
+  
+  // Add to bill or update existing
+  if (AppState.currentBill[otherCode]) {
+    AppState.currentBill[otherCode].rate = amt;
+    AppState.currentBill[otherCode].Price = amt;
+  } else {
+    AppState.currentBill[otherCode] = {
+      ...otherItem,
+      qty: 1,
+      rate: amt,
+      Price: amt
+    };
+    AppState.billOrderKeys.push(otherCode);
+  }
+  
+  if(DOM.countBadge) DOM.countBadge.textContent = AppState.billOrderKeys.length;
+  amtInput.value = '';
+  
+  renderList();
+  calculateInvoiceSheet();
+  scrollBillToBottom();
+  showToast("Other amount updated", 'success');
+}
     function clearBill() {
   // Save current bill for undo BEFORE clearing
   if (AppState.billOrderKeys.length > 0) {
