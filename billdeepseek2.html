@@ -1276,7 +1276,9 @@ if (AppState.currentMode === 'bill' && qty > 0) {
   nameDiv.style.borderBottom = '1px dashed transparent';
   nameDiv.style.transition = 'border-color 0.2s';
   nameDiv.textContent = item.ItemNameEn;
-  
+  nameDiv.addEventListener('click', function(e) {
+  e.stopPropagation();
+});
   nameDiv.addEventListener('focus', function() {
     this.style.borderBottom = '1px dashed #ff9800';
     this.style.background = '#fffdf0';
