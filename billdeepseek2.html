@@ -1266,48 +1266,6 @@ Object.keys(categories).sort().forEach(catName => {
   }
   
   const nameDiv = document.createElement('div');
-  nameDiv.className = 'item-name';
-  nameDiv.textContent = item.ItemNameEn;
-  itemInfo.appendChild(nameDiv);
-  
-  const subDiv = document.createElement('div');
-  subDiv.className = 'item-sub';
-  subDiv.style.marginTop = '2px';
-  
-  const itemPrice = item.Price || item.Retail || item.Wholesale || 0;
-  let subHTML = `Code: ${escapeHtml(item.Code)} | Unit: ${escapeHtml(item.Unit)} | Price: <span class="bold-price">₹${parseFloat(itemPrice).toFixed(CONFIG.PRICE_DECIMALS)}</span>`;
-  if (qty > 0) {
-    subHTML += `<br><span style="color:green; font-weight:bold;">Cart: ${qty} ${escapeHtml(item.Unit)} @ ₹${activeRate.toFixed(CONFIG.PRICE_DECIMALS)}</span>`;
-  }
-  subDiv.innerHTML = subHTML;
-  itemInfo.appendChild(subDiv);
-  
-  bubble.appendChild(itemInfo);
-  
-  // Actions div
-  const actionsDiv = document.createElement('div');
-  actionsDiv.className = 'item-actions';
-  actionsDiv.style.gap = '4px';
-  
-  // Fix: Use addEventListener to properly stop propagation
-  actionsDiv.addEventListener('click', function(event) {
-    event.stopPropagation();
-  });
-  
-  if (qty > 0) {
-    const rateInput = document.createElement('input');
-    rateInput.type = 'number';
-    rateInput.className = 'edit-input';
-    rateInput.style.cssText = 'width:55px; border:1px solid #ff9800; background:#fffdf0; font-weight:bold;';
-    rateInput.value = activeRate;
-    rateInput.placeholder = 'Rate';
-    rateInput.addEventListener('change', function() {
-      directRateOverride(item.Code, this.value);
-    });
-    actionsDiv.appendChild(rateInput);
-  }
-  /*
-      const nameDiv = document.createElement('div');
 nameDiv.className = 'item-name';
 
 // In Bill Mode, make name editable (only affects current bill)
@@ -1347,8 +1305,47 @@ if (AppState.currentMode === 'bill' && qty > 0) {
 }
 
 itemInfo.appendChild(nameDiv);
-    }
-    */
+  
+  const subDiv = document.createElement('div');
+  subDiv.className = 'item-sub';
+  subDiv.style.marginTop = '2px';
+  
+  const itemPrice = item.Price || item.Retail || item.Wholesale || 0;
+  let subHTML = `Code: ${escapeHtml(item.Code)} | Unit: ${escapeHtml(item.Unit)} | Price: <span class="bold-price">₹${parseFloat(itemPrice).toFixed(CONFIG.PRICE_DECIMALS)}</span>`;
+  if (qty > 0) {
+    subHTML += `<br><span style="color:green; font-weight:bold;">Cart: ${qty} ${escapeHtml(item.Unit)} @ ₹${activeRate.toFixed(CONFIG.PRICE_DECIMALS)}</span>`;
+  }
+  subDiv.innerHTML = subHTML;
+  itemInfo.appendChild(subDiv);
+  
+  bubble.appendChild(itemInfo);
+  
+  // Actions div
+  const actionsDiv = document.createElement('div');
+  actionsDiv.className = 'item-actions';
+  actionsDiv.style.gap = '4px';
+  
+  // Fix: Use addEventListener to properly stop propagation
+  actionsDiv.addEventListener('click', function(event) {
+    event.stopPropagation();
+  });
+  
+  if (qty > 0) {
+    const rateInput = document.createElement('input');
+    rateInput.type = 'number';
+    rateInput.className = 'edit-input';
+    rateInput.style.cssText = 'width:55px; border:1px solid #ff9800; background:#fffdf0; font-weight:bold;';
+    rateInput.value = activeRate;
+    rateInput.placeholder = 'Rate';
+    rateInput.addEventListener('change', function() {
+      directRateOverride(item.Code, this.value);
+    });
+    actionsDiv.appendChild(rateInput);
+  }
+  
+      
+    
+    
   const minusBtn = document.createElement('button');
   minusBtn.className = 'qty-btn';
   minusBtn.textContent = '-';
