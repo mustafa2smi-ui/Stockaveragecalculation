@@ -922,18 +922,19 @@ function saveLocalBillsLogToStorage() {
   const cat = DOM.pCategory.value.trim() || 'General';
   const unit = DOM.pUnit.value.trim() || '@';
   const price = sanitizeNumber(DOM.pPrice.value);
-  
+
+      // AUTO-GENERATE CODE if empty
+  if (!code) {
+    code = generateUniqueCode();
+    DOM.pCode.value = code;
+  }
   // Auto-generate item name if empty
 if (!nameEn) {
   nameEn = 'Item-' + (code || generateUniqueCode());
   DOM.pNameEn.value = nameEn;
 }
   
-  // AUTO-GENERATE CODE if empty
-  if (!code) {
-    code = generateUniqueCode();
-    DOM.pCode.value = code;
-  }
+
   
   const newItem = {
     Code: code,
