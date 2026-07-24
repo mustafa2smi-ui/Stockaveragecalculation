@@ -918,7 +918,7 @@ function saveLocalBillsLogToStorage() {
 }
   function addNewMasterItem() {
   let code = DOM.pCode.value.toString().trim();
-  const nameEn = DOM.pNameEn.value.trim();
+  let nameEn = DOM.pNameEn.value.trim();
   const cat = DOM.pCategory.value.trim() || 'General';
   const unit = DOM.pUnit.value.trim() || '@';
   const price = sanitizeNumber(DOM.pPrice.value);
